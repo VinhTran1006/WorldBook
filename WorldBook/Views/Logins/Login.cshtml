@@ -1,0 +1,36 @@
+﻿@model WorldBook.ViewModel.LoginViewModel
+@{
+    //Layout cho trang
+    Layout = "_UserLayout";
+
+    ViewData["Title"] = "Login Page";
+    
+}
+<link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+<link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+<link rel="stylesheet" href="~/css/login.css" />
+
+<div class="login-container">
+    <form class="login-form" asp-action="Login" asp-controller="Logins" method="post">
+        <div>
+            <label asp-for="Username"></label>
+            <input asp-for="Username" />
+        </div>
+        <div>
+            <label asp-for="Password"></label>
+            <input asp-for="Password" type="password" />
+        </div>
+        <button type="submit">Login</button>
+    </form>
+</div>
+
+@section Scripts {
+        
+    <script>
+        console.log("@TempData["LogoutSuccess"]");
+        @if (ViewData["LoginStatus"] != null)
+        {
+                <text>console.log("@TempData["LoginStatus"]");</text>
+        }
+    </script>
+}

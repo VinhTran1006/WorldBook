@@ -1,0 +1,25 @@
+﻿/* Sidebar style */
+.sidebar {
+    min-height: 100vh; /* Chiều cao full màn hình */
+    position: sticky; /* Giữ khi cuộn */
+    top: 0;
+    background-color: #343a40;
+    box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+}
+
+.sidebar-title {
+    margin-bottom: 1rem;
+    font-size: 1.2rem;
+    font-weight: bold;
+}
+
+.sidebar .nav-link {
+    padding: 0.5rem 1rem;
+    color: #f8f9fa;
+    transition: background 0.2s;
+}
+
+    .sidebar .nav-link:hover {
+        background-color: rgba(255,255,255,0.1);
+        text-decoration: none;
+    }

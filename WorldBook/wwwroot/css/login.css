@@ -1,0 +1,87 @@
+﻿/* Container chính */
+.login-container {
+    height: 100vh; /* full chiều cao màn hình */
+    width: 100%; /* full chiều ngang */
+    display: flex;
+    justify-content: center; /* căn giữa ngang */
+    align-items: center; /* căn giữa dọc */
+    background: linear-gradient(135deg, #74ebd5, #acb6e5); /* gradient nền đẹp */
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+/* Form login */
+form.login-form {
+    width: 100%;
+    max-width: 400px; /* phù hợp màn hình lớn */
+    padding: 30px 25px;
+    background-color: #f5f5f5;
+    border-radius: 12px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    transition: transform 0.3s, box-shadow 0.3s;
+}
+
+    /* Hover hiệu ứng */
+    form.login-form:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 12px 25px rgba(0,0,0,0.2);
+    }
+
+    /* Các div chứa label + input */
+    form.login-form div {
+        margin-bottom: 18px;
+    }
+
+    /* Label */
+    form.login-form label {
+        display: block;
+        margin-bottom: 6px;
+        font-weight: 600;
+        color: #444;
+        font-size: 14px;
+    }
+
+    /* Input */
+    form.login-form input {
+        width: 100%;
+        padding: 10px 12px;
+        border: 1px solid #ccc;
+        border-radius: 8px;
+        font-size: 14px;
+        box-sizing: border-box;
+        transition: all 0.3s;
+    }
+
+        form.login-form input:focus {
+            border-color: #007bff;
+            box-shadow: 0 0 5px rgba(0,123,255,0.3);
+            outline: none;
+        }
+
+    /* Button */
+    form.login-form button {
+        width: 100%;
+        padding: 12px;
+        background-color: #007bff;
+        border: none;
+        border-radius: 8px;
+        color: white;
+        font-weight: 600;
+        font-size: 15px;
+        cursor: pointer;
+        transition: background-color 0.3s, transform 0.2s;
+    }
+
+        form.login-form button:hover {
+            background-color: #0056b3;
+            transform: translateY(-2px);
+        }
+
+/* Responsive nhỏ */
+@media (max-width: 400px) {
+    form.login-form {
+        margin: 50px 15px;
+        padding: 20px 15px;
+    }
+}

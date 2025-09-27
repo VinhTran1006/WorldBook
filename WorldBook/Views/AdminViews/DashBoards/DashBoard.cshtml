@@ -1,0 +1,42 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+    Layout = "_AdminLayout";
+}
+@* Success login message *@
+<div class="modal fade" id="successModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title">Success</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                @TempData["LoginSuccess"]
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+@section Scripts {
+    <script>
+        @* Log F12 chỉ khi có TempData *@
+        @if (TempData["LoginSuccess"] != null)
+        {
+                <text>
+
+                    var logMessage = "@Html.Raw(TempData["Log"])";
+                        console.log(logMessage.replace(/<br\/>/g, "\n"));
+
+                    document.addEventListener("DOMContentLoaded", function () {
+                        var successModal = new bootstrap.Modal(document.getElementById('successModal'));
+                        successModal.show();
+                    });
+                </text>
+        }
+    </script>
+}
+
