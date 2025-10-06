@@ -16,6 +16,9 @@ builder.Services.AddDbContext<WorldBookDbContext>(options =>
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 
+builder.Services.AddScoped<IRoleRepository, RoleRepository>();
+builder.Services.AddScoped<IUserService, UserService>();
+
 
 //Cookie schema
 builder.Services.AddAuthentication("MyCookieAuth")

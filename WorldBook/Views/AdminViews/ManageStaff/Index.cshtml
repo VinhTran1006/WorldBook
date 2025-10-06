@@ -1,0 +1,114 @@
+﻿@model IEnumerable<WorldBook.Models.User>
+@{
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    ViewData["Title"] = "Manage Staff";
+}
+
+<h2 class="mb-3">Staff List</h2>
+
+<p>
+    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#staffModal"
+            data-url="@Url.Action("Create", "ManageStaff")">
+        <i class="bi bi-plus-circle"></i> Add Staff
+    </button>
+</p>
+
+<table class="table table-hover table-striped">
+    <thead class="table-dark">
+        <tr>
+            <th>Username</th>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Phone</th>
+            <th>Status</th>
+            <th style="width:160px">Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var staff in Model)
+        {
+            <tr>
+                <td>@staff.Username</td>
+                <td>@staff.Name</td>
+                <td>@staff.Email</td>
+                <td>@staff.Phone</td>
+                <td>@(staff.IsActive ? "Active" : "Inactive")</td>
+                <td>
+                    <button class="btn btn-sm btn-warning" data-bs-toggle="modal" data-bs-target="#staffModal"
+                            data-url="@Url.Action("Edit", "ManageStaff", new { id = staff.UserId })">
+                        <i class="bi bi-pencil-square"></i>
+                    </button>
+                    <button class="btn btn-sm btn-info" data-bs-toggle="modal" data-bs-target="#staffModal"
+                            data-url="@Url.Action("Details", "ManageStaff", new { id = staff.UserId })">
+                        <i class="bi bi-eye"></i>
+                    </button>
+                    <button class="btn btn-sm btn-danger" data-bs-toggle="modal" data-bs-target="#staffModal"
+                            data-url="@Url.Action("Delete", "ManageStaff", new { id = staff.UserId })">
+                        <i class="bi bi-trash"></i>
+                    </button>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<!-- Modal -->
+<div class="modal fade" id="staffModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Staff</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" id="staffModalBody"></div>
+        </div>
+    </div>
+</div>
+
+<!-- Toast thông báo -->
+<div class="position-fixed bottom-0 end-0 p-3" style="z-index: 1100">
+    <div id="liveToast" class="toast bg-success text-white" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="toast-body"></div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Load partial vào modal khi mở
+        $('#staffModal').on('show.bs.modal', function (e) {
+            var button = $(e.relatedTarget);
+            var url = button.data('url');
+            $("#staffModalBody").load(url);
+        });
+
+        // Submit form trong modal bằng AJAX
+        $('#staffModal').on('submit', 'form', function (e) {
+            e.preventDefault();
+            var form = $(this);
+            $.ajax({
+                type: form.attr('method'),
+                url: form.attr('action'),
+                data: form.serialize(),
+                success: function (res) {
+                    if (res && res.success) {
+                        $('#staffModal').modal('hide');
+                        showToast(res.message || "Thành công!");
+                        location.reload();
+                    } else {
+                        $('#staffModalBody').html(res); // render lại form khi validation fail
+                    }
+                },
+                error: function () {
+                    showToast("Có lỗi xảy ra, vui lòng thử lại!");
+                }
+            });
+        });
+
+        // Hàm show toast
+        function showToast(message) {
+            $('#liveToast .toast-body').text(message);
+            var toast = new bootstrap.Toast(document.getElementById('liveToast'));
+            toast.show();
+        }
+    </script>
+}
