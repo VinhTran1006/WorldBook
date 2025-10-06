@@ -1,4 +1,4 @@
-namespace WorldBook.Models
+﻿namespace WorldBook.Models
 {
     public class ErrorViewModel
     {

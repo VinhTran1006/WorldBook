@@ -9,7 +9,7 @@ public partial class User
 
     public string Username { get; set; } = null!;
 
-    public DateOnly? DateOfBirth { get; set; }
+    public DateTime? DateOfBirth { get; set; }
 
     public string? Gender { get; set; }
 
@@ -26,6 +26,16 @@ public partial class User
     public bool IsActive { get; set; }
 
     public DateTime AddedAt { get; set; }
+
+    public virtual ICollection<Cart> Carts { get; set; } = new List<Cart>();
+
+    public virtual ICollection<Feedback> FeedbackReplyAccounts { get; set; } = new List<Feedback>();
+
+    public virtual ICollection<Feedback> FeedbackUsers { get; set; } = new List<Feedback>();
+
+    public virtual ICollection<ImportStock> ImportStocks { get; set; } = new List<ImportStock>();
+
+    public virtual ICollection<Order> Orders { get; set; } = new List<Order>();
 
     public virtual ICollection<UserRole> UserRoles { get; set; } = new List<UserRole>();
 }

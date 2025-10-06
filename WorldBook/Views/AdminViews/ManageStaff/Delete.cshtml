@@ -1,0 +1,49 @@
+﻿@model WorldBook.Models.User
+
+@{
+    ViewData["Title"] = "Delete Staff";
+}
+
+<h2 class="mb-4 text-danger">Delete Staff</h2>
+
+<div class="alert alert-danger" role="alert">
+    <strong>⚠️ Warning!</strong> You are about to delete this staff permanently.
+    This action cannot be undone.
+</div>
+
+<div class="card shadow-sm border-0 mb-4">
+    <div class="card-body">
+        <dl class="row">
+            <dt class="col-sm-3">Username</dt>
+            <dd class="col-sm-9">@Model.Username</dd>
+
+            <dt class="col-sm-3">Name</dt>
+            <dd class="col-sm-9">@Model.Name</dd>
+
+            <dt class="col-sm-3">Email</dt>
+            <dd class="col-sm-9">@Model.Email</dd>
+
+            <dt class="col-sm-3">Status</dt>
+            <dd class="col-sm-9">
+                @if (Model.IsActive)
+                {
+                    <span class="badge bg-success">Active</span>
+                }
+                else
+                {
+                    <span class="badge bg-danger">Inactive</span>
+                }
+            </dd>
+        </dl>
+    </div>
+</div>
+
+<form asp-action="DeleteConfirmed" method="post" class="d-flex gap-2">
+    <input type="hidden" name="id" value="@Model.UserId" />
+    <button type="submit" class="btn btn-danger">
+        Confirm Delete
+    </button>
+    <a asp-action="Index" class="btn btn-secondary">
+        Cancel
+    </a>
+</form>

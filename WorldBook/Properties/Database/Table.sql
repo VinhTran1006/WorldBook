@@ -115,11 +115,11 @@ go
 
 create table Cart(
 CartId int primary key Identity(1,1),
-AccountId int,
+UserId int,
 BookId int ,
 Quantity int,
 foreign key (BookId) references Book(BookId),
-foreign key (AccountId) references Account(AccountId),
+foreign key (UserId) references [User](UserId),
 )
 
 go
@@ -140,8 +140,7 @@ go
 
 create table [Order] (
 OrderId int primary key Identity(1,1),
-AccountId int,
-StaffId int,
+UserId int,
 Address varchar(255),
 OrderDate datetime,
 deliveredDate datetime,
@@ -149,8 +148,7 @@ Status varchar(50),
 TotalAmount Bigint,
 Discount int,
 UpdateAt datetime,
-foreign key (AccountId) references Account(AccountId),
-foreign key (StaffId) references Account(AccountId),
+foreign key (UserId) references [User](UserId),
 )
 
 go 
@@ -169,7 +167,7 @@ go
 
 create table Feedback(
 FeedbackId int primary key Identity(1,1),
-AccountId int, 
+UserId int, 
 BookId int,
 OrderId int,
 CreateAt datetime,
@@ -180,9 +178,9 @@ Reply varchar(255),
 ReplyAccountId int,
 ReplyDate datetime,
 foreign key (BookId) references Book(BookId),
-foreign key (AccountId) references Account(AccountId),
+foreign key (UserId) references [User](UserId),
 foreign key (OrderId) references [Order](OrderId),
-foreign key (ReplyAccountId) references Account(AccountId),
+foreign key (ReplyAccountId) references [User](UserId),
 )
 
 go 
@@ -190,11 +188,11 @@ go
 create table ImportStock(
 ImportId int primary key Identity(1,1),
 SupplierId int,
-StaffId int,
+UserId int,
 ImportDate datetime,
 TotalAmount bigint,
 foreign key (SupplierId) references Supplier(SupplierId),
-foreign key (StaffId) references Account(AccountId),
+foreign key (UserId) references [User](UserId),
 )
 go
 create table ImportStockDetail(
