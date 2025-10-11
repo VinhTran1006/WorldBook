@@ -7,21 +7,21 @@ public partial class Book
 {
     public int BookId { get; set; }
 
-    public string? BookName { get; set; }
+    public string BookName { get; set; }
 
     public string? BookDescription { get; set; }
 
-    public decimal? BookPrice { get; set; }
+    public decimal BookPrice { get; set; }
 
-    public int? BookQuantity { get; set; }
+    public int BookQuantity { get; set; }
 
-    public bool? IsActive { get; set; }
+    public bool IsActive { get; set; }
 
-    public int? PublisherId { get; set; }
+    public int PublisherId { get; set; }
 
-    public int? SupplierId { get; set; }
+    public int SupplierId { get; set; }
 
-    public string? ImageUrl1 { get; set; }
+    public string ImageUrl1 { get; set; }
 
     public string? ImageUrl2 { get; set; }
 
@@ -29,7 +29,7 @@ public partial class Book
 
     public string? ImageUrl4 { get; set; }
 
-    public DateTime? AddedAt { get; set; }
+    public DateTime AddedAt { get; set; }
 
     public virtual ICollection<BookAuthor> BookAuthors { get; set; } = new List<BookAuthor>();
 
