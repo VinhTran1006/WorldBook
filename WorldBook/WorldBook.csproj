@@ -25,7 +25,6 @@
 
   <ItemGroup>
     <Folder Include="wwwroot\css\AdminViews\" />
-    <Folder Include="wwwroot\css\UserViews\" />
   </ItemGroup>
 
 </Project>

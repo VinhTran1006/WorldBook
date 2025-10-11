@@ -1,0 +1,127 @@
+﻿@model WorldBook.ViewModel.BookViewModel
+
+@{
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    ViewData["Title"] = "Manage Books";
+}
+
+<h2 class="mb-3">Book List</h2>
+
+<p>
+    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#bookModal"
+            data-url="@Url.Action("Create", "Book")">
+        <i class="bi bi-plus-circle"></i> Add Book
+    </button>
+</p>
+
+<table class="table table-hover table-striped align-middle">
+    <thead class="table-dark">
+        <tr>
+            <th>ID</th>
+            <th>Book Name</th>
+            <th>Price</th>
+            <th>Quantity</th>
+            <th>Publisher</th>
+            <th>Supplier</th>
+            <th>Added At</th>
+            <th style="width:160px;">Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (Model.Books != null && Model.Books.Any())
+        {
+            foreach (var book in Model.Books)
+            {
+                <tr>
+                    <td>@book.BookId</td>
+                    <td>@book.BookName</td>
+                    <td>@book.BookPrice.ToString("C0")</td>
+                    <td>@book.BookQuantity</td>
+                    <td>@book.PublisherName</td>
+                    <td>@book.SupplierName</td>
+                    <td>@book.AddedAt.ToString("dd/MM/yyyy")</td>
+                    <td>
+                        <button class="btn btn-sm btn-warning" data-bs-toggle="modal" data-bs-target="#bookModal"
+                                data-url="@Url.Action("Edit", "Book", new { id = book.BookId })">
+                            <i class="bi bi-pencil-square"></i>
+                        </button>
+                        <button class="btn btn-sm btn-info text-white" data-bs-toggle="modal" data-bs-target="#bookModal"
+                                data-url="@Url.Action("Details", "Book", new { id = book.BookId })">
+                            <i class="bi bi-eye"></i>
+                        </button>
+                        <button class="btn btn-sm btn-danger" data-bs-toggle="modal" data-bs-target="#bookModal"
+                                data-url="@Url.Action("Delete", "Book", new { id = book.BookId })">
+                            <i class="bi bi-trash"></i>
+                        </button>
+                    </td>
+                </tr>
+            }
+        }
+        else
+        {
+            <tr>
+                <td colspan="8" class="text-center text-muted py-3">No books available.</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<!-- Modal -->
+<div class="modal fade" id="bookModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Book</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="bookModalBody"></div>
+        </div>
+    </div>
+</div>
+
+<!-- Toast -->
+<div class="position-fixed bottom-0 end-0 p-3" style="z-index:1100">
+    <div id="liveToast" class="toast bg-success text-white" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="toast-body"></div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Khi mở modal: load form partial từ controller
+        $('#bookModal').on('show.bs.modal', function (e) {
+            var button = $(e.relatedTarget);
+            var url = button.data('url');
+            $("#bookModalBody").load(url);
+        });
+
+        // Submit form trong modal bằng AJAX
+        $('#bookModal').on('submit', 'form', function (e) {
+            e.preventDefault();
+            var form = $(this);
+            $.ajax({
+                type: form.attr('method'),
+                url: form.attr('action'),
+                data: form.serialize(),
+                success: function (res) {
+                    if (res && res.success) {
+                        $('#bookModal').modal('hide');
+                        showToast(res.message || "Action completed!");
+                        location.reload();
+                    } else {
+                        $('#bookModalBody').html(res); // render lại form nếu có lỗi validate
+                    }
+                },
+                error: function () {
+                    showToast("Something went wrong!");
+                }
+            });
+        });
+
+        function showToast(message) {
+            $('#liveToast .toast-body').text(message);
+            var toast = new bootstrap.Toast(document.getElementById('liveToast'));
+            toast.show();
+        }
+    </script>
+}

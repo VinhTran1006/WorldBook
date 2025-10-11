@@ -15,9 +15,11 @@ builder.Services.AddDbContext<WorldBookDbContext>(options =>
 //Regist Repo vs Service
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IBookRepository, BookRepository>();
 
 builder.Services.AddScoped<IRoleRepository, RoleRepository>();
 builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IBookService, BookService>();
 
 
 //Cookie schema
@@ -52,6 +54,6 @@ app.UseAuthorization();
 
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Home}/{action=Home}/{id?}");
+    pattern: "{controller=Book}/{action=GetBookHomePage}/{id?}");
 
 app.Run();

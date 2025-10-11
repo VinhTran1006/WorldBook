@@ -40,3 +40,38 @@ VALUES (
     (SELECT UserId FROM [User] WHERE Username = 'cus01'),
     (SELECT RoleId FROM [Role] WHERE Name = 'Customer')
 );
+
+INSERT INTO [WorldBookDB].[dbo].[Book]
+    ([BookName], [BookDescription], [BookPrice], [BookQuantity],
+     [IsActive], [PublisherId], [SupplierId],
+     [ImageURL1], [ImageURL2], [ImageURL3], [ImageURL4], [AddedAt])
+VALUES
+-- 1
+(N'Clean Code', 
+ N'Sách về cách viết mã sạch, dễ hiểu và dễ bảo trì.', 
+ 250000, 20, 1, 1, 1,
+ N'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSBqfcfo45TwzGiZDrzp0Dr9j0Cxom621QI9w&s', NULL, NULL, NULL, GETDATE()),
+
+-- 2
+(N'The Pragmatic Programmer', 
+ N'Sách lập trình kinh điển giúp cải thiện tư duy kỹ sư phần mềm.', 
+ 300000, 15, 1, 2, 2,
+ N'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSBqfcfo45TwzGiZDrzp0Dr9j0Cxom621QI9w&s', NULL, NULL, NULL, GETDATE()),
+
+-- 3
+(N'Refactoring', 
+ N'Hướng dẫn tái cấu trúc mã nguồn để nâng cao chất lượng.', 
+ 280000, 10, 1, 1, 3,
+ N'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSBqfcfo45TwzGiZDrzp0Dr9j0Cxom621QI9w&s', NULL, NULL, NULL, GETDATE()),
+
+-- 4
+(N'Design Patterns', 
+ N'Giới thiệu các mẫu thiết kế phần mềm phổ biến.', 
+ 350000, 8, 1, 2, 4,
+ N'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSBqfcfo45TwzGiZDrzp0Dr9j0Cxom621QI9w&s', NULL, NULL, NULL, GETDATE()),
+
+-- 5
+(N'Introduction to Algorithms', 
+ N'Sách thuật toán nổi tiếng (CLRS).', 
+ 500000, 5, 1, 3, 1,
+ N'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSBqfcfo45TwzGiZDrzp0Dr9j0Cxom621QI9w&s', NULL, NULL, NULL, GETDATE());

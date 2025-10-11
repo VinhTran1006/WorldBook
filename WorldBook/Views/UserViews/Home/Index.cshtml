@@ -5,13 +5,31 @@
     ViewData["Title"] = "Home Page";
     var loginMessage = TempData["LoginSuccess"] as string;
 }
+<link rel="stylesheet" href="~/css/UserViews/Book/book-list.css" />
+@model WorldBook.ViewModel.BookViewModel
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<div class="book-list-container">
+    <h2>Book List</h2>
 
-    
+    <div class="book-grid">
+        @foreach (var book in Model.Books)
+        {
+            <a href="@Url.Action("GetBookDetails", "Book", new { id = book.BookId })" class="book-card-link">
+                <div class="book-card">
+                    <img src="@book.ImageUrl1" alt="@book.BookName" class="book-image" />
+                    <div class="book-card-content">
+                        <h3 class="book-name">@book.BookName</h3
+                        <p class="book-price">@book.BookPrice.ToString("C0")</p>
+                        <p class="book-quantity">Quantity: @book.BookQuantity</p>
+                    </div>
+                </div>
+            </a>
+        }
+    </div>
 </div>
+
+
+
 
 
 @* Success login message *@
