@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using WorldBook.Models;
 using WorldBook.Repositories.Interfaces;
+using WorldBook.ViewModel;
 
 namespace WorldBook.Repositories
 {
@@ -62,9 +63,6 @@ namespace WorldBook.Repositories
                     b.IsActive &&
                     b.BookAuthors.Any(ba => authorNames.Contains(ba.Author.AuthorName)));
         }
-
-
-
 
     }
 }
