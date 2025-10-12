@@ -2,6 +2,7 @@
 using WorldBook.Services;
 using WorldBook.Services.Interfaces;
 using WorldBook.ViewModel;
+using WorldBook.ViewModels;
 
 namespace WorldBook.Controllers
 {
@@ -40,7 +41,35 @@ namespace WorldBook.Controllers
             {
                 return NotFound();
             }
-            return View("/Views/Book/GetBookDetails.cshtml", book);
+            return View("/Views/UserViews/Home/GetBookDetails.cshtml", book);
         }
+
+        public async Task<IActionResult> GetBookDetailsDashBoard(int id)
+        {
+            var book = await _bookService.GetBookByIdAsync(id);
+            if (book == null)
+            {
+                return NotFound();
+            }
+            return View("/Views/AdminViews/ManageBook/GetBookDetailsDashBoard.cshtml", book);
+        }
+
+        public IActionResult Add()
+        {
+            return PartialView("~/Views/AdminViews/ManageBook/Add.cshtml", new BookCreateEditViewModel());
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Add(BookCreateEditViewModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                await _bookService.AddBookAsync(model);
+                return PartialView("~/Views/AdminViews/ManageBook/View.cshtml", model);
+
+            }
+            return PartialView("~/Views/AdminViews/ManageBook/Add.cshtml", model);
+        }
+
     }
 }

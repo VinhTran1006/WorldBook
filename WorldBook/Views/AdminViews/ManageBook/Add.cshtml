@@ -1,0 +1,190 @@
+﻿@model WorldBook.ViewModel.BookCreateEditViewModel
+
+@{
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    ViewData["Title"] = "Thêm Sách Mới";
+}
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet" />
+
+<div class="container mt-5 mb-5">
+    <div class="card shadow-lg rounded-4">
+        <div class="card-header bg-primary text-white">
+            <h3 class="mb-0"><i class="bi bi-plus-circle"></i> Thêm Sách Mới</h3>
+        </div>
+
+        <div class="card-body p-4">
+            <form asp-action="Add" method="post" enctype="multipart/form-data">
+                <!-- Tên sách -->
+                <div class="mb-3">
+                    <label asp-for="BookName" class="form-label fw-bold"></label>
+                    <input asp-for="BookName" class="form-control" placeholder="Nhập tên sách..." />
+                    <span asp-validation-for="BookName" class="text-danger"></span>
+                </div>
+
+                <!-- Mô tả -->
+                <div class="mb-3">
+                    <label asp-for="BookDescription" class="form-label fw-bold"></label>
+                    <textarea asp-for="BookDescription" class="form-control" rows="3" placeholder="Mô tả về sách..."></textarea>
+                </div>
+
+                <!-- Giá và số lượng -->
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label asp-for="BookPrice" class="form-label fw-bold"></label>
+                        <input asp-for="BookPrice" class="form-control" type="number" step="0.01" placeholder="Giá sách..." />
+                    </div>
+                    <div class="col-md-6">
+                        <label asp-for="BookQuantity" class="form-label fw-bold"></label>
+                        <input asp-for="BookQuantity" class="form-control" type="number" placeholder="Số lượng..." />
+                    </div>
+                </div>
+
+                <!-- Publisher & Supplier -->
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label asp-for="PublisherName" class="form-label fw-bold"></label>
+                        <input asp-for="PublisherName" class="form-control" placeholder="Nhà xuất bản..." />
+                    </div>
+                    <div class="col-md-6">
+                        <label asp-for="SupplierName" class="form-label fw-bold"></label>
+                        <input asp-for="SupplierName" class="form-control" placeholder="Nhà cung cấp..." />
+                    </div>
+                </div>
+
+                <hr class="my-4" />
+
+                <!-- Tác giả -->
+                <h5 class="fw-bold text-primary"><i class="bi bi-person-lines-fill"></i> Tác giả</h5>
+                <div id="authorList" class="mb-3">
+                    <div class="input-group mb-2">
+                        <input name="AuthorNames" class="form-control" placeholder="Tên tác giả..." />
+                        <button type="button" class="btn btn-success add-author"><i class="bi bi-plus"></i></button>
+                    </div>
+                </div>
+
+                <!-- Thể loại -->
+                <h5 class="fw-bold text-primary"><i class="bi bi-tags-fill"></i> Thể loại</h5>
+                <div id="categoryList" class="mb-3">
+                    <div class="input-group mb-2">
+                        <input name="CategoryNames" class="form-control" placeholder="Tên thể loại..." />
+                        <button type="button" class="btn btn-success add-category"><i class="bi bi-plus"></i></button>
+                    </div>
+                </div>
+
+                <hr class="my-4" />
+
+                <!-- 4 ô chọn ảnh -->
+                <h5 class="fw-bold text-primary"><i class="bi bi-image"></i> Ảnh Sách</h5>
+                <div class="row g-3 mb-3">
+                    @for (int i = 1; i <= 4; i++)
+                    {
+                        <div class="col-3 text-center">
+                            <label class="d-block border rounded-3 p-0 image-label"
+                                   style="height:150px; cursor:pointer; background-color:#f8f9fa; display:flex; align-items:center; justify-content:center; position:relative; overflow:hidden;">
+                                <span class="text-muted upload-text">Click để chọn ảnh</span>
+                                <input type="file" name="ImageUrl@(i)" accept="image/*" class="d-none file-input" />
+                                <img class="preview-img" style="display:none; width:100%; height:100%; object-fit:cover; position:absolute; top:0; left:0;" />
+                            </label>
+                        </div>
+
+
+                    }
+                </div>
+
+                <!-- Nút lưu & quay lại -->
+                <div class="text-end">
+                    <a asp-action="Index" class="btn btn-secondary me-2">
+                        <i class="bi bi-arrow-left"></i> Quay lại
+                    </a>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-save"></i> Lưu
+                    </button>
+                </div>
+            </form>
+            <script>
+                console.log("JS chạy rồi");
+            </script>
+
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            // Xử lý thêm/xóa tác giả và thể loại
+            document.addEventListener("click", function (e) {
+                // Thêm tác giả
+                if (e.target.classList.contains("add-author") || e.target.closest(".add-author")) {
+                    e.preventDefault();
+                    let div = document.createElement("div");
+                    div.className = "input-group mb-2";
+                    div.innerHTML = `
+                        <input name="AuthorNames" class="form-control" placeholder="Tên tác giả..." />
+                        <button type="button" class="btn btn-danger remove-author"><i class="bi bi-dash"></i></button>`;
+                    document.getElementById("authorList").appendChild(div);
+                }
+
+                // Thêm thể loại
+                if (e.target.classList.contains("add-category") || e.target.closest(".add-category")) {
+                    e.preventDefault();
+                    let div = document.createElement("div");
+                    div.className = "input-group mb-2";
+                    div.innerHTML = `
+                        <input name="CategoryNames" class="form-control" placeholder="Tên thể loại..." />
+                        <button type="button" class="btn btn-danger remove-category"><i class="bi bi-dash"></i></button>`;
+                    document.getElementById("categoryList").appendChild(div);
+                }
+
+                // Xóa tác giả
+                if (e.target.classList.contains("remove-author") || e.target.closest(".remove-author")) {
+                    e.preventDefault();
+                    e.target.closest(".input-group").remove();
+                }
+
+                // Xóa thể loại
+                if (e.target.classList.contains("remove-category") || e.target.closest(".remove-category")) {
+                    e.preventDefault();
+                    e.target.closest(".input-group").remove();
+                }
+            });
+
+
+            // Xử lý preview ảnh khi chọn file
+                 document.querySelectorAll(".image-label").forEach(function(label){
+            const input = label.querySelector(".file-input");
+            const img = label.querySelector(".preview-img");
+            const span = label.querySelector(".upload-text");
+
+            label.addEventListener("click", function(e){
+                e.preventDefault();
+                console.log("Label clicked, mở file explorer"); // debug click
+                input.click();
+            });
+
+            input.addEventListener("change", function(){
+                const file = this.files[0];
+                console.log("File chọn được:", file); // debug file đã chọn
+                if (!file) return;
+                if (!file.type.startsWith("image/")) {
+                    alert("Vui lòng chọn file ảnh");
+                    console.log("File không phải ảnh");
+                    return;
+                }
+
+                const reader = new FileReader();
+                reader.onload = function(e){
+                    console.log("File đã đọc xong, data URL:", e.target.result); // debug đọc file
+                    img.src = e.target.result;
+                    img.style.display = "block"; // show preview
+                    if(span) span.style.display = "none"; // ẩn chữ
+                    console.log("Ảnh đã gán vào img và hiển thị"); // debug hiển thị
+                }
+                reader.readAsDataURL(file);
+            });
+        });
+
+    </script>
+}

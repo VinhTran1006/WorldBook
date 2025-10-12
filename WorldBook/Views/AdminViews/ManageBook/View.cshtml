@@ -8,8 +8,8 @@
 <h2 class="mb-3">Book List</h2>
 
 <p>
-    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#bookModal"
-            data-url="@Url.Action("Create", "Book")">
+    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addBookModel"
+            data-url="@Url.Action("Add", "Book")">
         <i class="bi bi-plus-circle"></i> Add Book
     </button>
 </p>
@@ -41,18 +41,22 @@
                     <td>@book.SupplierName</td>
                     <td>@book.AddedAt.ToString("dd/MM/yyyy")</td>
                     <td>
-                        <button class="btn btn-sm btn-warning" data-bs-toggle="modal" data-bs-target="#bookModal"
-                                data-url="@Url.Action("Edit", "Book", new { id = book.BookId })">
-                            <i class="bi bi-pencil-square"></i>
-                        </button>
-                        <button class="btn btn-sm btn-info text-white" data-bs-toggle="modal" data-bs-target="#bookModal"
-                                data-url="@Url.Action("Details", "Book", new { id = book.BookId })">
+
+                        <a href="@Url.Action("GetBookDetailsDashBoard", "Book", new { id = book.BookId })"
+                           class="btn btn-sm btn-info text-white">
                             <i class="bi bi-eye"></i>
-                        </button>
-                        <button class="btn btn-sm btn-danger" data-bs-toggle="modal" data-bs-target="#bookModal"
-                                data-url="@Url.Action("Delete", "Book", new { id = book.BookId })">
+                        </a>
+
+                        <a href="@Url.Action("Edit", "Book", new { id = book.BookId })"
+                           class="btn btn-sm btn-warning text-white">
+                            <i class="bi bi-pencil-square"></i>
+                        </a>
+
+                        <a href="@Url.Action("Delete", "Book", new { id = book.BookId })"
+                           class="btn btn-sm btn-danger text-white">
                             <i class="bi bi-trash"></i>
-                        </button>
+                        </a>
+
                     </td>
                 </tr>
             }
@@ -66,21 +70,20 @@
     </tbody>
 </table>
 
-<!-- Modal -->
-<div class="modal fade" id="bookModal" tabindex="-1" aria-hidden="true">
+<div class="modal fade" id="addBookModel" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-lg modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">Book</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                <h5 class="modal-title">Add Book</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <div class="modal-body" id="bookModalBody"></div>
+            <div class="modal-body" id="addBookModelBody"></div>
         </div>
     </div>
 </div>
 
-<!-- Toast -->
-<div class="position-fixed bottom-0 end-0 p-3" style="z-index:1100">
+<!-- Toast thông báo -->
+<div class="position-fixed bottom-0 end-0 p-3" style="z-index: 1100">
     <div id="liveToast" class="toast bg-success text-white" role="alert" aria-live="assertive" aria-atomic="true">
         <div class="toast-body"></div>
     </div>
@@ -88,15 +91,15 @@
 
 @section Scripts {
     <script>
-        // Khi mở modal: load form partial từ controller
-        $('#bookModal').on('show.bs.modal', function (e) {
+        // Load partial vào modal khi mở
+        $('#addBookModel').on('show.bs.modal', function (e) {
             var button = $(e.relatedTarget);
             var url = button.data('url');
-            $("#bookModalBody").load(url);
+            $("#addBookModelBody").load(url);
         });
 
         // Submit form trong modal bằng AJAX
-        $('#bookModal').on('submit', 'form', function (e) {
+        $('#addBookModel').on('submit', 'form', function (e) {
             e.preventDefault();
             var form = $(this);
             $.ajax({
@@ -105,19 +108,20 @@
                 data: form.serialize(),
                 success: function (res) {
                     if (res && res.success) {
-                        $('#bookModal').modal('hide');
-                        showToast(res.message || "Action completed!");
+                        $('#addBookModel').modal('hide');
+                        showToast(res.message || "Thành công!");
                         location.reload();
                     } else {
-                        $('#bookModalBody').html(res); // render lại form nếu có lỗi validate
+                        $('#addBookModelBody').html(res); // render lại form khi validation fail
                     }
                 },
                 error: function () {
-                    showToast("Something went wrong!");
+                    showToast("Có lỗi xảy ra, vui lòng thử lại!");
                 }
             });
         });
 
+        // Hàm show toast
         function showToast(message) {
             $('#liveToast .toast-body').text(message);
             var toast = new bootstrap.Toast(document.getElementById('liveToast'));
@@ -125,3 +129,6 @@
         }
     </script>
 }
+
+
+

@@ -1,0 +1,51 @@
+﻿@model WorldBook.ViewModel.BookDetailViewModel
+@{
+    ViewData["Title"] = "Book Details";
+}
+<link rel="stylesheet" href="~/css/UserViews/Book/book-details.css" />
+<div class="book-details-container">
+    <div class="book-images">
+        <img src="@Model.ImageUrl1" alt="@Model.BookName" class="main-image" />
+
+        <div class="thumbnail-container">
+            @if (!string.IsNullOrEmpty(Model.ImageUrl2))
+            {
+                <img src="@Model.ImageUrl2" alt="@Model.BookName" class="thumbnail" />
+            }
+            @if (!string.IsNullOrEmpty(Model.ImageUrl3))
+            {
+                <img src="@Model.ImageUrl3" alt="@Model.BookName" class="thumbnail" />
+            }
+            @if (!string.IsNullOrEmpty(Model.ImageUrl4))
+            {
+                <img src="@Model.ImageUrl4" alt="@Model.BookName" class="thumbnail" />
+            }
+        </div>
+    </div>
+
+    <div class="book-info">
+        <h2 class="book-title">@Model.BookName</h2>
+        <p class="book-description">@Model.BookDescription</p>
+        @if (Model.AuthorNames != null && Model.AuthorNames.Any())
+        {
+            <p><strong>Authors:</strong> @string.Join(", ", Model.AuthorNames)</p>
+        }
+        @if (Model.Categories != null && Model.Categories.Any())
+        {
+            <p><strong>Categories:</strong> @string.Join(", ", Model.Categories)</p>
+        }
+
+        <div class="book-meta">
+            <p><strong>Price:</strong> @Model.BookPrice.ToString("C0")</p>
+            <p><strong>Quantity:</strong> @Model.BookQuantity</p>
+            <p><strong>Publisher:</strong> @Model.PublisherName</p>
+            <p><strong>Supplier:</strong> @Model.SupplierName</p>
+            <p><strong>Added at:</strong> @Model.AddedAt.ToString("dd/MM/yyyy")</p>
+        </div>
+
+        <div class="book-actions">
+            <a asp-action="Edit" asp-route-id="@Model?.BookId" class="btn-edit">Edit</a>
+            <a asp-action="Edit" asp-route-id="@Model?.BookId" class="btn-edit">Delete</a>
+        </div>
+    </div>
+</div>
