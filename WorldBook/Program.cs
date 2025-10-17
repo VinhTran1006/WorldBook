@@ -33,9 +33,13 @@ builder.Services.AddScoped<IRoleRepository, RoleRepository>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IBookService, BookService>();
 
-// Đăng ký Voucher Services
-builder.Services.AddScoped<WorldBook.Repositories.Interfaces.IVoucherRepository, WorldBook.Repositories.VoucherRepository>();
-builder.Services.AddScoped<WorldBook.Services.Interfaces.IVoucherService, WorldBook.Services.VoucherService>();
+// Đăng ký Voucher 
+builder.Services.AddScoped<IVoucherRepository, VoucherRepository>();
+builder.Services.AddScoped<IVoucherService, VoucherService>();
+
+// Đăng ký Cart
+builder.Services.AddScoped<ICartRepository, CartRepository>();
+builder.Services.AddScoped<ICartService, CartService>();
 
 //Cookie schema
 builder.Services.AddAuthentication("MyCookieAuth")
