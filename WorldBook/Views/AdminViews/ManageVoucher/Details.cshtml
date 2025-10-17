@@ -1,0 +1,163 @@
+﻿@model WorldBook.Models.Voucher
+
+@{
+    ViewData["Title"] = "Voucher Details";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-8 offset-md-2">
+            <div class="card">
+                <div class="card-header bg-info">
+                    <h3 class="card-title">
+                        <i class="fas fa-info-circle"></i> Voucher Details
+                    </h3>
+                </div>
+                <div class="card-body">
+                    <dl class="row">
+                        <dt class="col-sm-4">
+                            <i class="fas fa-tag"></i> Voucher Code
+                        </dt>
+                        <dd class="col-sm-8">
+                            <strong>@Model.VoucherCode</strong>
+                        </dd>
+
+                        <dt class="col-sm-4">
+                            <i class="fas fa-percent"></i> Discount Percent
+                        </dt>
+                        <dd class="col-sm-8">
+                            <strong class="text-success" style="font-size: 1.2em;">@Model.DiscountPercent%</strong>
+                        </dd>
+
+                        <dt class="col-sm-4">
+                            <i class="fas fa-calendar-times"></i> Expiry Date
+                        </dt>
+                        <dd class="col-sm-8">
+                            @if (Model.ExpriryDate.HasValue)
+                            {
+                                var isExpired = Model.ExpriryDate.Value < DateTime.Now;
+                                if (isExpired)
+                                {
+                                    <strong class="text-danger">
+                                        @Model.ExpriryDate.Value.ToString("dd/MM/yyyy")
+                                    </strong>
+                                }
+                                else
+                                {
+                                    <strong class="text-success">
+                                        @Model.ExpriryDate.Value.ToString("dd/MM/yyyy")
+                                    </strong>
+                                }
+                            }
+                            else
+                            {
+                                <span class="text-muted">Not set</span>
+                            }
+                        </dd>
+
+                        <dt class="col-sm-4">
+                            <i class="fas fa-money-bill-wave"></i> Minimum Order Value
+                        </dt>
+                        <dd class="col-sm-8">
+                            @if (Model.MinOrderAmount.HasValue)
+                            {
+                                <strong>@Model.MinOrderAmount.Value.ToString("N0")</strong>
+                            }
+                            else
+                            {
+                                <span class="badge badge-secondary">No limit</span>
+                            }
+                        </dd>
+
+                        <dt class="col-sm-4">
+                            <i class="fas fa-money-bill-wave"></i> Maximum Order Value
+                        </dt>
+                        <dd class="col-sm-8">
+                            @if (Model.MaxOrderAmount.HasValue)
+                            {
+                                <strong>@Model.MaxOrderAmount.Value.ToString("N0")</strong>
+                            }
+                            else
+                            {
+                                <span class="badge badge-secondary">No limit</span>
+                            }
+                        </dd>
+
+                        <dt class="col-sm-4">
+                            <i class="fas fa-calculator"></i> Times Used
+                        </dt>
+                        <dd class="col-sm-8">
+                            <strong>@Model.UsageCount times</strong>
+                        </dd>
+
+                        <dt class="col-sm-4">
+                            <i class="fas fa-power-off"></i> Status
+                        </dt>
+                        <dd class="col-sm-8">
+                            @if (Model.IsActive == true)
+                            {
+                                <strong class="text-success">
+                                    <i class="fas fa-check-circle"></i> Active
+                                </strong>
+                            }
+                            else
+                            {
+                                <strong class="text-secondary">
+                                    <i class="fas fa-times-circle"></i> Inactive
+                                </strong>
+                            }
+                        </dd>
+
+                        <dt class="col-sm-4">
+                            <i class="fas fa-align-left"></i> Description
+                        </dt>
+                        <dd class="col-sm-8">
+                            @if (!string.IsNullOrEmpty(Model.VoucherDescription))
+                            {
+                                <div class="alert alert-light" role="alert">
+                                    @Model.VoucherDescription
+                                </div>
+                            }
+                            else
+                            {
+                                <em class="text-muted">No description provided</em>
+                            }
+                        </dd>
+                    </dl>
+                </div>
+                <div class="card-footer">
+                    <a asp-action="Edit" asp-route-id="@Model.VoucherId" class="btn btn-primary">
+                        <i class="fas fa-edit"></i> Edit
+                    </a>
+                    <a asp-action="Delete" asp-route-id="@Model.VoucherId" class="btn btn-danger">
+                        <i class="fas fa-trash"></i> Delete
+                    </a>
+                    <a asp-action="Index" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left"></i> Back to List
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* This custom class is no longer needed but is fine to keep */
+    .badge-lg {
+        font-size: 1em;
+        padding: 0.5em 0.75em;
+    }
+
+    dl.row dt {
+        font-weight: 600;
+        padding: 10px 0;
+    }
+
+    dl.row dd {
+        padding: 10px 0;
+        /* I've added this to align items nicely */
+        display: flex;
+        align-items: center;
+    }
+</style>

@@ -33,7 +33,9 @@ builder.Services.AddScoped<IRoleRepository, RoleRepository>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IBookService, BookService>();
 
-
+// Đăng ký Voucher Services
+builder.Services.AddScoped<WorldBook.Repositories.Interfaces.IVoucherRepository, WorldBook.Repositories.VoucherRepository>();
+builder.Services.AddScoped<WorldBook.Services.Interfaces.IVoucherService, WorldBook.Services.VoucherService>();
 
 //Cookie schema
 builder.Services.AddAuthentication("MyCookieAuth")

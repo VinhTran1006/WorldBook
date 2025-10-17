@@ -1,0 +1,78 @@
+﻿@model IEnumerable<WorldBook.Models.Voucher>
+
+@{
+    ViewData["Title"] = "Voucher Management";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Voucher List</h3>
+                    <div class="card-tools">
+                        <a asp-action="Create" class="btn btn-success">
+                            <i class="fas fa-plus"></i> Add New Voucher
+                        </a>
+                    </div>
+                </div>
+                <div class="card-body">
+                    @if (TempData["SuccessMessage"] != null)
+                    {
+                        <div class="alert alert-success alert-dismissible fade show" role="alert">
+                            @TempData["SuccessMessage"]
+                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                    }
+
+                    @if (TempData["ErrorMessage"] != null)
+                    {
+                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                            @TempData["ErrorMessage"]
+                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                    }
+
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Voucher Code</th>
+                                    <th>Discount (%)</th>
+                                    <th>Expiry Date</th>
+                                    <th style="width: 280px;">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var item in Model)
+                                {
+                                    <tr>
+                                        <td>@item.VoucherCode</td>
+                                        <td>@item.DiscountPercent%</td>
+                                        <td>@item.ExpriryDate?.ToString("dd/MM/yyyy")</td>
+                                        <td>
+                                            <a asp-action="Details" asp-route-id="@item.VoucherId" class="btn btn-info" title="Details">
+                                                <i class="fas fa-eye"></i> Details
+                                            </a>
+                                            <a asp-action="Edit" asp-route-id="@item.VoucherId" class="btn btn-primary" title="Edit">
+                                                <i class="fas fa-edit"></i> Edit
+                                            </a>
+                                            <a asp-action="Delete" asp-route-id="@item.VoucherId" class="btn btn-danger" title="Delete">
+                                                <i class="fas fa-trash"></i> Delete
+                                            </a>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

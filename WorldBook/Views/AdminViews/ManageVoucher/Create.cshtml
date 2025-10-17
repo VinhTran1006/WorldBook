@@ -1,0 +1,92 @@
+﻿@model WorldBook.ViewModel.VoucherViewModel
+
+@{
+    ViewData["Title"] = "Create New Voucher";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-8 offset-md-2">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Create New Voucher</h3>
+                </div>
+                <form asp-action="Create" method="post">
+                    <div class="card-body">
+                        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                        <div class="form-group">
+                            <label asp-for="VoucherCode" class="control-label"></label>
+                            <input asp-for="VoucherCode" class="form-control" placeholder="Enter voucher code" />
+                            <span asp-validation-for="VoucherCode" class="text-danger"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <label asp-for="DiscountPercent" class="control-label"></label>
+                            <input asp-for="DiscountPercent" class="form-control" type="number" min="1" max="100" />
+                            <span asp-validation-for="DiscountPercent" class="text-danger"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <label asp-for="ExpriryDate" class="control-label"></label>
+                            <input asp-for="ExpriryDate" class="form-control" type="date" />
+                            <span asp-validation-for="ExpriryDate" class="text-danger"></span>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label asp-for="MinOrderAmount" class="control-label"></label>
+                                    <input asp-for="MinOrderAmount" class="form-control" type="number" step="0.01" min="0" />
+                                    <span asp-validation-for="MinOrderAmount" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label asp-for="MaxOrderAmount" class="control-label"></label>
+                                    <input asp-for="MaxOrderAmount" class="form-control" type="number" step="0.01" min="0" />
+                                    <span asp-validation-for="MaxOrderAmount" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label asp-for="UsageCount" class="control-label"></label>
+                            <input asp-for="UsageCount" class="form-control" type="number" min="0" value="0" />
+                            <span asp-validation-for="UsageCount" class="text-danger"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <div class="custom-control custom-switch">
+                                <input asp-for="IsActive" class="custom-control-input" type="checkbox" checked />
+                                <label asp-for="IsActive" class="custom-control-label"></label>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label asp-for="VoucherDescription" class="control-label"></label>
+                            <textarea asp-for="VoucherDescription" class="form-control" rows="3" placeholder="Enter voucher description"></textarea>
+                            <span asp-validation-for="VoucherDescription" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <div class="card-footer">
+                        <button type="submit" class="btn btn-success">
+                            <i class="fas fa-plus"></i> Create
+                        </button>
+                        <a asp-action="Index" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left"></i> Back to List
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}
