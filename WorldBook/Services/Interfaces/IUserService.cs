@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using WorldBook.Models;
+using WorldBook.ViewModel;
 using WorldBook.ViewModels;
 
 namespace WorldBook.Services
@@ -12,5 +13,8 @@ namespace WorldBook.Services
         Task CreateStaffAsync(UserCreateViewModel vm);
         Task UpdateStaffAsync(int id, UserEditViewModel vm);
         Task DeleteStaffAsync(int id);
+
+        Task<ProfileViewModel?> GetProfileAsync(string username);
+        Task UpdateProfileAsync(ProfileViewModel model);
     }
 }

@@ -49,7 +49,15 @@ namespace WorldBook.Controllers
             TempData["LoginSuccess"] = $"Welcome {user.Username}";
 
             TempData["Log"] = $"Username: {user.Username}\nEmail: {user.Email}\nID: {user.UserId}".Replace("\n", "<br/>");
-            return View("~/Views/AdminViews/DashBoards/DashBoard.cshtml");
+
+            var roles = user.UserRoles.Select(ur => ur.Role.Name).ToList();
+            if (roles.Contains("Customer"))
+            {
+                return View("~/Views/UserViews/Home/Index.cshtml");
+            } else
+            {
+                return View("~/Views/AdminViews/DashBoards/DashBoard.cshtml");
+            }
         }
 
         public async Task<IActionResult> Logout()
