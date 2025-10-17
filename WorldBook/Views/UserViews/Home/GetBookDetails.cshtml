@@ -1,12 +1,16 @@
 ﻿@model WorldBook.ViewModel.BookDetailViewModel
 @{
     ViewData["Title"] = "Book Details";
+    Layout = "~/Views/Shared/_UserLayout.cshtml";
 }
 <link rel="stylesheet" href="~/css/UserViews/Book/book-details.css" />
+
+<!-- Toast notification -->
+<div id="toast-notification" class="toast-notification"></div>
+
 <div class="book-details-container">
     <div class="book-images">
         <img src="@Model.ImageUrl1" alt="@Model.BookName" class="main-image" />
-
         <div class="thumbnail-container">
             @if (!string.IsNullOrEmpty(Model.ImageUrl2))
             {
@@ -22,7 +26,6 @@
             }
         </div>
     </div>
-
     <div class="book-info">
         <h2 class="book-title">@Model.BookName</h2>
         <p class="book-description">@Model.BookDescription</p>
@@ -34,7 +37,6 @@
         {
             <p><strong>Categories:</strong> @string.Join(", ", Model.Categories)</p>
         }
-
         <div class="book-meta">
             <p><strong>Price:</strong> @Model.BookPrice.ToString("C0")</p>
             <p><strong>Quantity:</strong> @Model.BookQuantity</p>
@@ -42,9 +44,101 @@
             <p><strong>Supplier:</strong> @Model.SupplierName</p>
             <p><strong>Added at:</strong> @Model.AddedAt.ToString("dd/MM/yyyy")</p>
         </div>
-
         <div class="book-actions">
-            <a asp-action="Edit" asp-route-id="@Model?.BookId" class="btn-edit">Add To Cart</a>
+            <form id="add-to-cart-form">
+                <input type="hidden" id="bookId" value="@Model.BookId" />
+                <button type="button" id="add-to-cart-btn" class="btn btn-primary">Add to Cart</button>
+            </form>
         </div>
     </div>
 </div>
+
+<style>
+    .toast-notification {
+        position: fixed;
+        top: 70px;
+        right: 20px;
+        padding: 15px 25px;
+        border-radius: 5px;
+        color: white;
+        font-weight: 500;
+        z-index: 9999;
+        opacity: 0;
+        transform: translateX(400px);
+        transition: all 0.3s ease-in-out;
+    }
+
+    .toast-notification.show {
+        opacity: 1;
+        transform: translateX(0);
+    }
+
+    .toast-notification.success {
+        background-color: #28a745;
+    }
+
+    .toast-notification.error {
+        background-color: #dc3545;
+    }
+</style>
+
+<script>
+    document.getElementById('add-to-cart-btn').addEventListener('click', function() {
+        const bookId = document.getElementById('bookId').value;
+        const btn = this;
+
+        // Disable button để tránh click nhiều lần
+        btn.disabled = true;
+        btn.textContent = 'Adding...';
+
+        fetch('@Url.Action("AddToCart", "Cart")', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]')?.value || ''
+            },
+            body: `id=${bookId}&quantity=1`
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showToast(data.message || 'Đã thêm sách vào giỏ hàng thành công!', 'success');
+                // Cập nhật số lượng giỏ hàng nếu có badge
+                updateCartBadge();
+            } else {
+                showToast(data.message || 'Không thể thêm sách vào giỏ hàng', 'error');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showToast('Đã xảy ra lỗi. Vui lòng thử lại!', 'error');
+        })
+        .finally(() => {
+            // Enable lại button
+            btn.disabled = false;
+            btn.textContent = 'Add to Cart';
+        });
+    });
+
+    function showToast(message, type) {
+        const toast = document.getElementById('toast-notification');
+        toast.textContent = message;
+        toast.className = `toast-notification ${type} show`;
+
+        // Tự động ẩn sau 3 giây
+        setTimeout(() => {
+            toast.classList.remove('show');
+        }, 3000);
+    }
+
+    function updateCartBadge() {
+        fetch('@Url.Action("GetCartCount", "Cart")')
+            .then(response => response.json())
+            .then(data => {
+                const badge = document.querySelector('.cart-badge');
+                if (badge) {
+                    badge.textContent = data.count;
+                }
+            });
+    }
+</script>
