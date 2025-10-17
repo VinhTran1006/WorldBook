@@ -12,19 +12,28 @@
     <h2>Book List</h2>
 
     <div class="book-grid">
-        @foreach (var book in Model.Books)
+        
+        @if (Model?.Books != null && Model.Books.Any())
         {
-            <a href="@Url.Action("GetBookDetails", "Book", new { id = book.BookId })" class="book-card-link">
-                <div class="book-card">
-                    <img src="@book.ImageUrl1" alt="@book.BookName" class="book-image" />
-                    <div class="book-card-content">
-                        <h3 class="book-name">@book.BookName</h3
-                        <p class="book-price">@book.BookPrice.ToString("C0")</p>
-                        <p class="book-quantity">Quantity: @book.BookQuantity</p>
+            foreach (var book in Model.Books)
+            {
+                <a href="@Url.Action("GetBookDetails", "Book", new { id = book.BookId })" class="book-card-link">
+                    <div class="book-card">
+                        <img src="@book.ImageUrl1" alt="@book.BookName" class="book-image" />
+                        <div class="book-card-content">
+                            <h3 class="book-name">@book.BookName</h3>
+                            <p class="book-price">@book.BookPrice.ToString("C0")</p>
+                            <p class="book-quantity">Quantity: @book.BookQuantity</p>
+                        </div>
                     </div>
-                </div>
-            </a>
+                </a>
+            }
         }
+        else
+        {
+            <p>No books available.</p>
+        }
+
     </div>
 </div>
 

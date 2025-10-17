@@ -2,10 +2,11 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using WorldBook.Models;
-using WorldBook.Repositories.Interfaces;
-using WorldBook.ViewModels;
-using WorldBook.Services.Interfaces;
 using WorldBook.Repositories;
+using WorldBook.Repositories.Interfaces;
+using WorldBook.Services.Interfaces;
+using WorldBook.ViewModel;
+using WorldBook.ViewModels;
 
 namespace WorldBook.Services
 {
@@ -101,6 +102,39 @@ namespace WorldBook.Services
             user.Address = vm.Address;
             user.DateOfBirth = vm.DateOfBirth;
             user.Gender = vm.Gender;
+
+            await _userRepository.UpdateAsync(user);
+        }
+        public async Task<ProfileViewModel?> GetProfileAsync(string username)
+        {
+            var user = await _userRepository.GetByUsernameAsync(username);
+            if (user == null) return null;
+
+            return new ProfileViewModel
+            {
+                UserId = user.UserId,
+                Username = user.Username,
+                Name = user.Name,
+                Email = user.Email,
+                DateOfBirth = user.DateOfBirth,
+                Gender = user.Gender,
+                Address = user.Address,
+                Phone = user.Phone
+            };
+        }
+
+        public async Task UpdateProfileAsync(ProfileViewModel model)
+        {
+            var user = await _userRepository.GetByIdAsync(model.UserId);
+            if (user == null)
+                throw new Exception("User not found");
+
+            user.Name = model.Name;
+            user.Email = model.Email;
+            user.DateOfBirth = model.DateOfBirth;
+            user.Gender = model.Gender;
+            user.Address = model.Address;
+            user.Phone = model.Phone;
 
             await _userRepository.UpdateAsync(user);
         }
