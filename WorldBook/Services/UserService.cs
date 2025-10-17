@@ -123,9 +123,9 @@ namespace WorldBook.Services
             };
         }
 
-        public async Task UpdateProfileAsync(ProfileViewModel model)
+        public async Task UpdateProfileAsync(ProfileViewModel model, string username)
         {
-            var user = await _userRepository.GetByIdAsync(model.UserId);
+            var user = await _userRepository.GetByUsernameAsync(username);
             if (user == null)
                 throw new Exception("User not found");
 
@@ -138,5 +138,6 @@ namespace WorldBook.Services
 
             await _userRepository.UpdateAsync(user);
         }
+
     }
 }

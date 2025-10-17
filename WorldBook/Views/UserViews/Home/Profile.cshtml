@@ -1,61 +1,180 @@
 ﻿@model WorldBook.ViewModel.ProfileViewModel
 @{
-    ViewData["Title"] = "Edit Profile";
+    Layout = "_UserLayout";
+    ViewData["Title"] = "User Profile";
+    var successMessage = TempData["SuccessMessage"] as string;
 }
+<link rel="stylesheet" href="~/css/UserViews/Profile/Profile.css" />
 
-<div class="container mt-4 text-light">
-    <div class="card bg-dark shadow-lg p-4">
-        <h2 class="text-center mb-4">@ViewData["Title"]</h2>
+<div class="container mt-5">
+    <div class="card shadow-lg p-4">
+        <div class="card-body">
+            <h2 class="text-center mb-4">User Profile</h2>
 
-        <form asp-action="Edit" method="post">
-            <input type="hidden" asp-for="UserId" />
+            @if (!string.IsNullOrEmpty(successMessage))
+            {
+                <div class="alert alert-success">@successMessage</div>
+            }
 
-            <div class="mb-3">
-                <label asp-for="Name" class="form-label"></label>
-                <input asp-for="Name" class="form-control" />
-                <span asp-validation-for="Name" class="text-danger"></span>
-            </div>
-
-            <div class="mb-3">
-                <label asp-for="Email" class="form-label"></label>
-                <input asp-for="Email" class="form-control" />
-                <span asp-validation-for="Email" class="text-danger"></span>
-            </div>
-
-            <div class="row">
-                <div class="col-md-6 mb-3">
-                    <label asp-for="DateOfBirth" class="form-label"></label>
-                    <input asp-for="DateOfBirth" class="form-control" type="date" />
+            <form asp-action="Edit" method="post" id="editForm">
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label asp-for="Username" class="form-label fw-bold"></label>
+                        <input asp-for="Username" class="form-control" readonly />
+                    </div>
+                    <div class="col-md-6">
+                        <label asp-for="Name" class="form-label fw-bold"></label>
+                        <input asp-for="Name" class="form-control editable" readonly />
+                        <span asp-validation-for="Name" class="text-danger"></span>
+                    </div>
                 </div>
-                <div class="col-md-6 mb-3">
-                    <label asp-for="Gender" class="form-label"></label>
-                    <select asp-for="Gender" class="form-select">
-                        <option value="">Select</option>
-                        <option>Male</option>
-                        <option>Female</option>
-                        <option>Other</option>
-                    </select>
+
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label asp-for="Email" class="form-label fw-bold"></label>
+                        <input asp-for="Email" class="form-control editable" readonly />
+                        <span asp-validation-for="Email" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-6">
+                        <label asp-for="DateOfBirth" class="form-label fw-bold"></label>
+                        <input asp-for="DateOfBirth" type="date" class="form-control editable" readonly />
+                        <span asp-validation-for="DateOfBirth" class="text-danger"></span>
+                    </div>
                 </div>
-            </div>
 
-            <div class="mb-3">
-                <label asp-for="Address" class="form-label"></label>
-                <input asp-for="Address" class="form-control" />
-            </div>
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label asp-for="Gender" class="form-label fw-bold"></label>
+                        <select asp-for="Gender" class="form-select editable" readonly>
+                            <option value="">-- Select Gender --</option>
+                            <option value="Male">Male</option>
+                            <option value="Female">Female</option>
+                            <option value="Other">Other</option>
+                        </select>
+                        <span asp-validation-for="Gender" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-6">
+                        <label asp-for="Phone" class="form-label fw-bold"></label>
+                        <input asp-for="Phone" class="form-control editable" readonly />
+                        <span asp-validation-for="Phone" class="text-danger"></span>
+                    </div>
+                </div>
 
-            <div class="mb-3">
-                <label asp-for="Phone" class="form-label"></label>
-                <input asp-for="Phone" class="form-control" />
-            </div>
+                <div class="mb-3">
+                    <label asp-for="Address" class="form-label fw-bold"></label>
+                    <textarea asp-for="Address" class="form-control editable" rows="3" readonly></textarea>
+                    <span asp-validation-for="Address" class="text-danger"></span>
+                </div>
 
-            <div class="text-center">
-                <button type="submit" class="btn btn-success">
-                    <i class="bi bi-save"></i> Save
-                </button>
-                <a asp-action="Profile" class="btn btn-secondary ms-2">
-                    <i class="bi bi-arrow-left"></i> Cancel
-                </a>
-            </div>
-        </form>
+                <div class="text-center mt-4">
+                    <button type="button" id="editButton" class="btn btn-primary">Edit</button>
+                    <button type="submit" id="saveButton" class="btn btn-success d-none">Save</button>
+                    <button type="button" id="cancelButton" class="btn btn-secondary d-none">Cancel</button>
+                </div>
+            </form>
+
+            <script>
+                document.addEventListener("DOMContentLoaded", function () {
+                    const form = document.getElementById("editForm");
+
+                    form.addEventListener("submit", function (e) {
+                        let isValid = true;
+
+                        const name = form.querySelector("[name='Name']");
+                        const email = form.querySelector("[name='Email']");
+                        const dob = form.querySelector("[name='DateOfBirth']");
+                        const gender = form.querySelector("[name='Gender']");
+                        const phone = form.querySelector("[name='Phone']");
+                        const address = form.querySelector("[name='Address']");
+
+                        // Clear errors
+                        form.querySelectorAll(".text-danger").forEach(span => (span.textContent = ""));
+
+                        // ✅ Name
+                        const nameRegex = /^[a-zA-ZÀ-ỹ\s]+$/;
+                        if (!name.value.trim()) {
+                            showError(name, "Name is required.");
+                            isValid = false;
+                        } else if (!nameRegex.test(name.value.trim())) {
+                            showError(name, "Name must not contain special characters.");
+                            isValid = false;
+                        }
+
+                        // ✅ Email
+                        const emailRegex = /^[^\s@@]+@@[^\s@@]+\.[^\s@@]+$/;
+                        if (!email.value.trim()) {
+                            showError(email, "Email is required.");
+                            isValid = false;
+                        } else if (!emailRegex.test(email.value.trim())) {
+                            showError(email, "Invalid email format.");
+                            isValid = false;
+                        }
+
+                        // ✅ DOB
+                        if (!dob.value) {
+                            showError(dob, "Date of birth is required.");
+                            isValid = false;
+                        } else {
+                            const birth = new Date(dob.value);
+                            if (birth >= new Date()) {
+                                showError(dob, "Date of birth must be before today.");
+                                isValid = false;
+                            }
+                        }
+
+                        // ✅ Gender
+                        if (!gender.value.trim()) {
+                            showError(gender, "Please select your gender.");
+                            isValid = false;
+                        }
+
+                        // ✅ Phone
+                        const phoneRegex = /^[0-9]{10}$/;
+                        if (phone.value.trim() && !phoneRegex.test(phone.value.trim())) {
+                            showError(phone, "Phone number must contain exactly 10 digits.");
+                            isValid = false;
+                        }
+
+                        // ✅ Address
+                        const addressRegex = /^[a-zA-Z0-9À-ỹ\s,.\-\/]*$/;
+                        if (address.value.trim() && !addressRegex.test(address.value.trim())) {
+                            showError(address, "Address contains invalid characters.");
+                            isValid = false;
+                        }
+
+                        if (!isValid) e.preventDefault();
+                    });
+
+                    function showError(input, message) {
+                        let span = input.nextElementSibling;
+                        if (!span || !span.classList.contains("text-danger")) {
+                            span = input.parentElement.querySelector(".text-danger");
+                        }
+                        if (span) span.textContent = message;
+                    }
+                });
+            </script>
+        </div>
     </div>
 </div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        const editBtn = document.getElementById('editButton');
+        const saveBtn = document.getElementById('saveButton');
+        const cancelBtn = document.getElementById('cancelButton');
+        const editableFields = document.querySelectorAll('.editable');
+
+        editBtn.addEventListener('click', () => {
+            editableFields.forEach(f => {
+                f.removeAttribute('readonly');
+            });
+            editBtn.classList.add('d-none');
+            saveBtn.classList.remove('d-none');
+            cancelBtn.classList.remove('d-none');
+        });
+
+        cancelBtn.addEventListener('click', () => window.location.reload());
+    </script>
+}

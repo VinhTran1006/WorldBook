@@ -23,7 +23,7 @@ namespace WorldBook.Controllers
             var profile = await _userService.GetProfileAsync(username);
             if (profile == null) return NotFound();
 
-            return View("~/Views/UserViews/Home/Profile.cshtml");
+            return View("~/Views/UserViews/Home/Profile.cshtml", profile);
         }
 
         // ✅ GET Edit
@@ -47,10 +47,15 @@ namespace WorldBook.Controllers
             if (!ModelState.IsValid)
                 return View(model);
 
-            await _userService.UpdateProfileAsync(model);
+            var username = User.Identity?.Name;
+            if (string.IsNullOrEmpty(username))
+                return RedirectToAction("Login", "Logins");
+
+            await _userService.UpdateProfileAsync(model, username);
 
             TempData["SuccessMessage"] = "Profile updated successfully!";
             return RedirectToAction("Profile");
         }
+
     }
 }
