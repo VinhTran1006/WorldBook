@@ -81,29 +81,7 @@
             $("#staffModalBody").load(url);
         });
 
-        // Submit form trong modal bằng AJAX
-        $('#staffModal').on('submit', 'form', function (e) {
-            e.preventDefault();
-            var form = $(this);
-            $.ajax({
-                type: form.attr('method'),
-                url: form.attr('action'),
-                data: form.serialize(),
-                success: function (res) {
-                    if (res && res.success) {
-                        $('#staffModal').modal('hide');
-                        showToast(res.message || "Thành công!");
-                        location.reload();
-                    } else {
-                        $('#staffModalBody').html(res); // render lại form khi validation fail
-                    }
-                },
-                error: function () {
-                    showToast("Có lỗi xảy ra, vui lòng thử lại!");
-                }
-            });
-        });
-
+      
         // Hàm show toast
         function showToast(message) {
             $('#liveToast .toast-body').text(message);

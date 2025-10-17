@@ -8,10 +8,10 @@ namespace WorldBook.Controllers
 {
     public class BookController : Controller
     {
-       private readonly IBookService _bookService;
-         public BookController(IBookService bookService)
-         {
-              _bookService = bookService;
+        private readonly IBookService _bookService;
+        public BookController(IBookService bookService)
+        {
+            _bookService = bookService;
         }
 
         public async Task<IActionResult> GetBookHomePage()
@@ -65,11 +65,25 @@ namespace WorldBook.Controllers
             if (ModelState.IsValid)
             {
                 await _bookService.AddBookAsync(model);
-                return PartialView("~/Views/AdminViews/ManageBook/View.cshtml", model);
+                return View("~/Views/AdminViews/ManageBook/View.cshtml");
 
             }
             return PartialView("~/Views/AdminViews/ManageBook/Add.cshtml", model);
         }
 
+        public async Task<IActionResult> Delete(int id)
+        {
+            BookDetailViewModel book = await _bookService.GetBookByIdAsync(id);
+            
+            return View("/Views/AdminViews/ManageBook/Delete.cshtml", book);
+        }
+
+        [HttpPost, ActionName("DeleteConfirmed")]
+        public async Task<IActionResult> DeleteConfirmed(int id)
+        {
+            await _bookService.DeleteBookAsync(id);
+            return RedirectToAction("GetBookDashBoard");
+
+        }
     }
 }

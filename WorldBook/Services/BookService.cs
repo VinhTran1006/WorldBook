@@ -39,8 +39,9 @@ namespace WorldBook.Services
 
             public async Task AddBookAsync(BookCreateEditViewModel vm)
             {
-                // --- Publisher ---
-                var publisher = await _publisherRepository.GetByNameAsync(vm.PublisherName);
+            Console.WriteLine("=== vao service ===");
+            // --- Publisher ---
+            var publisher = await _publisherRepository.GetByNameAsync(vm.PublisherName);
                 if (publisher == null)
                 {
                     publisher = new Publisher { PublisherName = vm.PublisherName };
@@ -55,23 +56,57 @@ namespace WorldBook.Services
                     supplier = await _supplierRepository.AddAsync(supplier);
                 }
 
-                // --- Upload Images lên Cloudinary ---
-                string imageUrl1 = null;
-                string imageUrl2 = null;
-                string imageUrl3 = null;
-                string imageUrl4 = null;
+            // --- Upload Images lên Cloudinary ---
+            string imageUrl1 = null;
+            string imageUrl2 = null;
+            string imageUrl3 = null;
+            string imageUrl4 = null;
 
+            Console.WriteLine("=== BẮT ĐẦU UPLOAD ẢNH ===");
+            Console.WriteLine($"Ảnh 1: {(vm.ImageUrl1 != null ? vm.ImageUrl1.FileName : "null")}");
+            Console.WriteLine($"Ảnh 2: {(vm.ImageUrl2 != null ? vm.ImageUrl2.FileName : "null")}");
+            Console.WriteLine($"Ảnh 3: {(vm.ImageUrl3 != null ? vm.ImageUrl3.FileName : "null")}");
+            Console.WriteLine($"Ảnh 4: {(vm.ImageUrl4 != null ? vm.ImageUrl4.FileName : "null")}");
+            try
+            {
                 if (vm.ImageUrl1 != null)
+                {
+                    Console.WriteLine("⏳ Upload ảnh 1 lên Cloudinary...");
                     imageUrl1 = (await _cloudinaryService.UploadImageAsync(vm.ImageUrl1, "books")).SecureUrl.ToString();
-                if (vm.ImageUrl2 != null)
-                    imageUrl2 = (await _cloudinaryService.UploadImageAsync(vm.ImageUrl2, "books")).SecureUrl.ToString();
-                if (vm.ImageUrl3 != null)
-                    imageUrl3 = (await _cloudinaryService.UploadImageAsync(vm.ImageUrl3, "books")).SecureUrl.ToString();
-                if (vm.ImageUrl4 != null)
-                    imageUrl4 = (await _cloudinaryService.UploadImageAsync(vm.ImageUrl4, "books")).SecureUrl.ToString();
+                    Console.WriteLine($"✅ Upload ảnh 1 xong: {imageUrl1}");
+                }
 
-                // --- Tạo Book ---
-                var book = new Book
+                if (vm.ImageUrl2 != null)
+                {
+                    Console.WriteLine("⏳ Upload ảnh 2 lên Cloudinary...");
+                    imageUrl2 = (await _cloudinaryService.UploadImageAsync(vm.ImageUrl2, "books")).SecureUrl.ToString();
+                    Console.WriteLine($"✅ Upload ảnh 2 xong: {imageUrl2}");
+                }
+
+                if (vm.ImageUrl3 != null)
+                {
+                    Console.WriteLine("⏳ Upload ảnh 3 lên Cloudinary...");
+                    imageUrl3 = (await _cloudinaryService.UploadImageAsync(vm.ImageUrl3, "books")).SecureUrl.ToString();
+                    Console.WriteLine($"✅ Upload ảnh 3 xong: {imageUrl3}");
+                }
+
+                if (vm.ImageUrl4 != null)
+                {
+                    Console.WriteLine("⏳ Upload ảnh 4 lên Cloudinary...");
+                    imageUrl4 = (await _cloudinaryService.UploadImageAsync(vm.ImageUrl4, "books")).SecureUrl.ToString();
+                    Console.WriteLine($"✅ Upload ảnh 4 xong: {imageUrl4}");
+                }
+
+                Console.WriteLine("=== HOÀN TẤT UPLOAD ===");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"❌ Lỗi upload ảnh: {ex.Message}");
+                throw;
+            }
+
+            // --- Tạo Book ---
+            var book = new Book
                 {
                     BookName = vm.BookName,
                     BookDescription = vm.BookDescription,
@@ -82,7 +117,8 @@ namespace WorldBook.Services
                     ImageUrl3 = imageUrl3,
                     ImageUrl4 = imageUrl4,
                     AddedAt = DateTime.Now,
-                    PublisherId = publisher.PublisherId,
+                    IsActive = true,
+                PublisherId = publisher.PublisherId,
                     SupplierId = supplier.SupplierId
                 };
 
