@@ -28,12 +28,34 @@
         <p class="book-description">@Model.BookDescription</p>
         @if (Model.AuthorNames != null && Model.AuthorNames.Any())
         {
-            <p><strong>Authors:</strong> @string.Join(", ", Model.AuthorNames)</p>
+            <p>
+                <strong>Authors:</strong>
+                @foreach (var author in Model.AuthorNames)
+                {
+                    <span>@author</span>
+                    @if (author != Model.AuthorNames.Last())
+                    {
+                        <span>, </span>
+                    }
+                }
+            </p>
         }
+
         @if (Model.Categories != null && Model.Categories.Any())
         {
-            <p><strong>Categories:</strong> @string.Join(", ", Model.Categories)</p>
+            <p>
+                <strong>Categories:</strong>
+                @foreach (var category in Model.Categories)
+                {
+                    <span>@category</span>
+                    @if (category != Model.Categories.Last())
+                    {
+                        <span>, </span>
+                    }
+                }
+            </p>
         }
+
 
         <div class="book-meta">
             <p><strong>Price:</strong> @Model.BookPrice.ToString("C0")</p>
@@ -45,7 +67,25 @@
 
         <div class="book-actions">
             <a asp-action="Edit" asp-route-id="@Model?.BookId" class="btn-edit">Edit</a>
-            <a asp-action="Edit" asp-route-id="@Model?.BookId" class="btn-edit">Delete</a>
+            <button class="btn btn-danger btn-delete-book"
+                    data-url="@Url.Action("Delete", "Book", new { id = Model.BookId })">
+                Delete
+            </button>
+
         </div>
     </div>
 </div>
+<script>
+        // Delegate click cho tất cả nút muốn load vào modal
+    $(document).on('click', '.btn-delete-book', function(e) {
+        e.preventDefault(); // ngăn form/button mặc định
+        var url = $(this).data('url');
+
+        // Load Partial Delete vào modal body
+        $("#addBookModelBody").load(url, function() {
+            // Show modal (nếu modal chưa mở)
+            $('#addBookModel').modal('show');
+        });
+    });
+
+</script>

@@ -1,4 +1,5 @@
 ﻿using WorldBook.Models;
+using WorldBook.ViewModel;
 
 namespace WorldBook.Repositories.Interfaces
 {

@@ -1,85 +1,91 @@
 ﻿@model WorldBook.ViewModel.BookDetailViewModel
 
 @{
-    ViewData["Title"] = "Delete";
-    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    ViewData["Title"] = "Delete Book";
 }
 
-<h1>Delete</h1>
+<h2 class="mb-4 text-danger">Delete Book</h2>
 
-<h3>Bạn có chắc chắn muốn xóa sách này không?</h3>
-<div>
-    <h4>Book</h4>
-    <hr />
-    <dl class="row">
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.BookName)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.BookName)
-        </dd>
-
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.BookDescription)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.BookDescription)
-        </dd>
-
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.BookPrice)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.BookPrice)
-        </dd>
-
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.BookQuantity)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.BookQuantity)
-        </dd>
-
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.PublisherName)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.PublisherName)
-        </dd>
-
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.SupplierName)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.SupplierName)
-        </dd>
-
-        <dt class="col-sm-2">
-            @Html.DisplayName("Tác giả")
-        </dt>
-        <dd class="col-sm-10">
-            @string.Join(", ", Model.AuthorNames)
-        </dd>
-
-        <dt class="col-sm-2">
-            @Html.DisplayName("Thể loại")
-        </dt>
-        <dd class="col-sm-10">
-            @string.Join(", ", Model.Categories)
-        </dd>
-
-        <dt class="col-sm-2">
-            Ảnh
-        </dt>
-        <dd class="col-sm-10">
-            <img src="@Model.ImageUrl1" alt="Ảnh sách" style="max-width:150px;border-radius:8px;" />
-        </dd>
-    </dl>
-
-    <form asp-action="DeleteConfirmed">
-        <input type="hidden" asp-for="BookId" />
-        @Html.AntiForgeryToken()
-        <input type="submit" value="Delete" class="btn btn-danger" /> |
-        <a asp-action="Index">Back to List</a>
-    </form>
+<div class="alert alert-danger" role="alert">
+    <strong>⚠️ Warning!</strong> You are about to delete this book permanently.
+    This action cannot be undone.
 </div>
+
+<div class="card shadow-sm border-0 mb-4">
+    <div class="card-body">
+        <div class="row">
+            <!-- Cột trái: Ảnh sách -->
+            <div class="col-md-4 text-center">
+                <!-- Ảnh chính -->
+                @if (!string.IsNullOrEmpty(Model.ImageUrl1))
+                {
+                    <img src="@Url.Content(Model.ImageUrl1)"
+                         class="img-thumbnail shadow-sm mb-3"
+                         style="width:100%; max-width:260px; height:auto; object-fit:cover; border-radius:8px;"
+                         alt="Main book image" />
+                }
+                else
+                {
+                    <div class="bg-light d-flex align-items-center justify-content-center mb-3"
+                         style="width:100%; max-width:260px; height:350px; border-radius:8px;">
+                        <span class="text-muted">No main image</span>
+                    </div>
+                }
+
+                <!-- Ảnh phụ (3 ảnh nằm ngang, không có thanh kéo) -->
+                <div class="d-flex justify-content-center align-items-center gap-2 flex-nowrap" style="overflow:hidden;">
+                    @if (!string.IsNullOrEmpty(Model.ImageUrl2))
+                    {
+                        <img src="@Url.Content(Model.ImageUrl2)"
+                             class="img-thumbnail shadow-sm"
+                             style="width:75px; height:100px; object-fit:cover; cursor:pointer;"
+                             alt="Book image 2" />
+                    }
+                    @if (!string.IsNullOrEmpty(Model.ImageUrl3))
+                    {
+                        <img src="@Url.Content(Model.ImageUrl3)"
+                             class="img-thumbnail shadow-sm"
+                             style="width:75px; height:100px; object-fit:cover; cursor:pointer;"
+                             alt="Book image 3" />
+                    }
+                    @if (!string.IsNullOrEmpty(Model.ImageUrl4))
+                    {
+                        <img src="@Url.Content(Model.ImageUrl4)"
+                             class="img-thumbnail shadow-sm"
+                             style="width:75px; height:100px; object-fit:cover; cursor:pointer;"
+                             alt="Book image 4" />
+                    }
+                </div>
+            </div>
+
+            <!-- Cột phải: Thông tin sách -->
+            <div class="col-md-8">
+                <dl class="row">
+                    <dt class="col-sm-4">Book Name</dt>
+                    <dd class="col-sm-8">@Model.BookName</dd>
+
+                    <dt class="col-sm-4">Description</dt>
+                    <dd class="col-sm-8">@Model.BookDescription</dd>
+
+                    <dt class="col-sm-4">Price</dt>
+                    <dd class="col-sm-8">@Model.BookPrice.ToString("C0")</dd>
+
+                    <dt class="col-sm-4">Quantity</dt>
+                    <dd class="col-sm-8">@Model.BookQuantity</dd>
+
+                    <dt class="col-sm-4">Publisher</dt>
+                    <dd class="col-sm-8">@Model.PublisherName</dd>
+
+                    <dt class="col-sm-4">Supplier</dt>
+                    <dd class="col-sm-8">@Model.SupplierName</dd>
+                </dl>
+            </div>
+        </div>
+    </div>
+</div>
+
+<form asp-action="DeleteConfirmed" method="post" class="d-flex gap-2 justify-content-end">
+    @Html.AntiForgeryToken()
+    <input type="hidden" name="id" value="@Model.BookId" />
+    <button type="submit" class="btn btn-danger">Confirm Delete</button>
+</form>
