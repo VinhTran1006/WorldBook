@@ -54,4 +54,28 @@ namespace WorldBook.ViewModel
         public List<string> CategoryNames { get; set; } = new();
     }
 
+    public class BookEditViewModel
+    {
+        public int? BookId { get; set; } // null khi Create, có giá trị khi Edit
+        public string BookName { get; set; }
+        public string? BookDescription { get; set; }
+        public decimal BookPrice { get; set; }
+        public int BookQuantity { get; set; }
+
+        public string? ExistingImageUrl1 { get; set; }
+        public string? ExistingImageUrl2 { get; set; }
+        public string? ExistingImageUrl3 { get; set; }
+        public string? ExistingImageUrl4 { get; set; }
+        public IFormFile? ImageUrl1 { get; set; }
+        public IFormFile? ImageUrl2 { get; set; }
+        public IFormFile? ImageUrl3 { get; set; }
+        public IFormFile? ImageUrl4 { get; set; }
+
+        public string PublisherName { get; set; }
+        public string SupplierName { get; set; }
+
+        public List<string> AuthorNames { get; set; } = new();
+        public List<string> CategoryNames { get; set; } = new();
+    }
+
 }

@@ -43,20 +43,20 @@
                     <td>@book.AddedAt.ToString("dd/MM/yyyy")</td>
                     <td>
 
-                        <a href="@Url.Action("GetBookDetailsDashBoard", "Book", new { id = book.BookId })"
-                           class="btn btn-sm btn-info text-white">
+                        <button  class="btn btn-sm btn-info text-white" data-bs-toggle="modal" data-bs-target="#addBookModel"
+                                data-url="@Url.Action("GetBookDetailsDashBoard", "Book", new { id = book.BookId })">
                             <i class="bi bi-eye"></i>
-                        </a>
+                        </button>
 
-                        <a href="@Url.Action("Edit", "Book", new { id = book.BookId })"
-                           class="btn btn-sm btn-warning text-white">
+                        <button class="btn btn-sm btn-warning text-white" data-bs-toggle="modal" data-bs-target="#addBookModel"
+                                data-url="@Url.Action("Edit", "Book", new { id = book.BookId })">
                             <i class="bi bi-pencil-square"></i>
-                        </a>
+                        </button>
 
-                        <a href="@Url.Action("Delete", "Book", new { id = book.BookId })"
-                           class="btn btn-sm btn-danger text-white">
+                        <button class="btn btn-sm btn-danger" data-bs-toggle="modal" data-bs-target="#addBookModel"
+                                data-url="@Url.Action("Delete", "Book", new { id = book.BookId })">
                             <i class="bi bi-trash"></i>
-                        </a>
+                        </button>
 
                     </td>
                 </tr>
@@ -78,10 +78,30 @@
                 <h5 class="modal-title">Add Book</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
+
             <div class="modal-body" id="addBookModelBody"></div>
         </div>
     </div>
 </div>
+
+<!-- Full-page loading overlay -->
+<div id="pageLoadingOverlay" style="
+    display:none;
+    position:fixed;
+    top:0;
+    left:0;
+    width:100%;
+    height:100%;
+    background: rgba(255,255,255,0.7);
+    z-index:2000;
+    justify-content:center;
+    align-items:center;
+    flex-direction:column;
+">
+    <div class="spinner-border text-primary" role="status" style="width:3rem;height:3rem"></div>
+    <p class="mt-2">Processing, Please wait...</p>
+</div>
+
 
 <!-- Toast thông báo -->
 <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 1100">
@@ -97,30 +117,54 @@
             var button = $(e.relatedTarget);
             var url = button.data('url');
             $("#addBookModelBody").load(url);
+            console.log("pic selected");
         });
 
         // Submit form trong modal bằng AJAX
         $('#addBookModel').on('submit', 'form', function (e) {
-            e.preventDefault();
-            var form = $(this);
-            $.ajax({
-                type: form.attr('method'),
-                url: form.attr('action'),
-                data: form.serialize(),
-                success: function (res) {
-                    if (res && res.success) {
-                        $('#addBookModel').modal('hide');
-                        showToast(res.message || "Thành công!");
-                        location.reload();
-                    } else {
-                        $('#addBookModelBody').html(res); // render lại form khi validation fail
-                    }
-                },
-                error: function () {
-                    showToast("Có lỗi xảy ra, vui lòng thử lại!");
-                }
-            });
-        });
+             e.preventDefault();
+              console.log("Submit captured!");
+             var form = $(this);
+               console.log("Action:", form.attr('action'), "Method:", form.attr('method'));
+             var formData = new FormData(form[0]);
+
+
+              $("#pageLoadingOverlay").css("display", "flex");
+
+             $.ajax({
+                 url: form.attr('action'),
+                 type: form.attr('method'),
+                 data: formData,
+                 contentType: false,
+                 processData: false,
+                 success: function(res) {console.log("AJAX success", res);
+                     // Ẩn loading
+                     $("#loadingSpinner").remove();
+
+                     if (res.success) {
+
+                          $("#pageLoadingOverlay").hide();
+                         // Đóng modal
+                         $('#addBookModel').modal('hide');
+
+                         // Hiện toast
+                         showToast("Success");
+
+                         // Refresh lại trang hoặc redirect
+                         setTimeout(function () {
+                             window.location.href = '/Book/GetBookDashBoard';
+                         }, 1000);
+                     } else {
+                        console.log("Validation errors", res);
+                     }
+                 },
+                 error: function() {console.log("AJAX error", err);
+                     $("#loadingSpinner").remove();
+                     showToast("Errror");
+                 }
+             });
+         });
+
 
         // Hàm show toast
         function showToast(message) {
@@ -128,6 +172,7 @@
             var toast = new bootstrap.Toast(document.getElementById('liveToast'));
             toast.show();
         }
+
     </script>
 }
 

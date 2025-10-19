@@ -7,8 +7,9 @@ namespace WorldBook.Services.Interfaces
     {
         Task<IEnumerable<BookDetailViewModel>> GetAllBooksAsync();
         Task<BookDetailViewModel> GetBookByIdAsync(int id);
+         Task<BookEditViewModel> GetBookByIdEditdAsync(int id);
         Task AddBookAsync(BookCreateEditViewModel book);
-        Task UpdateBookAsync(BookCreateEditViewModel book);
+        Task UpdateBookAsync(BookEditViewModel book);
         Task DeleteBookAsync(int id);
     }
 }

@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using WorldBook.Models;
 using WorldBook.Services;
 using WorldBook.Services.Interfaces;
 using WorldBook.ViewModel;
@@ -65,16 +66,19 @@ namespace WorldBook.Controllers
             if (ModelState.IsValid)
             {
                 await _bookService.AddBookAsync(model);
-                return View("~/Views/AdminViews/ManageBook/View.cshtml");
+                return Json(new { success = true });
 
             }
-            return PartialView("~/Views/AdminViews/ManageBook/Add.cshtml", model);
+            else
+            {
+                return PartialView("~/Views/AdminViews/ManageBook/Add.cshtml", model);
+            }
         }
 
         public async Task<IActionResult> Delete(int id)
         {
             BookDetailViewModel book = await _bookService.GetBookByIdAsync(id);
-            
+
             return View("/Views/AdminViews/ManageBook/Delete.cshtml", book);
         }
 
@@ -82,7 +86,32 @@ namespace WorldBook.Controllers
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             await _bookService.DeleteBookAsync(id);
-            return RedirectToAction("GetBookDashBoard");
+            return Json(new { success = true });
+
+        }
+
+
+        public async Task<IActionResult> Edit(int id)
+        {
+            BookEditViewModel book = await _bookService.GetBookByIdEditdAsync(id);
+
+            return View("/Views/AdminViews/ManageBook/Update.cshtml", book);
+        }
+
+
+        [HttpPost]
+        public async Task<IActionResult> Edit(BookEditViewModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                Console.WriteLine("Enter controllerrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr");
+                await _bookService.UpdateBookAsync(model);
+                return Json(new { success = true });
+            }
+            else
+            {
+                return View("/Views/AdminViews/ManageBook/Update.cshtml", model);
+            }
 
         }
     }

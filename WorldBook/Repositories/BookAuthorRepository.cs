@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.EntityFrameworkCore;
+using System;
 using WorldBook.Models;
 using WorldBook.Repositories.Interfaces;
 
@@ -18,5 +19,13 @@ namespace WorldBook.Repositories
             _db.BookAuthors.Add(bookAuthor);
             await _db.SaveChangesAsync();
         }
+
+        public async Task ClearByBookIdAsync(int bookId)
+        {
+            var bookAuthors = _db.BookAuthors.Where(ba => ba.BookId == bookId);
+            _db.BookAuthors.RemoveRange(bookAuthors);
+            await _db.SaveChangesAsync();
+        }
+
     }
 }
