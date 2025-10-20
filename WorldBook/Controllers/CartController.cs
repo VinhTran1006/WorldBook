@@ -21,7 +21,7 @@ namespace WorldBook.Controllers
             var userId = GetCurrentUserId();
             if (userId == 0)
             {
-                TempData["Error"] = "Vui lòng đăng nhập để xem giỏ hàng";
+                TempData["Error"] = "Please log in to view your cart";
                 return RedirectToAction("Login", "Logins");
             }
 
@@ -35,7 +35,7 @@ namespace WorldBook.Controllers
             return View("~/Views/UserViews/Cart/Index.cshtml", cart);
         }
 
-        // POST: Cart/AddToCart - Cập nhật để trả về JSON
+        // POST: Cart/AddToCart - Updated to return JSON
         [HttpPost]
         public async Task<IActionResult> AddToCart(int id, int quantity = 1)
         {
@@ -45,7 +45,7 @@ namespace WorldBook.Controllers
                 return Json(new
                 {
                     success = false,
-                    message = "Vui lòng đăng nhập để thêm sản phẩm vào giỏ hàng",
+                    message = "Please log in to add items to your cart",
                     requireLogin = true
                 });
             }
@@ -57,7 +57,7 @@ namespace WorldBook.Controllers
                 return Json(new
                 {
                     success = true,
-                    message = "Đã thêm sách vào giỏ hàng thành công!"
+                    message = "Book added to cart successfully!"
                 });
             }
             else
@@ -65,7 +65,7 @@ namespace WorldBook.Controllers
                 return Json(new
                 {
                     success = false,
-                    message = "Không thể thêm sách vào giỏ hàng. Vui lòng kiểm tra lại số lượng tồn kho."
+                    message = "Unable to add the book to the cart. Please check stock availability."
                 });
             }
         }
@@ -77,7 +77,7 @@ namespace WorldBook.Controllers
             var userId = GetCurrentUserId();
             if (userId == 0)
             {
-                return Json(new { success = false, message = "Vui lòng đăng nhập" });
+                return Json(new { success = false, message = "Please log in" });
             }
 
             var result = await _cartService.UpdateQuantityAsync(userId, bookId, quantity);
@@ -88,13 +88,13 @@ namespace WorldBook.Controllers
                 return Json(new
                 {
                     success = true,
-                    message = "Cập nhật số lượng thành công",
+                    message = "Quantity updated successfully",
                     totalPrice = cart.TotalPrice,
                     totalItems = cart.TotalItems
                 });
             }
 
-            return Json(new { success = false, message = "Không thể cập nhật số lượng" });
+            return Json(new { success = false, message = "Unable to update quantity" });
         }
 
         // POST: Cart/Remove
@@ -104,18 +104,18 @@ namespace WorldBook.Controllers
             var userId = GetCurrentUserId();
             if (userId == 0)
             {
-                return Json(new { success = false, message = "Vui lòng đăng nhập" });
+                return Json(new { success = false, message = "Please log in" });
             }
 
             var result = await _cartService.RemoveItemAsync(userId, bookId);
 
             if (result)
             {
-                TempData["Success"] = "Đã xóa sản phẩm khỏi giỏ hàng";
-                return Json(new { success = true, message = "Đã xóa sản phẩm" });
+                TempData["Success"] = "Item removed from cart";
+                return Json(new { success = true, message = "Item removed" });
             }
 
-            return Json(new { success = false, message = "Không thể xóa sản phẩm" });
+            return Json(new { success = false, message = "Unable to remove item" });
         }
 
         // POST: Cart/Clear
@@ -125,18 +125,18 @@ namespace WorldBook.Controllers
             var userId = GetCurrentUserId();
             if (userId == 0)
             {
-                return Json(new { success = false, message = "Vui lòng đăng nhập" });
+                return Json(new { success = false, message = "Please log in" });
             }
 
             var result = await _cartService.ClearCartAsync(userId);
 
             if (result)
             {
-                TempData["Success"] = "Đã xóa toàn bộ giỏ hàng";
+                TempData["Success"] = "All items cleared from your cart";
                 return RedirectToAction("Index");
             }
 
-            TempData["Error"] = "Không thể xóa giỏ hàng";
+            TempData["Error"] = "Unable to clear cart";
             return RedirectToAction("Index");
         }
 

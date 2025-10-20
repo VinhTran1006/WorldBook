@@ -102,16 +102,16 @@
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                showToast(data.message || 'Đã thêm sách vào giỏ hàng thành công!', 'success');
+                showToast(data.message || 'Book added to cart successfully!', 'success');
                 // Cập nhật số lượng giỏ hàng nếu có badge
                 updateCartBadge();
             } else {
-                showToast(data.message || 'Không thể thêm sách vào giỏ hàng', 'error');
+                showToast(data.message || 'Unable to add book to cart', 'error');
             }
         })
         .catch(error => {
             console.error('Error:', error);
-            showToast('Đã xảy ra lỗi. Vui lòng thử lại!', 'error');
+            showToast('An error occurred. Please try again!', 'error');
         })
         .finally(() => {
             // Enable lại button
