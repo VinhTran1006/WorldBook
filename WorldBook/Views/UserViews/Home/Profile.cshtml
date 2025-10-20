@@ -72,93 +72,13 @@
                     <button type="button" id="cancelButton" class="btn btn-secondary d-none">Cancel</button>
                 </div>
             </form>
-
-            <script>
-                document.addEventListener("DOMContentLoaded", function () {
-                    const form = document.getElementById("editForm");
-
-                    form.addEventListener("submit", function (e) {
-                        let isValid = true;
-
-                        const name = form.querySelector("[name='Name']");
-                        const email = form.querySelector("[name='Email']");
-                        const dob = form.querySelector("[name='DateOfBirth']");
-                        const gender = form.querySelector("[name='Gender']");
-                        const phone = form.querySelector("[name='Phone']");
-                        const address = form.querySelector("[name='Address']");
-
-                        // Clear errors
-                        form.querySelectorAll(".text-danger").forEach(span => (span.textContent = ""));
-
-                        // ✅ Name
-                        const nameRegex = /^[a-zA-ZÀ-ỹ\s]+$/;
-                        if (!name.value.trim()) {
-                            showError(name, "Name is required.");
-                            isValid = false;
-                        } else if (!nameRegex.test(name.value.trim())) {
-                            showError(name, "Name must not contain special characters.");
-                            isValid = false;
-                        }
-
-                        // ✅ Email
-                        const emailRegex = /^[^\s@@]+@@[^\s@@]+\.[^\s@@]+$/;
-                        if (!email.value.trim()) {
-                            showError(email, "Email is required.");
-                            isValid = false;
-                        } else if (!emailRegex.test(email.value.trim())) {
-                            showError(email, "Invalid email format.");
-                            isValid = false;
-                        }
-
-                        // ✅ DOB
-                        if (!dob.value) {
-                            showError(dob, "Date of birth is required.");
-                            isValid = false;
-                        } else {
-                            const birth = new Date(dob.value);
-                            if (birth >= new Date()) {
-                                showError(dob, "Date of birth must be before today.");
-                                isValid = false;
-                            }
-                        }
-
-                        // ✅ Gender
-                        if (!gender.value.trim()) {
-                            showError(gender, "Please select your gender.");
-                            isValid = false;
-                        }
-
-                        // ✅ Phone
-                        const phoneRegex = /^[0-9]{10}$/;
-                        if (phone.value.trim() && !phoneRegex.test(phone.value.trim())) {
-                            showError(phone, "Phone number must contain exactly 10 digits.");
-                            isValid = false;
-                        }
-
-                        // ✅ Address
-                        const addressRegex = /^[a-zA-Z0-9À-ỹ\s,.\-\/]*$/;
-                        if (address.value.trim() && !addressRegex.test(address.value.trim())) {
-                            showError(address, "Address contains invalid characters.");
-                            isValid = false;
-                        }
-
-                        if (!isValid) e.preventDefault();
-                    });
-
-                    function showError(input, message) {
-                        let span = input.nextElementSibling;
-                        if (!span || !span.classList.contains("text-danger")) {
-                            span = input.parentElement.querySelector(".text-danger");
-                        }
-                        if (span) span.textContent = message;
-                    }
-                });
-            </script>
         </div>
     </div>
 </div>
 
 @section Scripts {
+    @await Html.PartialAsync("_ValidationScriptsPartial")
+
     <partial name="_ValidationScriptsPartial" />
     <script>
         const editBtn = document.getElementById('editButton');
