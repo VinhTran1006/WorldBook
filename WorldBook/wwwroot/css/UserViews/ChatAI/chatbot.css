@@ -1,0 +1,179 @@
+﻿/* 💬 Layout cơ bản */
+#chatbot-container {
+    position: fixed;
+    bottom: 20px;
+    left: 20px;
+    z-index: 9999;
+}
+
+#chatbot-toggle {
+    width: 60px;
+    height: 60px;
+    background-color: #007bff;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 28px;
+    cursor: pointer;
+    transition: all 0.3s;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+
+    #chatbot-toggle:hover {
+        background-color: #0056b3;
+    }
+
+#chatbot-box {
+    display: none;
+    width: 340px;
+    height: 450px;
+    background: white;
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid #ccc;
+    flex-direction: column;
+    position: absolute;
+    bottom: 70px;
+    left: 0;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+}
+
+#chatbot-header {
+    background-color: #007bff;
+    color: white;
+    padding: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-weight: bold;
+}
+
+#chatbot-messages {
+    flex: 1;
+    padding: 10px;
+    overflow-y: auto;
+    height: 300px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+/* 🗨️ Bong bóng chat */
+.message {
+    display: flex;
+    align-items: flex-end;
+    gap: 8px;
+}
+
+    .message.user {
+        justify-content: flex-end;
+    }
+
+    .message.bot {
+        justify-content: flex-start;
+    }
+
+    .message .bubble {
+        padding: 8px 12px;
+        border-radius: 12px;
+        max-width: 75%;
+        word-wrap: break-word;
+        font-size: 14px;
+        line-height: 1.4;
+    }
+
+    .message.user .bubble {
+        background-color: #e8f0fe;
+        border-bottom-right-radius: 2px;
+    }
+
+    .message.bot .bubble {
+        background-color: #f1f1f1;
+        border-bottom-left-radius: 2px;
+    }
+
+    /* 👤 Icon */
+    .message i {
+        font-size: 18px;
+        color: #007bff;
+    }
+
+/* ✨ Gợi ý */
+#chatbot-suggestions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    padding: 8px;
+    border-top: 1px solid #ddd;
+}
+
+.chat-suggestion {
+    background-color: #f1f1f1;
+    border: none;
+    border-radius: 15px;
+    padding: 6px 10px;
+    cursor: pointer;
+    font-size: 13px;
+    transition: background-color 0.2s;
+}
+
+    .chat-suggestion:hover {
+        background-color: #007bff;
+        color: white;
+    }
+
+/* ⌨️ Input */
+#chatbot-input-area {
+    display: flex;
+    border-top: 1px solid #ddd;
+}
+
+#chatbot-input {
+    flex: 1;
+    border: none;
+    padding: 8px;
+    outline: none;
+}
+
+#chatbot-send {
+    background-color: #007bff;
+    border: none;
+    color: white;
+    padding: 0 15px;
+    cursor: pointer;
+}
+
+    #chatbot-send:hover {
+        background-color: #0056b3;
+    }
+
+/* Dấu chấm nhảy */
+.typing {
+    font-size: 18px;
+    margin-left: 10px;
+}
+
+    .typing span {
+        animation: blink 1s infinite;
+        display: inline-block;
+    }
+
+        .typing span:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .typing span:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+
+@keyframes blink {
+    0%, 80%, 100% {
+        opacity: 0;
+    }
+
+    40% {
+        opacity: 1;
+    }
+}
