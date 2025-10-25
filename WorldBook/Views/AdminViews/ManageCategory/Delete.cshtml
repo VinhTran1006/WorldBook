@@ -1,0 +1,38 @@
+﻿@model WorldBook.Models.Category
+
+
+
+<div class="card-header bg-primary text-white">
+    <h3 class="mb-0"><i class="bi bi-plus-circle"></i> Delete Category</h3>
+</div>
+
+<div class="alert alert-danger" role="alert">
+    <strong>⚠️ Warning!</strong> You are about to delete this category permanently.
+    This action cannot be undone.
+</div>
+
+<div class="card shadow-sm border-0 mb-4">
+    <div class="card-body">
+        <div class="row">
+
+            </div>
+            <div class="col-md-8">
+                <dl class="row">
+                <dt class="col-sm-4">CategoryID </dt>
+                <dd class="col-sm-8">@Model.CategoryId</dd>
+                    <dt class="col-sm-4">Category Name</dt>
+                    <dd class="col-sm-8">@Model.CategoryName</dd>
+
+                    <dt class="col-sm-4">Category Description</dt>
+                    <dd class="col-sm-8">@Model.CategoryDescription</dd>
+                </dl>
+            </div>
+        </div>
+    </div>
+</div>
+
+<form asp-action="DeleteConfirm" method="post" class="d-flex gap-2 justify-content-end">
+    @Html.AntiForgeryToken()
+    <input type="hidden" name="id" value="@Model.CategoryId" />
+    <button type="submit" class="btn btn-danger">Confirm Delete</button>
+</form>
