@@ -1,8 +1,8 @@
 ﻿using WorldBook.Models;
 
-namespace WorldBook.Repositories.Interfaces
+namespace WorldBook.Services.Interfaces
 {
-    public interface ICategoryRepository
+    public interface ICategoryService
     {
         Task<Category?> GetByNameAsync(string categoryName);
         Task<Category> AddAsync(Category category);

@@ -1,0 +1,42 @@
+﻿@model WorldBook.Models.Category
+@{
+    ViewData["Title"] = "Category Details";
+}
+
+<link rel="stylesheet" href="~/css/UserViews/Book/book-details.css" />
+<div class="card-header bg-primary text-white">
+    <h3 class="mb-0"><i class="bi bi-plus-circle"></i>Category Details</h3>
+</div>
+<div class="d-flex justify-content-between align-items-start border rounded-3 p-3 shadow-sm">
+
+    <!-- Bên trái: thông tin -->
+    <div class="book-meta">
+        <p><strong>Category ID:</strong> @Model.CategoryId</p>
+        <p><strong>Category Name:</strong> @Model.CategoryName</p>
+        <p><strong>Description:</strong> @Model.CategoryDescription</p>
+    </div>
+
+    <!-- Bên phải: nút thao tác -->
+    <div class="book-actions text-end">
+        <a asp-action="Edit"
+           asp-route-id="@Model?.CategoryId"
+           class="btn btn-warning me-2">
+            <i class="bi bi-pencil-square"></i> Edit
+        </a>
+
+        <button class="btn btn-danger btn-delete-book"
+                data-url="@Url.Action("Delete", "Category", new { id = Model.CategoryId })">
+            <i class="bi bi-trash"></i> Delete
+        </button>
+    </div>
+</div>
+
+<script>
+    $(document).on('click', '.btn-delete-book', function (e) {
+        e.preventDefault();
+        var url = $(this).data('url');
+        $("#addCategoryModelBody").load(url, function () {
+            $('#addCategoryModel').modal('show');
+        });
+    });
+</script>

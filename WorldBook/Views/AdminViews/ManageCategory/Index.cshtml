@@ -1,0 +1,170 @@
+﻿@model IEnumerable<Category>
+
+@{
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    ViewData["Title"] = "Manage Category";
+}
+
+
+<h2 class="mb-3">Category List</h2>
+
+<p>
+    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addCategoryModel"
+            data-url="@Url.Action("Add", "Category")">
+        <i class="bi bi-plus-circle"></i> Add Category
+    </button>
+</p>
+
+<table class="table table-hover table-striped align-middle">
+    <thead class="table-dark">
+        <tr>
+            <th>ID</th>
+            <th>Category Name</th>
+            <th>Category Description </th>
+            <th style="width:160px;">Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (Model != null && Model.Any())
+        {
+            foreach (var cate in Model)
+            {
+                <tr>
+                    <td>@cate.CategoryId</td>
+                    <td>@cate.CategoryName</td>
+                    <td>@cate.CategoryDescription</td>
+                    <td>
+
+                        <button class="btn btn-sm btn-info text-white" data-bs-toggle="modal" data-bs-target="#addCategoryModel"
+                                data-url="@Url.Action("Details", "Category", new { id = cate.CategoryId })">
+                            <i class="bi bi-eye"></i>
+                        </button>
+
+                        <button class="btn btn-sm btn-warning text-white" data-bs-toggle="modal" data-bs-target="#addCategoryModel"
+                                data-url="@Url.Action("Edit", "Category", new { id = cate.CategoryId })">
+                            <i class="bi bi-pencil-square"></i>
+                        </button>
+
+                        <button class="btn btn-sm btn-danger" data-bs-toggle="modal" data-bs-target="#addCategoryModel"
+                                data-url="@Url.Action("Delete", "Category", new { id = cate.CategoryId })">
+                            <i class="bi bi-trash"></i>
+                        </button>
+
+                    </td>
+                </tr>
+            }
+        }
+        else
+        {
+            <tr>
+                <td colspan="8" class="text-center text-muted py-3">No Category available.</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<div class="modal fade" id="addCategoryModel" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+
+            <div class="modal-body" id="addCategoryModelBody"></div>
+        </div>
+    </div>
+</div>
+
+<!-- Full-page loading overlay -->
+<div id="pageLoadingOverlay" style="
+    display:none;
+    position:fixed;
+    top:0;
+    left:0;
+    width:100%;
+    height:100%;
+    background: rgba(255,255,255,0.7);
+    z-index:2000;
+    justify-content:center;
+    align-items:center;
+    flex-direction:column;
+">
+    <div class="spinner-border text-primary" role="status" style="width:3rem;height:3rem"></div>
+    <p class="mt-2">Processing, Please wait...</p>
+</div>
+
+
+<!-- Toast thông báo -->
+<div class="position-fixed bottom-0 end-0 p-3" style="z-index: 1100">
+    <div id="liveToast" class="toast bg-success text-white" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="toast-body"></div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Load partial vào modal khi mở
+        $('#addCategoryModel').on('show.bs.modal', function (e) {
+            var button = $(e.relatedTarget);
+            var url = button.data('url');
+            $("#addCategoryModelBody").load(url);
+        });
+
+        // Submit form trong modal bằng AJAX
+        $('#addCategoryModel').on('submit', 'form', function (e) {
+             e.preventDefault();
+              console.log("Submit captured!");
+             var form = $(this);
+               console.log("Action:", form.attr('action'), "Method:", form.attr('method'));
+             var formData = new FormData(form[0]);
+
+
+              $("#pageLoadingOverlay").css("display", "flex");
+
+             $.ajax({
+                 url: form.attr('action'),
+                 type: form.attr('method'),
+                 data: formData,
+                 contentType: false,
+                 processData: false,
+                 success: function(res) {console.log("AJAX success", res);
+                     // Ẩn loading
+                     $("#loadingSpinner").remove();
+
+                     if (res.success) {
+
+                          $("#pageLoadingOverlay").hide();
+                         // Đóng modal
+                         $('#addCategoryModel').modal('hide');
+
+                         // Hiện toast
+                         showToast("Success");
+
+                         // Refresh lại trang hoặc redirect
+                         setTimeout(function () {
+                             window.location.href = '/Category/Index';
+                         }, 1000);
+                     } else {
+                        console.log("Validation errors", res);
+                     }
+                 },
+                 error: function() {console.log("AJAX error", err);
+                     $("#loadingSpinner").remove();
+                     showToast("Errror");
+                 }
+             });
+         });
+
+
+        // Hàm show toast
+        function showToast(message) {
+            $('#liveToast .toast-body').text(message);
+            var toast = new bootstrap.Toast(document.getElementById('liveToast'));
+            toast.show();
+        }
+
+    </script>
+}
+
+
+
