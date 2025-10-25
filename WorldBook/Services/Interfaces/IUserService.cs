@@ -14,6 +14,9 @@ namespace WorldBook.Services
         Task UpdateStaffAsync(int id, UserEditViewModel vm);
         Task DeleteStaffAsync(int id);
 
+        Task<IEnumerable<User>> GetAllCustomersAsync();
+        Task DeleteCustomerAsync(int id);
+
         Task<ProfileViewModel?> GetProfileAsync(string username);
         Task UpdateProfileAsync(ProfileViewModel model,string username);
     }

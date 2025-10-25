@@ -1,0 +1,117 @@
+﻿@model IEnumerable<WorldBook.Models.User>
+@{
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    ViewData["Title"] = "Manage Customers";
+}
+
+<h2 class="mb-3">Customer List</h2>
+
+<table class="table table-hover table-striped">
+    <thead class="table-dark">
+        <tr>
+            <th>Username</th>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Phone</th>
+            <th>Status</th>
+            <th style="width:140px">Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var customer in Model)
+        {
+            <tr>
+                <td>@customer.Username</td>
+                <td>@customer.Name</td>
+                <td>@customer.Email</td>
+                <td>@customer.Phone</td>
+                <td>
+                    @if (customer.IsActive)
+                    {
+                        <span class="badge bg-success">Active</span>
+                    }
+                    else
+                    {
+                        <span class="badge bg-secondary">Blocked</span>
+                    }
+                </td>
+                <td>
+                    <button class="btn btn-sm btn-info" data-bs-toggle="modal" data-bs-target="#customerModal"
+                            data-url="@Url.Action("Details", "ManageCustomers", new { id = customer.UserId })"
+                            title="View Details">
+                        <i class="bi bi-eye"></i>
+                    </button>
+                    @if (customer.IsActive)
+                    {
+                        <button class="btn btn-sm btn-danger" data-bs-toggle="modal" data-bs-target="#customerModal"
+                                data-url="@Url.Action("Delete", "ManageCustomers", new { id = customer.UserId })"
+                                title="Block Customer">
+                            <i class="bi bi-slash-circle"></i>
+                        </button>
+                    }
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<!-- Modal -->
+<div class="modal fade" id="customerModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Customer</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" id="customerModalBody"></div>
+        </div>
+    </div>
+</div>
+
+<!-- Toast thông báo -->
+<div class="position-fixed bottom-0 end-0 p-3" style="z-index: 1100">
+    <div id="liveToast" class="toast bg-success text-white" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="toast-body"></div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Load partial vào modal khi mở
+        $('#customerModal').on('show.bs.modal', function (e) {
+            var button = $(e.relatedTarget);
+            var url = button.data('url');
+            $("#customerModalBody").load(url);
+        });
+
+        // Submit form trong modal bằng AJAX (cho hành động Delete)
+        $('#customerModal').on('submit', 'form', function (e) {
+            e.preventDefault();
+            var form = $(this);
+            $.ajax({
+                type: form.attr('method'),
+                url: form.attr('action'),
+                data: form.serialize(),
+                success: function (res) {
+                    if (res && res.success) {
+                        $('#customerModal').modal('hide');
+                        showToast(res.message || "Thành công!");
+                        location.reload();
+                    } else {
+                        $('#customerModalBody').html(res);
+                    }
+                },
+                error: function () {
+                    showToast("Có lỗi xảy ra, vui lòng thử lại!");
+                }
+            });
+        });
+
+        // Hàm show toast
+        function showToast(message) {
+            $('#liveToast .toast-body').text(message);
+            var toast = new bootstrap.Toast(document.getElementById('liveToast'));
+            toast.show();
+        }
+    </script>
+}
