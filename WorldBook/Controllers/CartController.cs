@@ -160,5 +160,83 @@ namespace WorldBook.Controllers
             var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             return int.TryParse(userIdClaim, out var id) ? id : 0;
         }
+
+        // Thêm các methods này vào CartController hiện tại của bạn
+
+        // POST: Cart/GetSelectedItems
+        [HttpPost]
+        public async Task<IActionResult> GetSelectedItems([FromBody] List<int> selectedBookIds)
+        {
+            var userId = GetCurrentUserId();
+            if (userId == 0)
+            {
+                return Json(new { success = false, message = "Please log in" });
+            }
+
+            var cart = await _cartService.GetCartAsync(userId);
+            var selectedItems = cart.Items
+                .Where(item => selectedBookIds.Contains(item.BookId))
+                .Select(item => new
+                {
+                    bookId = item.BookId,
+                    bookName = item.BookName,
+                    price = item.BookPrice,
+                    quantity = item.Quantity,
+                    subtotal = item.Subtotal,
+                    imageUrl = item.ImageUrl
+                })
+                .ToList();
+
+            var totalPrice = selectedItems.Sum(i => i.subtotal);
+
+            return Json(new
+            {
+                success = true,
+                items = selectedItems,
+                totalPrice = totalPrice,
+                itemCount = selectedItems.Count
+            });
+        }
+
+        // POST: Cart/ValidateSelectedItems - Kiểm tra tồn kho trước khi checkout
+        [HttpPost]
+        public async Task<IActionResult> ValidateSelectedItems([FromBody] List<int> selectedBookIds)
+        {
+            var userId = GetCurrentUserId();
+            if (userId == 0)
+            {
+                return Json(new { success = false, message = "Please log in" });
+            }
+
+            var cart = await _cartService.GetCartAsync(userId);
+            var invalidItems = new List<string>();
+
+            foreach (var bookId in selectedBookIds)
+            {
+                var cartItem = cart.Items.FirstOrDefault(i => i.BookId == bookId);
+                if (cartItem == null)
+                {
+                    invalidItems.Add($"Item not found in cart");
+                    continue;
+                }
+
+                if (cartItem.AvailableStock < cartItem.Quantity)
+                {
+                    invalidItems.Add($"{cartItem.BookName}: Only {cartItem.AvailableStock} left in stock");
+                }
+            }
+
+            if (invalidItems.Any())
+            {
+                return Json(new
+                {
+                    success = false,
+                    message = "Some items are out of stock",
+                    invalidItems = invalidItems
+                });
+            }
+
+            return Json(new { success = true });
+        }
     }
 }

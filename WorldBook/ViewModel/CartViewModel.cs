@@ -6,6 +6,14 @@
         public decimal TotalPrice { get; set; }
         public int TotalItems { get; set; }
         public bool IsEmpty => Items == null || !Items.Any();
+
+        // Tính tổng giá cho các items được chọn
+        public decimal SelectedTotalPrice => Items
+            .Where(i => i.IsSelected)
+            .Sum(i => i.Subtotal);
+
+        // Đếm số items được chọn
+        public int SelectedItemsCount => Items.Count(i => i.IsSelected);
     }
 
     public class CartItemViewModel
@@ -20,5 +28,8 @@
         public string ImageUrl { get; set; } = string.Empty;
         public int AvailableStock { get; set; }
         public string? PublisherName { get; set; }
+
+        // Thêm thuộc tính để tracking trạng thái chọn
+        public bool IsSelected { get; set; } = false;
     }
 }
