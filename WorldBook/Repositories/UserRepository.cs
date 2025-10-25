@@ -62,6 +62,14 @@ namespace WorldBook.Repositories
                 .ToListAsync();
         }
 
+        public async Task<IEnumerable<User>> GetCustomersAsync()
+        {
+            return await _db.Users
+                .Include(u => u.UserRoles).ThenInclude(ur => ur.Role)
+                .Where(u => u.UserRoles.Any(ur => ur.Role.Name == "Customer"))
+                .ToListAsync();
+        }
+
 
         public async Task<User> GetByUsernameAsync(string username)
             => await _db.Users.FirstOrDefaultAsync(u => u.Username == username);

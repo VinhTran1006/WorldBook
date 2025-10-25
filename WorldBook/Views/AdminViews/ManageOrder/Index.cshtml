@@ -1,0 +1,97 @@
+﻿@model IEnumerable<WorldBook.ViewModel.OrderViewModel>
+
+@{
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    ViewData["Title"] = "Manage Orders";
+}
+
+<h2 class="mb-3">Order List</h2>
+
+<div class="card shadow-sm rounded-3 p-3">
+    <table class="table table-hover align-middle">
+        <thead class="table-dark">
+            <tr>
+                <th>ID</th>
+                <th>Customer</th>
+                <th>Address</th>
+                <th>Order Date</th>
+                <th>Delivered Date</th>
+                <th>Status</th>
+                <th>Total</th>
+                <th>Discount</th>
+                <th class="text-center">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (TempData["SuccessMessage"] != null)
+            {
+                <div class="alert alert-success">@TempData["SuccessMessage"]</div>
+            }
+            @if (TempData["ErrorMessage"] != null)
+            {
+                <div class="alert alert-danger">@TempData["ErrorMessage"]</div>
+            }
+            @if (Model != null && Model.Any())
+            {
+                foreach (var order in Model)
+                {
+                    <tr>
+                        <td>@order.OrderId</td>
+                        <td>@order.CustomerName</td>
+                        <td>@order.Address</td>
+                        <td>@order.OrderDate?.ToString("dd/MM/yyyy")</td>
+                        <td>@order.DeliveredDate?.ToString("dd/MM/yyyy")</td>
+                        <td>
+                            @{
+                                string badgeClass = order.Status switch
+                                {
+                                    "Not Approved" => "secondary",
+                                    "Preparing" => "warning",
+                                    "Delivering" => "info",
+                                    "Completed" => "success",
+                                    "Cancelled" => "danger",
+                                    _ => "dark"
+                                };
+                            }
+                            <span class="badge bg-@badgeClass px-3 py-2">@order.Status</span>
+                        </td>
+                        <td>@String.Format("{0:N0}", order.TotalAmount) đ</td>
+                        <td>@order.Discount %</td>
+                        <td class="text-center">
+                            <a asp-controller="Order" asp-action="Details" asp-route-id="@order.OrderId"
+                               class="btn btn-sm btn-outline-primary">
+                                <i class="bi bi-eye"></i> View
+                            </a>
+
+                            @* 🟢 Nút duyệt đơn *@
+                            @if (order.Status != "Completed" && order.Status != "Cancelled")
+                            {
+                                <form asp-controller="Order" asp-action="Approve" asp-route-id="@order.OrderId" method="post" style="display:inline;">
+                                    <button type="submit" class="btn btn-sm btn-outline-success">
+                                        <i class="bi bi-check2-circle"></i> Approve
+                                    </button>
+                                </form>
+                            }
+
+                            @* 🔴 Nút hủy đơn *@
+                            @if (order.Status != "Cancelled" && order.Status != "Completed")
+                            {
+                                <form asp-controller="Order" asp-action="Cancel" asp-route-id="@order.OrderId" method="post" style="display:inline;">
+                                    <button type="submit" class="btn btn-sm btn-outline-danger">
+                                        <i class="bi bi-x-circle"></i> Cancel
+                                    </button>
+                                </form>
+                            }
+                        </td>
+                    </tr>
+                }
+            }
+            else
+            {
+                <tr>
+                    <td colspan="9" class="text-center text-muted">No orders found.</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

@@ -82,10 +82,26 @@ namespace WorldBook.Services
             await _userRepository.UpdateAsync(user);
         }
 
+        public async Task DeleteCustomerAsync(int id)
+        {
+            var user = await _userRepository.GetByIdAsync(id);
+            if (user == null)
+                throw new Exception("Customer not found");
+
+            // Chỉ xóa mềm (block account)
+            user.IsActive = false;
+            await _userRepository.UpdateAsync(user);
+        }
+
 
         public async Task<IEnumerable<User>> GetAllStaffsAsync()
         {
             return await _userRepository.GetStaffsAsync();
+        }
+
+        public async Task<IEnumerable<User>> GetAllCustomersAsync()
+        {
+            return await _userRepository.GetCustomersAsync();
         }
 
         public async Task<User> GetByIdAsync(int id)

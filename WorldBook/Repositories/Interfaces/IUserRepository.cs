@@ -16,6 +16,8 @@ namespace WorldBook.Repositories.Interfaces
         Task<User> GetByUsernameAsync(string username);
         Task<User> GetByEmailAsync(string email);
 
+        Task<IEnumerable<User>> GetCustomersAsync();
+
         Task AssignRoleAsync(int userId, int roleId);
 
         Task<User> GetByPhoneAsync(string phone);

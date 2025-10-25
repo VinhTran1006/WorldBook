@@ -37,6 +37,9 @@ builder.Services.AddScoped<IBookService, BookService>();
 builder.Services.AddScoped<WorldBook.Repositories.Interfaces.IVoucherRepository, WorldBook.Repositories.VoucherRepository>();
 builder.Services.AddScoped<WorldBook.Services.Interfaces.IVoucherService, WorldBook.Services.VoucherService>();
 
+builder.Services.AddScoped<IOrderRepository, OrderRepository>();
+builder.Services.AddScoped<IOrderService, OrderService>();
+
 //Cookie schema
 builder.Services.AddAuthentication("MyCookieAuth")
     .AddCookie("MyCookieAuth", options =>
