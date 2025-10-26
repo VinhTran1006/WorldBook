@@ -7,5 +7,10 @@ namespace WorldBook.Repositories.Interfaces
         Task<IEnumerable<Order>> GetAllOrdersAsync();
         Task<Order?> GetOrderByIdAsync(int id);
         Task UpdateOrderStatusAsync(int orderId, string newStatus);
+        Task<Order> CreateOrderAsync(Order order);
+        Task AddOrderDetailsAsync(List<OrderDetail> orderDetails);
+
+        /// Xóa items khỏi Cart sau khi đặt hàng thành công
+        Task RemoveCartItemsAsync(int userId, List<int> bookIds);
     }
 }

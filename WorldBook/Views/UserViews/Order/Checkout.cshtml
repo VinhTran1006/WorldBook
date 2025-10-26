@@ -1,0 +1,417 @@
+﻿@model WorldBook.ViewModel.CheckoutViewModel
+@{
+    ViewData["Title"] = "Checkout";
+    Layout = "~/Views/Shared/_UserLayout.cshtml";
+}
+
+<div class="container my-5">
+    <h2 class="mb-4">
+        <i class="bi bi-credit-card"></i> Checkout
+    </h2>
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            @TempData["Error"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    <form asp-action="PlaceOrder" method="post" id="checkoutForm">
+        @Html.AntiForgeryToken()
+
+        <input type="hidden" asp-for="UserId" />
+        <input type="hidden" asp-for="Subtotal" />
+        <input type="hidden" asp-for="SelectedVoucherId" id="selectedVoucherId" />
+        <input type="hidden" asp-for="DiscountPercent" id="discountPercent" />
+        <input type="hidden" asp-for="DiscountAmount" id="discountAmount" />
+        <input type="hidden" asp-for="TotalAmount" id="totalAmount" />
+
+        <!-- Hidden fields for items -->
+        @for (int i = 0; i < Model.Items.Count; i++)
+        {
+            <input type="hidden" name="Items[@i].BookId" value="@Model.Items[i].BookId" />
+            <input type="hidden" name="Items[@i].BookName" value="@Model.Items[i].BookName" />
+            <input type="hidden" name="Items[@i].ImageUrl" value="@Model.Items[i].ImageUrl" />
+            <input type="hidden" name="Items[@i].Price" value="@Model.Items[i].Price" />
+            <input type="hidden" name="Items[@i].Quantity" value="@Model.Items[i].Quantity" />
+        }
+
+        <div class="row">
+            <!-- Left Column: Order Info -->
+            <div class="col-lg-8">
+                <!-- Section 1: Order Summary -->
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0">
+                            <i class="bi bi-bag-check"></i> Order Summary
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        @foreach (var item in Model.Items)
+                        {
+                            <div class="row align-items-center border-bottom py-3">
+                                <div class="col-md-2">
+                                    <img src="@item.ImageUrl" alt="@item.BookName" class="img-fluid rounded">
+                                </div>
+                                <div class="col-md-5">
+                                    <h6 class="mb-1">@item.BookName</h6>
+                                    <p class="text-muted small mb-0">Quantity: @item.Quantity</p>
+                                </div>
+                                <div class="col-md-2 text-center">
+                                    <p class="fw-bold mb-0">@item.Price.ToString("N0") $</p>
+                                </div>
+                                <div class="col-md-3 text-end">
+                                    <p class="fw-bold text-primary mb-0">
+                                        @item.Subtotal.ToString("N0") $
+                                    </p>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+
+                <!-- Section 2: Shipping Address -->
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header bg-success text-white">
+                        <h5 class="mb-0">
+                            <i class="bi bi-truck"></i> Shipping Address
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">Name</label>
+                                <input type="text" class="form-control" value="@Model.UserName" readonly />
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">Email</label>
+                                <input type="text" class="form-control" value="@Model.Email" readonly />
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Phone</label>
+                            <input type="text" class="form-control" value="@Model.Phone" readonly />
+                        </div>
+                        <div class="mb-3">
+                            <label asp-for="Address" class="form-label fw-bold">
+                                Delivery Address <span class="text-danger">*</span>
+                            </label>
+                            <textarea asp-for="Address" class="form-control" rows="3" required></textarea>
+                            <span asp-validation-for="Address" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Section 3: Voucher Selection -->
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header bg-warning text-dark">
+                        <h5 class="mb-0">
+                            <i class="bi bi-ticket-perforated"></i> Available Vouchers
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        @if (Model.AvailableVouchers.Any())
+                        {
+                            <div class="row">
+                                @foreach (var voucher in Model.AvailableVouchers)
+                                {
+                                    <div class="col-md-6 mb-3">
+                                        <div class="card h-100 @(voucher.IsApplicable ? "border-success" : "border-secondary")">
+                                            <div class="card-body">
+                                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                                    <h6 class="mb-0">@voucher.VoucherCode</h6>
+                                                    <span class="badge bg-danger">-@voucher.DiscountPercent%</span>
+                                                </div>
+                                                <p class="small text-muted mb-2">@voucher.Description</p>
+                                                <p class="small mb-1">
+                                                    <i class="bi bi-calendar-x"></i>
+                                                    Expires: @voucher.ExpriryDate.ToString("dd/MM/yyyy")
+                                                </p>
+                                                @if (voucher.MinOrderAmount.HasValue)
+                                                {
+                                                    <p class="small mb-1">
+                                                        <i class="bi bi-cash"></i>
+                                                        Min: @voucher.MinOrderAmount.Value.ToString("N0") $
+                                                    </p>
+                                                }
+                                                @if (voucher.MaxOrderAmount.HasValue)
+                                                {
+                                                    <p class="small mb-1">
+                                                        <i class="bi bi-cash"></i>
+                                                        Max: @voucher.MaxOrderAmount.Value.ToString("N0") $
+                                                    </p>
+                                                }
+
+                                                @if (voucher.IsApplicable)
+                                                {
+                                                    <button type="button"
+                                                            class="btn btn-sm btn-success w-100 mt-2 apply-voucher-btn"
+                                                            data-voucher-id="@voucher.VoucherId"
+                                                            data-discount-percent="@voucher.DiscountPercent">
+                                                        <i class="bi bi-check-circle"></i> Apply
+                                                    </button>
+                                                }
+                                                else
+                                                {
+                                                    <button type="button" class="btn btn-sm btn-secondary w-100 mt-2" disabled>
+                                                        @voucher.NotApplicableReason
+                                                    </button>
+                                                }
+                                            </div>
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                        }
+                        else
+                        {
+                            <p class="text-muted mb-0">No vouchers available for this order.</p>
+                        }
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column: Payment Summary -->
+            <div class="col-lg-4">
+                <div class="card shadow-sm sticky-top" style="top: 20px;">
+                    <div class="card-header bg-info text-white">
+                        <h5 class="mb-0">
+                            <i class="bi bi-receipt"></i> Payment Summary
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Subtotal:</span>
+                            <span class="fw-bold" id="displaySubtotal">@Model.Subtotal.ToString("N0") $</span>
+                        </div>
+
+                        <div class="d-flex justify-content-between mb-2 d-none" id="discountRow">
+                            <span>
+                                Discount <span id="displayDiscountPercent" class="badge bg-danger"></span>:
+                            </span>
+                            <span class="fw-bold text-success" id="displayDiscountAmount">0 $</span>
+                        </div>
+
+                        <div id="appliedVoucherInfo" style="display: none;" class="alert alert-success mb-3">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span>
+                                    <i class="bi bi-check-circle-fill"></i>
+                                    Voucher Applied
+                                </span>
+                                <button type="button" class="btn btn-sm btn-outline-danger" id="removeVoucherBtn">
+                                    Remove
+                                </button>
+                            </div>
+                        </div>
+
+                        <hr>
+
+                        <div class="d-flex justify-content-between mb-3">
+                            <h5>Total:</h5>
+                            <h5 class="text-danger" id="displayTotalAmount">@Model.TotalAmount.ToString("N0") $</h5>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary w-100 mb-2" id="placeOrderBtn">
+                            <i class="bi bi-credit-card"></i> Place Order
+                        </button>
+
+                        <a href="@Url.Action("Index", "Cart")" class="btn btn-outline-secondary w-100">
+                            <i class="bi bi-arrow-left"></i> Back to Cart
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+<!-- Loading Overlay -->
+<div id="loadingOverlay" style="display: none;">
+    <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Loading...</span>
+    </div>
+    <p class="mt-2">Processing your order...</p>
+</div>
+
+<style>
+    #loadingOverlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(255, 255, 255, 0.9);
+        z-index: 9999;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+    }
+</style>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            const subtotal = @Model.Subtotal;
+            let selectedVoucherId = null;
+            let discountPercent = 0;
+            let discountAmount = 0;
+            let totalAmount = subtotal;
+
+            // Apply Voucher Button Click
+            $('.apply-voucher-btn').click(function() {
+                const voucherId = $(this).data('voucher-id');
+                const voucherDiscountPercent = $(this).data('discount-percent');
+
+                // Confirm dialog
+                if (!confirm('Apply this voucher to your order?')) {
+                    return;
+                }
+
+                // Show loading
+                $(this).prop('disabled', true).html('<span class="spinner-border spinner-border-sm"></span> Applying...');
+
+                // Prepare request data
+                const requestData = {
+                    voucherId: voucherId,
+                    address: $('#Address').val(),
+                    items: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.Items)),
+                    subtotal: subtotal
+                };
+
+                // AJAX call to apply voucher
+                $.ajax({
+                    url: '@Url.Action("ApplyVoucher", "Order")',
+                    type: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify(requestData),
+                    success: function(response) {
+                        if (response.success) {
+                            // Update values
+                            selectedVoucherId = voucherId;
+                            discountPercent = response.discountPercent;
+                            discountAmount = response.discountAmount;
+                            totalAmount = response.totalAmount;
+
+                            // Update hidden fields
+                            $('#selectedVoucherId').val(selectedVoucherId);
+                            $('#discountPercent').val(discountPercent);
+                            $('#discountAmount').val(discountAmount);
+                            $('#totalAmount').val(totalAmount);
+
+                            // Update display
+                            updatePricingDisplay();
+
+                            // Show success message
+                            showToast('Voucher applied successfully!', 'success');
+
+                            // Disable all voucher buttons
+                            $('.apply-voucher-btn').prop('disabled', true);
+                        } else {
+                            showToast(response.message || 'Failed to apply voucher', 'error');
+                        }
+                    },
+                    error: function() {
+                        showToast('An error occurred while applying voucher', 'error');
+                    },
+                    complete: function() {
+                        $('.apply-voucher-btn').prop('disabled', false).html('<i class="bi bi-check-circle"></i> Apply');
+                    }
+                });
+            });
+
+            // Remove Voucher Button Click
+            $('#removeVoucherBtn').click(function() {
+                if (!confirm('Remove applied voucher?')) {
+                    return;
+                }
+
+                // Reset values
+                selectedVoucherId = null;
+                discountPercent = 0;
+                discountAmount = 0;
+                totalAmount = subtotal;
+
+                // Clear hidden fields
+                $('#selectedVoucherId').val('');
+                $('#discountPercent').val(0);
+                $('#discountAmount').val(0);
+                $('#totalAmount').val(subtotal);
+
+                // Update display
+                updatePricingDisplay();
+
+                // Re-enable voucher buttons
+                $('.apply-voucher-btn').prop('disabled', false);
+
+                showToast('Voucher removed', 'info');
+            });
+
+            // Update pricing display
+            function updatePricingDisplay() {
+                $('#displaySubtotal').text(subtotal.toLocaleString('en-US') + ' $');
+
+                if (discountPercent > 0) {
+                    $('#discountRow').removeClass('d-none').show();
+                    $('#displayDiscountPercent').text('-' + discountPercent + '%');
+                    $('#displayDiscountAmount').text('-' + discountAmount.toLocaleString('en-US') + ' $');
+                    $('#appliedVoucherInfo').show();
+                } else {
+                    $('#discountRow').addClass('d-none').hide();
+                    $('#appliedVoucherInfo').hide();
+                }
+
+                $('#displayTotalAmount').text(totalAmount.toLocaleString('en-US') + ' $');
+            }
+
+            // Form submit
+            $('#checkoutForm').submit(function(e) {
+                // Validate address
+                const address = $('#Address').val().trim();
+                if (!address) {
+                    e.preventDefault();
+                    showToast('Please enter delivery address', 'error');
+                    return false;
+                }
+
+                // Confirm order
+                if (!confirm('Confirm place order?')) {
+                    e.preventDefault();
+                    return false;
+                }
+
+                // Show loading
+                $('#loadingOverlay').show();
+                $('#placeOrderBtn').prop('disabled', true);
+            });
+
+            // Toast notification function
+            function showToast(message, type) {
+                const bgColor = type === 'success' ? '#28a745' : type === 'error' ? '#dc3545' : '#17a2b8';
+                const toast = $('<div>')
+                    .css({
+                        position: 'fixed',
+                        top: '20px',
+                        right: '20px',
+                        padding: '15px 25px',
+                        backgroundColor: bgColor,
+                        color: 'white',
+                        borderRadius: '5px',
+                        zIndex: 10000,
+                        boxShadow: '0 4px 6px rgba(0,0,0,0.1)'
+                    })
+                    .text(message)
+                    .appendTo('body');
+
+                setTimeout(function() {
+                    toast.fadeOut(300, function() {
+                        $(this).remove();
+                    });
+                }, 3000);
+            }
+        });
+    </script>
+
+    @await Html.PartialAsync("_ValidationScriptsPartial")
+}

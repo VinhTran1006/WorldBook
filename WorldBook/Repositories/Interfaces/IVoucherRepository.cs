@@ -11,5 +11,7 @@ namespace WorldBook.Repositories.Interfaces
         Task<bool> DeleteAsync(int id);
         Task<bool> ExistsAsync(int id);
         Task<Voucher?> GetByVoucherCodeAsync(string voucherCode);
+        Task IncrementUsageCountAsync(int voucherId);
+        Task<IEnumerable<Voucher>> GetActiveVouchersAsync();
     }
 }

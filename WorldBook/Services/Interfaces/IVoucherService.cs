@@ -11,5 +11,6 @@ namespace WorldBook.Services.Interfaces
         Task<bool> DeleteVoucherAsync(int id);
         Task<bool> VoucherExistsAsync(int id);
         Task<Voucher?> GetVoucherByCodeAsync(string voucherCode);
+        
     }
 }

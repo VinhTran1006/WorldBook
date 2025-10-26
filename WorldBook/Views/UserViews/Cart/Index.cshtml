@@ -290,16 +290,30 @@
 
             // Checkout button
             $('#checkoutBtn').click(function() {
-                if (selectedItems.length === 0) {
-                    alert('Please select at least one item to checkout!');
-                    return;
-                }
+            if (selectedItems.length === 0) {
+                alert('Please select at least one item to checkout!');
+                return;
+            }
 
-                // Send selected items to checkout
-                const selectedBookIds = selectedItems.map(item => item.bookId);
-
-                // You can either redirect with query params or use a form post
-                window.location.href = '@Url.Action("Checkout", "Order")?selectedItems=' + selectedBookIds.join(',');
+            // Validate stock before checkout
+                $.ajax({
+                    url: '@Url.Action("ValidateSelectedItems", "Cart")',
+                    type: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify(selectedItems.map(item => item.bookId)),
+                    success: function(response) {
+                        if (response.success) {
+                            // Redirect to checkout with selected items
+                            const selectedBookIds = selectedItems.map(item => item.bookId);
+                            window.location.href = '@Url.Action("Checkout", "Order")?selectedItems=' + selectedBookIds.join(',');
+                        } else {
+                            alert(response.message + '\n\n' + response.invalidItems.join('\n'));
+                        }
+                    },
+                    error: function() {
+                        alert('An error occurred. Please try again.');
+                    }
+                });
             });
 
             // Update quantity function

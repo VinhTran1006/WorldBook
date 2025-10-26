@@ -1,0 +1,129 @@
+﻿@model WorldBook.ViewModel.OrderDetailViewModel
+@{
+    ViewData["Title"] = "Order Success";
+    Layout = "~/Views/Shared/_UserLayout.cshtml";
+}
+
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <!-- Success Message -->
+            <div class="card shadow-lg border-0 mb-4">
+                <div class="card-body text-center py-5">
+                    <div class="mb-4">
+                        <i class="bi bi-check-circle-fill text-success" style="font-size: 80px;"></i>
+                    </div>
+                    <h2 class="text-success mb-3">Order Placed Successfully!</h2>
+                    <p class="text-muted mb-4">
+                        Thank you for your order. We have received your order and will process it soon.
+                    </p>
+                    <div class="alert alert-info">
+                        <strong>Order ID:</strong> #@Model.OrderId
+                    </div>
+                </div>
+            </div>
+
+            <!-- Order Details -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">
+                        <i class="bi bi-receipt"></i> Order Details
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <p class="mb-1"><strong>Order Date:</strong></p>
+                            <p class="text-muted">@Model.OrderDate?.ToString("dd/MM/yyyy HH:mm")</p>
+                        </div>
+                        <div class="col-md-6">
+                            <p class="mb-1"><strong>Status:</strong></p>
+                            <p><span class="badge bg-secondary px-3 py-2">@Model.Status</span></p>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <p class="mb-1"><strong>Delivery Address:</strong></p>
+                        <p class="text-muted">@Model.Address</p>
+                    </div>
+
+                    <hr>
+
+                    <h6 class="mb-3">Order Items:</h6>
+                    <div class="table-responsive">
+                        <table class="table table-borderless">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Book</th>
+                                    <th class="text-center">Quantity</th>
+                                    <th class="text-end">Price</th>
+                                    <th class="text-end">Subtotal</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var item in Model.OrderItems)
+                                {
+                                    <tr>
+                                        <td>@item.BookName</td>
+                                        <td class="text-center">@item.Quantity</td>
+                                        <td class="text-end">@item.UnitPrice.ToString("N0") $</td>
+                                        <td class="text-end">@((item.Quantity * item.UnitPrice).ToString("N0")) $</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <hr>
+
+                    <div class="row">
+                        <div class="col-md-6 offset-md-6">
+                            <div class="d-flex justify-content-between mb-2">
+                                <span>Subtotal:</span>
+                                <span class="fw-bold">@Model.OrderItems.Sum(i => i.Quantity * i.UnitPrice).ToString("N0") $</span>
+                            </div>
+
+                            @if (Model.Discount > 0)
+                            {
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span>Discount <span class="badge bg-danger">-@Model.Discount%</span>:</span>
+                                    <span class="fw-bold text-success">
+                                        -@((Model.OrderItems.Sum(i => i.Quantity * i.UnitPrice) * Model.Discount / 100).ToString("N0")) $
+                                    </span>
+                                </div>
+                            }
+
+                            <hr>
+
+                            <div class="d-flex justify-content-between">
+                                <h5>Total:</h5>
+                                <h5 class="text-danger">@Model.TotalAmount.ToString("N0") $</h5>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="card shadow-sm">
+                <div class="card-body text-center">
+                    <p class="mb-3">What would you like to do next?</p>
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-center">
+                        <a href="@Url.Action("GetBookHomePage", "Book")" class="btn btn-primary">
+                            <i class="bi bi-house"></i> Continue Shopping
+                        </a>
+                        <a href="#" class="btn btn-outline-secondary">
+                            <i class="bi bi-clock-history"></i> View My Orders
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .bi-check-circle-fill {
+        animation: scaleIn 0.5s ease-in-out;
+    }
+</style>
