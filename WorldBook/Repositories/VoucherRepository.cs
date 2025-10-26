@@ -61,5 +61,25 @@ namespace WorldBook.Repositories
             return await _context.Vouchers
                 .FirstOrDefaultAsync(v => v.VoucherCode == voucherCode);
         }
+
+        /// Tăng UsageCount khi voucher được sử dụng
+        public async Task IncrementUsageCountAsync(int voucherId)
+        {
+            var voucher = await _context.Vouchers.FindAsync(voucherId);
+            if (voucher != null)
+            {
+                voucher.UsageCount = (voucher.UsageCount ?? 0) + 1;
+                await _context.SaveChangesAsync();
+            }
+        }
+
+        /// Lấy danh sách voucher active và còn hiệu lực
+        public async Task<IEnumerable<Voucher>> GetActiveVouchersAsync()
+        {
+            return await _context.Vouchers
+                .Where(v => v.IsActive == true && v.ExpriryDate > DateTime.Now)
+                .OrderBy(v => v.VoucherCode)
+                .ToListAsync();
+        }
     }
 }

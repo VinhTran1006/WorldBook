@@ -46,6 +46,26 @@ namespace WorldBook.Repositories
 
             await _context.SaveChangesAsync();
         }
+        public async Task<Order> CreateOrderAsync(Order order)
+        {
+            _context.Orders.Add(order);
+            await _context.SaveChangesAsync();
+            return order;
+        }
 
+        public async Task AddOrderDetailsAsync(List<OrderDetail> orderDetails)
+        {
+            _context.OrderDetails.AddRange(orderDetails);
+            await _context.SaveChangesAsync();
+        }
+        public async Task RemoveCartItemsAsync(int userId, List<int> bookIds)
+        {
+            var cartItems = await _context.Carts
+                .Where(c => c.UserId == userId && bookIds.Contains(c.BookId.Value))
+                .ToListAsync();
+
+            _context.Carts.RemoveRange(cartItems);
+            await _context.SaveChangesAsync();
+        }
     }
 }

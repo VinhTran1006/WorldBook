@@ -205,3 +205,14 @@ StockLeft int,
 foreign key (ImportId) references ImportStock(ImportId),
 foreign key (BookId) references Book(BookId),
 )
+go
+CREATE TABLE UserVoucher (
+    UserVoucherId INT PRIMARY KEY IDENTITY,
+    UserId INT,
+    VoucherId INT,
+    OrderId INT,
+    UsedAt DATETIME,
+    FOREIGN KEY (UserId) REFERENCES [User](UserId),
+    FOREIGN KEY (VoucherId) REFERENCES Voucher(VoucherId),
+    FOREIGN KEY (OrderId) REFERENCES [Order](OrderId)
+)

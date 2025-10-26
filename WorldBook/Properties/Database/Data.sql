@@ -75,3 +75,25 @@ VALUES
  N'Sách thuật toán nổi tiếng (CLRS).', 
  500000, 5, 1, 3, 1,
  N'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSBqfcfo45TwzGiZDrzp0Dr9j0Cxom621QI9w&s', NULL, NULL, NULL, GETDATE());
+
+ INSERT INTO Voucher (VoucherCode, DiscountPercent, ExpriryDate, MinOrderAmount, MaxOrderAmount, UsageCount, IsActive, VoucherDescription)
+VALUES
+-- Giảm nhẹ cho khách mới
+('NEWUSER10', 10, '2025-12-31', 100000, 500000, 100, 1, 'Giảm 10% cho khách hàng mới'),
+
+-- Giảm trung bình cho đơn lớn
+('BIGSALE15', 15, '2026-01-31', 500000, 1500000, 200, 1, 'Giảm 15% cho đơn hàng từ 500.000$'),
+
+-- Giảm mạnh cho đơn rất lớn
+('VIP20', 20, '2026-06-30', 1000000, 2000000, 50, 1, 'Voucher VIP giảm 20% cho đơn hàng lớn'),
+
+-- Giảm nhẹ cho dịp lễ
+('HOLIDAY5', 5, '2025-12-25', 100000, 2000000, 500, 1, 'Giảm 5% nhân dịp lễ'),
+
+-- Giảm đặc biệt theo sự kiện
+('BLACKFRIDAY25', 25, '2025-11-30', 300000, 2000000, 300, 1, 'Giảm 25% nhân dịp Black Friday'),
+
+-- Voucher hết hạn (dùng để test)
+('EXPIRED10', 10, '2024-12-31', 100000, 2000000, 0, 0, 'Voucher đã hết hạn - dùng cho kiểm thử');
+
+

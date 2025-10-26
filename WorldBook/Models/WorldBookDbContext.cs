@@ -42,6 +42,7 @@ public partial class WorldBookDbContext : DbContext
     public virtual DbSet<User> Users { get; set; }
 
     public virtual DbSet<UserRole> UserRoles { get; set; }
+    public virtual DbSet<UserVoucher> UserVouchers { get; set; }
 
     public virtual DbSet<Voucher> Vouchers { get; set; }
 
@@ -347,6 +348,31 @@ public partial class WorldBookDbContext : DbContext
             entity.HasOne(d => d.User).WithMany(p => p.UserRoles)
                 .HasForeignKey(d => d.UserId)
                 .HasConstraintName("FK__UserRole__UserId__5441852A");
+        });
+
+        modelBuilder.Entity<UserVoucher>(entity =>
+        {
+            entity.HasKey(e => e.UserVoucherId).HasName("PK__UserVouc__3D4FFF8E9B8A5C2D");
+
+            entity.ToTable("UserVoucher");
+
+            entity.HasOne(d => d.User)
+                .WithMany()
+                .HasForeignKey(d => d.UserId)
+                .HasConstraintName("FK__UserVouch__UserI__001F9A27");
+
+            entity.HasOne(d => d.Voucher)
+                .WithMany()
+                .HasForeignKey(d => d.VoucherId)
+                .HasConstraintName("FK__UserVouch__Vouch__0113BE60");
+
+            entity.HasOne(d => d.Order)
+                .WithMany()
+                .HasForeignKey(d => d.OrderId)
+                .HasConstraintName("FK__UserVouch__Order__0207E299");
+
+            entity.Property(e => e.UsedAt)
+                .HasColumnType("datetime");
         });
 
         modelBuilder.Entity<Voucher>(entity =>
