@@ -53,10 +53,10 @@ namespace WorldBook.Controllers
             var roles = user.UserRoles.Select(ur => ur.Role.Name).ToList();
             if (roles.Contains("Customer"))
             {
-                return View("~/Views/UserViews/Home/Index.cshtml");
+                return RedirectToAction("GetBookHomePage", "Book");
             } else
             {
-                return View("~/Views/AdminViews/DashBoards/DashBoard.cshtml");
+                return RedirectToAction("GetBookDashBoard", "Book");
             }
         }
 
