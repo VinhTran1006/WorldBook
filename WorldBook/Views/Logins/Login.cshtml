@@ -1,28 +1,82 @@
 ﻿@model WorldBook.ViewModel.LoginViewModel
 @{
-    //Layout cho trang
-    Layout = "_UserLayout";
+    // Layout cho trang
+     // Layout = "_UserLayout";
 
     ViewData["Title"] = "Login Page";
     
 }
 <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
-<link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
-<link rel="stylesheet" href="~/css/login.css" />
 
-<div class="login-container">
-    <form class="login-form" asp-action="Login" asp-controller="Logins" method="post">
-        <div>
-            <label asp-for="Username"></label>
-            <input asp-for="Username" />
+<link rel="stylesheet" href="~/css/login.css" asp-append-version="true" />
+
+
+<div class="container" id="container">
+    <div class="form-container sign-up-container">
+        <form action="#">
+            
+            <h1>Create Account</h1>
+            <input type="text" placeholder="User Name" />
+            <input type="email" placeholder="Email" />
+            <input type="password" placeholder="Password" />
+            <button type="submit" id="btnSignUp">Sign Up</button>
+
+        </form>
+    </div>
+
+    <div class="form-container sign-in-container">
+        <form class="login-form" asp-action="Login" asp-controller="Logins" method="post">
+            <button type="button" id="btnHome">Home</button>
+            <h1>Sign in</h1>
+            <input asp-for="Username" placeholder="User Name" />
+            <input asp-for="Password" type="password" placeholder="Password" />
+            <button type="submit" id="btnSignIn">Sign In</button>
+        </form>
+    </div>
+
+    <div class="overlay-container">
+        <div class="overlay">
+            <div class="overlay-panel overlay-left">
+                <h1>Join us!</h1>
+                <button type="button" class="ghost" id="signIn">Sign In</button>
+            </div>
+            <div class="overlay-panel overlay-right">
+                <h1>Hello, Friend!</h1>
+                <button type="button" class="ghost" id="signUp">Sign Up</button>
+            </div>
         </div>
-        <div>
-            <label asp-for="Password"></label>
-            <input asp-for="Password" type="password" />
-        </div>
-        <button type="submit">Login</button>
-    </form>
+    </div>
 </div>
+
+<script>
+        const container = document.getElementById('container');
+
+    // Overlay buttons
+    const overlaySignUp = document.getElementById('signUp');
+    const overlaySignIn = document.getElementById('signIn');
+
+    // Form buttons
+    const formSignUp = document.getElementById('btnSignUp');
+    const formSignIn = document.getElementById('btnSignIn');
+
+    // Overlay actions
+    overlaySignUp.addEventListener('click', () => {
+        container.classList.add("right-panel-active");
+    });
+    overlaySignIn.addEventListener('click', () => {
+        container.classList.remove("right-panel-active");
+    });
+
+    // Form actions (optional mimic)
+    formSignUp.addEventListener('click', () => {
+        container.classList.add("right-panel-active");
+    });
+    formSignIn.addEventListener('click', () => {
+        container.classList.remove("right-panel-active");
+    });
+
+
+</script>
 
 @section Scripts {
         
