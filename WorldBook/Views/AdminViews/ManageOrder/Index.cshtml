@@ -7,6 +7,15 @@
 
 <h2 class="mb-3">Order List</h2>
 
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success">@TempData["SuccessMessage"]</div>
+}
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger">@TempData["ErrorMessage"]</div>
+}
+
 <div class="card shadow-sm rounded-3 p-3">
     <table class="table table-hover align-middle">
         <thead class="table-dark">
@@ -14,6 +23,7 @@
                 <th>ID</th>
                 <th>Customer</th>
                 <th>Address</th>
+                <th>Books</th> <!-- 🆕 -->
                 <th>Order Date</th>
                 <th>Delivered Date</th>
                 <th>Status</th>
@@ -23,22 +33,60 @@
             </tr>
         </thead>
         <tbody>
-            @if (TempData["SuccessMessage"] != null)
-            {
-                <div class="alert alert-success">@TempData["SuccessMessage"]</div>
-            }
-            @if (TempData["ErrorMessage"] != null)
-            {
-                <div class="alert alert-danger">@TempData["ErrorMessage"]</div>
-            }
             @if (Model != null && Model.Any())
             {
                 foreach (var order in Model)
                 {
+                    var collapseId = $"books_{order.OrderId}";
                     <tr>
                         <td>@order.OrderId</td>
                         <td>@order.CustomerName</td>
                         <td>@order.Address</td>
+
+                        <!-- 🆕 Cột Sách + Ảnh -->
+                        <td>
+                            @if (order.Books != null && order.Books.Any())
+                            {
+                                if (order.Books.Count == 1)
+                                {
+                                    <div class="d-flex align-items-center">
+                                        <img src="@order.Books.First().ImageUrl" alt="Book" width="45" height="60" class="rounded me-2 border" />
+                                        <span>@order.Books.First().BookName</span>
+                                    </div>
+                                }
+                                else
+                                {
+                                    <div>
+                                        <a class="text-decoration-none fw-semibold"
+                                           data-bs-toggle="collapse"
+                                           href="#@collapseId"
+                                           role="button"
+                                           aria-expanded="false"
+                                           aria-controls="@collapseId">
+                                            <i class="bi bi-book"></i> @order.Books.Count books
+                                        </a>
+                                        <div class="collapse mt-2" id="@collapseId">
+                                            @foreach (var book in order.Books)
+                                            {
+                                                <div class="d-flex align-items-center mb-1">
+                                                    <img src="@book.ImageUrl"
+                                                         alt="Book"
+                                                         width="40"
+                                                         height="55"
+                                                         class="rounded me-2 border" />
+                                                    <span>@book.BookName</span>
+                                                </div>
+                                            }
+                                        </div>
+                                    </div>
+                                }
+                            }
+                            else
+                            {
+                                <span class="text-muted">No books</span>
+                            }
+                        </td>
+
                         <td>@order.OrderDate?.ToString("dd/MM/yyyy")</td>
                         <td>@order.DeliveredDate?.ToString("dd/MM/yyyy")</td>
                         <td>
@@ -57,26 +105,63 @@
                         </td>
                         <td>@String.Format("{0:N0}", order.TotalAmount) đ</td>
                         <td>@order.Discount %</td>
+
                         <td class="text-center">
+                            <!-- 👁 Nút xem chi tiết -->
                             <a asp-controller="Order" asp-action="Details" asp-route-id="@order.OrderId"
-                               class="btn btn-sm btn-outline-primary">
+                               class="btn btn-sm btn-outline-primary me-1">
                                 <i class="bi bi-eye"></i> View
                             </a>
 
-                            @* 🟢 Nút duyệt đơn *@
-                            @if (order.Status != "Completed" && order.Status != "Cancelled")
+                            <!-- ✅ Nút duyệt đơn -->
+                            @if (order.Status == "Not Approved")
                             {
-                                <form asp-controller="Order" asp-action="Approve" asp-route-id="@order.OrderId" method="post" style="display:inline;">
-                                    <button type="submit" class="btn btn-sm btn-outline-success">
+                                <form asp-controller="Order" asp-action="Approve" asp-route-id="@order.OrderId"
+                                      method="post" class="d-inline">
+                                    <button type="submit" class="btn btn-sm btn-outline-success me-1">
                                         <i class="bi bi-check2-circle"></i> Approve
                                     </button>
                                 </form>
                             }
 
-                            @* 🔴 Nút hủy đơn *@
+                            <!-- 🟡 Nút chuyển sang "Preparing" -->
+                            @if (order.Status == "Approved")
+                            {
+                                <form asp-controller="Order" asp-action="Prepare" asp-route-id="@order.OrderId"
+                                      method="post" class="d-inline">
+                                    <button type="submit" class="btn btn-sm btn-outline-warning me-1">
+                                        <i class="bi bi-gear"></i> Prepare
+                                    </button>
+                                </form>
+                            }
+
+                            <!-- 🚚 Nút giao hàng -->
+                            @if (order.Status == "Preparing")
+                            {
+                                <form asp-controller="Order" asp-action="Deliver" asp-route-id="@order.OrderId"
+                                      method="post" class="d-inline">
+                                    <button type="submit" class="btn btn-sm btn-outline-info me-1">
+                                        <i class="bi bi-truck"></i> Deliver
+                                    </button>
+                                </form>
+                            }
+
+                            <!-- ✅ Nút hoàn thành -->
+                            @if (order.Status == "Delivering")
+                            {
+                                <form asp-controller="Order" asp-action="Complete" asp-route-id="@order.OrderId"
+                                      method="post" class="d-inline">
+                                    <button type="submit" class="btn btn-sm btn-outline-success me-1">
+                                        <i class="bi bi-bag-check"></i> Complete
+                                    </button>
+                                </form>
+                            }
+
+                            <!-- ❌ Nút hủy -->
                             @if (order.Status != "Cancelled" && order.Status != "Completed")
                             {
-                                <form asp-controller="Order" asp-action="Cancel" asp-route-id="@order.OrderId" method="post" style="display:inline;">
+                                <form asp-controller="Order" asp-action="Cancel" asp-route-id="@order.OrderId"
+                                      method="post" class="d-inline">
                                     <button type="submit" class="btn btn-sm btn-outline-danger">
                                         <i class="bi bi-x-circle"></i> Cancel
                                     </button>
@@ -89,9 +174,16 @@
             else
             {
                 <tr>
-                    <td colspan="9" class="text-center text-muted">No orders found.</td>
+                    <td colspan="10" class="text-center text-muted">No orders found.</td>
                 </tr>
             }
         </tbody>
     </table>
 </div>
+
+<style>
+    img.rounded.border {
+        object-fit: cover;
+        border: 1px solid #ddd;
+    }
+</style>

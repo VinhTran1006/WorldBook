@@ -21,5 +21,6 @@
         public string? BookName { get; set; }
         public int Quantity { get; set; }
         public long UnitPrice { get; set; }
+        public string? ImageUrl { get; set; }
     }
 }

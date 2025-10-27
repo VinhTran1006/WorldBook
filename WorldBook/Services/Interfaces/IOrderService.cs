@@ -8,5 +8,6 @@ namespace WorldBook.Services.Interfaces
         Task<OrderDetailViewModel> GetOrderByIdAsync(int id);
         Task ApproveNextStatusAsync(int orderId);
         Task CancelOrderAsync(int orderId);
+        Task<IEnumerable<OrderViewModel>> GetOrdersByUserIdAsync(int userId);
     }
 }

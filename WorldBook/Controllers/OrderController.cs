@@ -243,6 +243,45 @@ namespace WorldBook.Controllers
             var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             return int.TryParse(userIdClaim, out var id) ? id : 0;
         }
+
+        [Authorize]
+        [HttpGet]
+        public async Task<IActionResult> OrderHistory()
+        {
+            var userId = GetCurrentUserId();
+            if (userId == 0)
+            {
+                TempData["Error"] = "Please log in to view your orders";
+                return RedirectToAction("Login", "Logins");
+            }
+
+            var orders = await _orderService.GetOrdersByUserIdAsync(userId);
+            return View("~/Views/UserViews/Order/OrderHistory.cshtml", orders);
+        }
+
+        [Authorize]
+        [HttpGet]
+        public async Task<IActionResult> UserOrderDetails(int id)
+        {
+            var userId = GetCurrentUserId();
+            if (userId == 0)
+            {
+                TempData["Error"] = "Please log in to view your order details";
+                return RedirectToAction("Login", "Logins");
+            }
+
+            var order = await _orderService.GetOrderByIdAsync(id);
+
+            // Bảo mật: chỉ cho phép xem đơn của chính user đó
+            if (order == null)
+                return NotFound();
+
+            if (order.CustomerName == null)
+                return Forbid();
+
+            return View("~/Views/UserViews/Order/OrderHistoryDetail.cshtml", order);
+        }
+
     }
 
     // ============ REQUEST MODELS ============
