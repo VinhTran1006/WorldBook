@@ -12,5 +12,7 @@ namespace WorldBook.Repositories.Interfaces
 
         /// Xóa items khỏi Cart sau khi đặt hàng thành công
         Task RemoveCartItemsAsync(int userId, List<int> bookIds);
+
+        Task<IEnumerable<Order>> GetOrdersByUserIdAsync(int userId);
     }
 }

@@ -16,7 +16,9 @@ namespace WorldBook.Repositories
         public async Task<IEnumerable<Order>> GetAllOrdersAsync()
         {
             return await _context.Orders
-                .Include(o => o.User) // lấy luôn thông tin user
+                .Include(o => o.User)
+                .Include(o => o.OrderDetails)
+                    .ThenInclude(od => od.Book)
                 .ToListAsync();
         }
 
@@ -66,6 +68,16 @@ namespace WorldBook.Repositories
 
             _context.Carts.RemoveRange(cartItems);
             await _context.SaveChangesAsync();
+        }
+
+        public async Task<IEnumerable<Order>> GetOrdersByUserIdAsync(int userId)
+        {
+            return await _context.Orders
+                .Where(o => o.UserId == userId)
+                .Include(o => o.OrderDetails)
+                    .ThenInclude(od => od.Book)
+                .OrderByDescending(o => o.OrderDate)
+                .ToListAsync();
         }
     }
 }

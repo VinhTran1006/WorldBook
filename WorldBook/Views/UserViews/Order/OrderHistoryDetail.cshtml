@@ -1,0 +1,113 @@
+﻿@model WorldBook.ViewModel.OrderDetailViewModel
+
+@{
+    Layout = "~/Views/Shared/_UserLayout.cshtml";
+    ViewData["Title"] = "Order Details";
+}
+
+<div class="container my-5">
+    <div class="card shadow-sm rounded-4 border-0 p-4">
+        <h3 class="fw-bold mb-4 text-center text-primary">
+            <i class="bi bi-receipt"></i> Order #@Model.OrderId
+        </h3>
+
+        <!-- Thông tin đơn hàng -->
+        <div class="row g-4">
+            <div class="col-md-6">
+                <div class="card border-0 shadow-sm rounded-3 p-3 h-100">
+                    <h5 class="fw-semibold mb-3"><i class="bi bi-person-circle"></i> Customer Info</h5>
+                    <p><strong>Name:</strong> @Model.CustomerName</p>
+                    <p><strong>Email:</strong> @Model.Email</p>
+                    <p><strong>Phone:</strong> @Model.Phone</p>
+                    <p><strong>Address:</strong> @Model.Address</p>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="card border-0 shadow-sm rounded-3 p-3 h-100">
+                    <h5 class="fw-semibold mb-3"><i class="bi bi-info-circle"></i> Order Info</h5>
+                    @{
+                        string badgeClass = Model.Status switch
+                        {
+                            "Not Approved" => "secondary",
+                            "Preparing" => "warning",
+                            "Delivering" => "info",
+                            "Completed" => "success",
+                            "Cancelled" => "danger",
+                            _ => "dark"
+                        };
+                    }
+                    <p><strong>Status:</strong> <span class="badge bg-@badgeClass px-3 py-2">@Model.Status</span></p>
+                    <p><strong>Order Date:</strong> @Model.OrderDate?.ToString("dd/MM/yyyy")</p>
+                    <p><strong>Delivered Date:</strong> @Model.DeliveredDate?.ToString("dd/MM/yyyy")</p>
+                    <p><strong>Discount:</strong> @Model.Discount %</p>
+                    <p class="fw-bold text-danger">
+                        <strong>Total:</strong> @String.Format("{0:N0}", Model.TotalAmount) ₫
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Danh sách sản phẩm -->
+        <div class="card shadow-sm rounded-4 border-0 mt-5">
+            <div class="card-header bg-primary text-white fw-semibold">
+                <i class="bi bi-box-seam"></i> Order Items
+            </div>
+            <div class="card-body">
+                <table class="table table-hover align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th class="text-center">Image</th>
+                            <th>Book</th>
+                            <th class="text-center">Quantity</th>
+                            <th class="text-end">Unit Price</th>
+                            <th class="text-end">Subtotal</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model.OrderItems)
+                        {
+                                <tr>
+                                    <td class="text-center">
+                                    @if (!string.IsNullOrEmpty(item.ImageUrl))
+                                    {
+                                                <img src="@item.ImageUrl" alt="@item.BookName"
+                                                     width="60" height="85"
+                                                     class="rounded border" style="object-fit: cover;" />
+                                    }
+                                    else
+                                    {
+                                                <span class="text-muted fst-italic">No image</span>
+                                    }
+                                    </td>
+                                    <td>@item.BookName</td>
+                                    <td class="text-center">@item.Quantity</td>
+                                    <td class="text-end">@String.Format("{0:N0}", item.UnitPrice) ₫</td>
+                                    <td class="text-end fw-semibold">@String.Format("{0:N0}", item.UnitPrice * item.Quantity) ₫</td>
+                                </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Nút quay lại -->
+        <div class="text-center mt-4">
+            <a asp-action="OrderHistory" asp-controller="Order"
+               class="btn btn-outline-secondary rounded-pill px-4">
+                <i class="bi bi-arrow-left"></i> Back to Order History
+            </a>
+        </div>
+    </div>
+</div>
+
+<style>
+    .table td, .table th {
+        vertical-align: middle;
+    }
+    img.rounded.border {
+        object-fit: cover;
+        border: 1px solid #ddd;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+</style>

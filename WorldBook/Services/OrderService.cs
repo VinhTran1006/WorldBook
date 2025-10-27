@@ -16,16 +16,22 @@ namespace WorldBook.Services
         public async Task<IEnumerable<OrderViewModel>> GetAllOrdersAsync()
         {
             var orders = await _orderRepository.GetAllOrdersAsync();
+
             return orders.Select(o => new OrderViewModel
             {
                 OrderId = o.OrderId,
-                CustomerName = o.User != null ? o.User.Name : "Unknown",
+                CustomerName = o.User?.Name ?? "Unknown",
                 Address = o.Address,
                 OrderDate = o.OrderDate,
                 DeliveredDate = o.DeliveredDate,
                 Status = o.Status,
                 TotalAmount = o.TotalAmount,
-                Discount = o.Discount
+                Discount = o.Discount,
+                Books = o.OrderDetails.Select(od => new OrderBookItem
+                {
+                    BookName = od.Book?.BookName,
+                    ImageUrl = od.Book?.ImageUrl1
+                }).ToList()
             });
         }
         public async Task<OrderDetailViewModel?> GetOrderByIdAsync(int id)
@@ -50,7 +56,8 @@ namespace WorldBook.Services
                 {
                     BookName = od.Book?.BookName,
                     Quantity = od.Quantity ?? 0,
-                    UnitPrice = od.Price ?? 0
+                    UnitPrice = od.Price ?? 0,
+                    ImageUrl = od.Book?.ImageUrl1
                 }).ToList()
             };
         }
@@ -94,5 +101,29 @@ namespace WorldBook.Services
         {
             await _orderRepository.UpdateOrderStatusAsync(orderId, "Cancelled");
         }
+
+        public async Task<IEnumerable<OrderViewModel>> GetOrdersByUserIdAsync(int userId)
+        {
+            var orders = await _orderRepository.GetOrdersByUserIdAsync(userId);
+
+            return orders.Select(o => new OrderViewModel
+            {
+                OrderId = o.OrderId,
+                CustomerName = o.User != null ? o.User.Name : "Unknown",
+                Address = o.Address,
+                OrderDate = o.OrderDate,
+                DeliveredDate = o.DeliveredDate,
+                Status = o.Status,
+                TotalAmount = o.TotalAmount,
+                Discount = o.Discount,
+                Books = o.OrderDetails.Select(od => new OrderBookItem
+                {
+                    BookName = od.Book?.BookName,
+                    ImageUrl = od.Book?.ImageUrl1
+                }).ToList()
+            });
+        }
+
+
     }
 }

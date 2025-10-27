@@ -41,13 +41,13 @@
     <div class="mt-3">
         @if (Model.Status != "Completed" && Model.Status != "Cancelled")
         {
-            <form asp-action="Approve" asp-controller="Order" method="post" asp-route-id="@Model.OrderId" class="d-inline">
+            <form asp-action="ApproveOrderDetail" asp-controller="Order" method="post" asp-route-id="@Model.OrderId" class="d-inline">
                 <button type="submit" class="btn btn-success me-2">
                     <i class="bi bi-check-circle"></i> Approve
                 </button>
             </form>
 
-            <form asp-action="Cancel" asp-controller="Order" method="post" asp-route-id="@Model.OrderId" class="d-inline">
+            <form asp-action="CancelOrderDetai" asp-controller="Order" method="post" asp-route-id="@Model.OrderId" class="d-inline">
                 <button type="submit" class="btn btn-danger">
                     <i class="bi bi-x-circle"></i> Cancel
                 </button>
@@ -58,9 +58,10 @@
 
 <div class="card shadow-sm rounded-3 p-4">
     <h5>Order Items</h5>
-    <table class="table table-bordered">
+    <table class="table table-bordered align-middle">
         <thead class="table-light">
             <tr>
+                <th class="text-center">Image</th>
                 <th>Book</th>
                 <th>Quantity</th>
                 <th>Unit Price</th>
@@ -71,6 +72,16 @@
             @foreach (var item in Model.OrderItems)
             {
                 <tr>
+                    <td class="text-center">
+                        @if (!string.IsNullOrEmpty(item.ImageUrl))
+                        {
+                            <img src="@item.ImageUrl" alt="@item.BookName" width="60" height="85" class="rounded border" style="object-fit: cover;" />
+                        }
+                        else
+                        {
+                            <span class="text-muted fst-italic">No image</span>
+                        }
+                    </td>
                     <td>@item.BookName</td>
                     <td>@item.Quantity</td>
                     <td>@String.Format("{0:N0}", item.UnitPrice) đ</td>
@@ -84,3 +95,11 @@
 <a asp-controller="Order" asp-action="Index" class="btn btn-secondary mt-3">
     <i class="bi bi-arrow-left"></i> Back to Orders
 </a>
+
+<style>
+    img.rounded.border {
+        object-fit: cover;
+        border: 1px solid #ddd;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+</style>
