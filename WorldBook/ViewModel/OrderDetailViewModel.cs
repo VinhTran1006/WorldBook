@@ -14,6 +14,11 @@
         public int Discount { get; set; }
 
         public List<OrderItemViewModel> OrderItems { get; set; } = new();
+
+        public string? PaymentMethod { get; set; }
+        public string? PaymentStatus { get; set; }
+        public decimal? PaymentAmount { get; set; }
+        public string? TransactionId { get; set; }
     }
 
     public class OrderItemViewModel

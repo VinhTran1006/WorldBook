@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using WorldBook.Config;
 using WorldBook.Models;
 using WorldBook.Repositories;
 using WorldBook.Repositories.Interfaces;
@@ -48,6 +49,12 @@ builder.Services.AddScoped<ICheckoutService, CheckoutService>();
 builder.Services.AddScoped<ICategoryService, CategoryService>();
 
 builder.Services.AddScoped<GeminiService>();
+
+builder.Services.Configure<MomoOptions>(builder.Configuration.GetSection("Momo"));
+
+builder.Services.AddScoped<MomoPaymentService>();
+
+builder.Services.AddScoped<IPaymentRepository, PaymentRepository>();
 
 //Cookie schema
 builder.Services.AddAuthentication("MyCookieAuth")

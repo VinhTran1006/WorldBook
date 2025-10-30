@@ -14,5 +14,8 @@ namespace WorldBook.Repositories.Interfaces
         Task RemoveCartItemsAsync(int userId, List<int> bookIds);
 
         Task<IEnumerable<Order>> GetOrdersByUserIdAsync(int userId);
+
+        Task<Order?> GetByIdAsync(int orderId);
+        Task UpdateAsync(Order order);
     }
 }

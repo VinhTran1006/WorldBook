@@ -141,6 +141,7 @@ go
 create table [Order] (
 OrderId int primary key Identity(1,1),
 UserId int,
+PaymentId INT,
 Address varchar(255),
 OrderDate datetime,
 deliveredDate datetime,
@@ -149,6 +150,7 @@ TotalAmount Bigint,
 Discount int,
 UpdateAt datetime,
 foreign key (UserId) references [User](UserId),
+FOREIGN KEY (PaymentId) REFERENCES Payment(PaymentId),
 )
 
 go 
@@ -216,3 +218,15 @@ CREATE TABLE UserVoucher (
     FOREIGN KEY (VoucherId) REFERENCES Voucher(VoucherId),
     FOREIGN KEY (OrderId) REFERENCES [Order](OrderId)
 )
+CREATE TABLE Payment (
+    PaymentId INT IDENTITY(1,1) PRIMARY KEY,
+    OrderId INT NOT NULL,
+    PaymentMethod VARCHAR(50) NOT NULL,      
+    PaymentStatus VARCHAR(50) NOT NULL,       
+    TransactionId VARCHAR(100) NULL,          
+    Amount DECIMAL(18,2) NOT NULL,
+    CreatedAt DATETIME NOT NULL DEFAULT GETDATE(),
+    PaidAt DATETIME NULL,
+    RefundAt DATETIME NULL,
+    FOREIGN KEY (OrderId) REFERENCES [Order](OrderId) ON DELETE CASCADE
+);

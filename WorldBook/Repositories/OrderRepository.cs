@@ -19,6 +19,8 @@ namespace WorldBook.Repositories
                 .Include(o => o.User)
                 .Include(o => o.OrderDetails)
                     .ThenInclude(od => od.Book)
+                .Include(o => o.Payment)
+                .Include(o => o.User)
                 .ToListAsync();
         }
 
@@ -28,6 +30,8 @@ namespace WorldBook.Repositories
                 .Include(o => o.User)
                 .Include(o => o.OrderDetails)
                     .ThenInclude(od => od.Book)
+                 .Include(o => o.Payment)
+                 .Include(o => o.User)
                 .FirstOrDefaultAsync(o => o.OrderId == id);
         }
 
@@ -77,7 +81,26 @@ namespace WorldBook.Repositories
                 .Include(o => o.OrderDetails)
                     .ThenInclude(od => od.Book)
                 .OrderByDescending(o => o.OrderDate)
+                .Include(o => o.Payment)
+                .Include(o => o.User)
                 .ToListAsync();
+        }
+
+        public async Task<Order?> GetByIdAsync(int orderId)
+        {
+            return await _context.Orders
+                .Include(o => o.User)
+                .Include(o => o.OrderDetails)
+                    .ThenInclude(od => od.Book)
+                .Include(o => o.Payment)
+                .Include(o => o.User)
+                .FirstOrDefaultAsync(o => o.OrderId == orderId);
+        }
+
+        public async Task UpdateAsync(Order order)
+        {
+            _context.Orders.Update(order);
+            await _context.SaveChangesAsync();
         }
     }
 }

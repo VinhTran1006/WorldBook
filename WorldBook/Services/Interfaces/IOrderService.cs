@@ -9,5 +9,9 @@ namespace WorldBook.Services.Interfaces
         Task ApproveNextStatusAsync(int orderId);
         Task CancelOrderAsync(int orderId);
         Task<IEnumerable<OrderViewModel>> GetOrdersByUserIdAsync(int userId);
+
+        Task<IEnumerable<OrderViewModel>> FilterOrdersAsync(int userId, string? status, string? search);
+
+        Task<IEnumerable<OrderViewModel>> FilterOrdersForAdminAsync(string? status, string? search);
     }
 }

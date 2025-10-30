@@ -46,6 +46,8 @@ public partial class WorldBookDbContext : DbContext
 
     public virtual DbSet<Voucher> Vouchers { get; set; }
 
+    public virtual DbSet<Payment> Payments { get; set; }
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<Author>(entity =>
@@ -390,6 +392,37 @@ public partial class WorldBookDbContext : DbContext
             entity.Property(e => e.VoucherDescription)
                 .HasMaxLength(255)
                 .IsUnicode(false);
+        });
+
+        modelBuilder.Entity<Payment>(entity =>
+        {
+            entity.HasKey(e => e.PaymentId).HasName("PK__Payment__9B556A5861234567"); // đặt tên gì cũng được
+
+            entity.ToTable("Payment");
+
+            entity.Property(e => e.PaymentMethod)
+                .HasMaxLength(50)
+                .IsUnicode(false);
+
+            entity.Property(e => e.PaymentStatus)
+                .HasMaxLength(50)
+                .IsUnicode(false);
+
+            entity.Property(e => e.TransactionId)
+                .HasMaxLength(100)
+                .IsUnicode(false);
+
+            entity.Property(e => e.Amount).HasColumnType("decimal(18, 2)");
+
+            entity.Property(e => e.CreatedAt).HasColumnType("datetime");
+            entity.Property(e => e.PaidAt).HasColumnType("datetime");
+            entity.Property(e => e.RefundAt).HasColumnType("datetime");
+
+            entity.HasOne(d => d.Order)
+                .WithOne(p => p.Payment)
+                .HasForeignKey<Payment>(d => d.OrderId)
+                .OnDelete(DeleteBehavior.Cascade)
+                .HasConstraintName("FK__Payment__OrderId__7F2BE32F");
         });
 
         OnModelCreatingPartial(modelBuilder);

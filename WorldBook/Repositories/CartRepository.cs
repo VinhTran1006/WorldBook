@@ -79,5 +79,10 @@ namespace WorldBook.Repositories
         {
             await _context.SaveChangesAsync();
         }
+
+        public async Task<List<Cart>> GetCartItemsByUserIdAsync(int userId)
+        {
+            return await GetCartByUserAsync(userId);
+        }
     }
 }

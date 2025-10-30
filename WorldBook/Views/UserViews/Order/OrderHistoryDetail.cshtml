@@ -46,6 +46,39 @@
                     </p>
                 </div>
             </div>
+            <div class="card border-0 shadow-sm rounded-3 p-3 h-100 mt-4">
+                <h5 class="fw-semibold mb-3">
+                    <i class="bi bi-credit-card-2-front"></i> Payment Info
+                </h5>
+                <p><strong>Method:</strong> @Model.PaymentMethod</p>
+
+                @{
+                    string payBadge = Model.PaymentStatus switch
+                    {
+                        "Paid" => "success",
+                        "Pending" => "warning",
+                        "Failed" => "danger",
+                        _ => "secondary"
+                    };
+                }
+                <p>
+                    <strong>Status:</strong>
+                    <span class="badge bg-@payBadge px-3 py-2">@Model.PaymentStatus</span>
+                </p>
+
+                @if (Model.PaymentAmount.HasValue)
+                {
+                    <p>
+                        <strong>Paid Amount:</strong>
+                        @String.Format("{0:N0}", Model.PaymentAmount) ₫
+                    </p>
+                }
+
+                @if (!string.IsNullOrEmpty(Model.TransactionId))
+                {
+                    <p><strong>Transaction ID:</strong> @Model.TransactionId</p>
+                }
+            </div>
         </div>
 
         <!-- Danh sách sản phẩm -->
