@@ -30,5 +30,7 @@ namespace WorldBook.Repositories.Interfaces
 
         // Save changes
         Task SaveChangesAsync();
+
+        Task<List<Cart>> GetCartItemsByUserIdAsync(int userId);
     }
 }

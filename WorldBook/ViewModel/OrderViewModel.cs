@@ -11,8 +11,11 @@
         public long? TotalAmount { get; set; }
         public int? Discount { get; set; }
 
-        // 🆕 Thêm danh sách sản phẩm trong đơn
+        // thêm danh sách sản phẩm trong đơn
         public List<OrderBookItem> Books { get; set; } = new();
+
+        public string? PaymentMethod { get; set; }
+        public string? PaymentStatus { get; set; }
     }
 
     public class OrderBookItem

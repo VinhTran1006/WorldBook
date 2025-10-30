@@ -3,6 +3,9 @@
 @{
     Layout = "~/Views/Shared/_AdminLayout.cshtml";
     ViewData["Title"] = "Manage Orders";
+
+    var currentStatus = Context.Request.Query["status"].ToString();
+    var currentSearch = Context.Request.Query["search"].ToString();
 }
 
 <h2 class="mb-3">Order List</h2>
@@ -17,16 +20,53 @@
 }
 
 <div class="card shadow-sm rounded-3 p-3">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <div class="btn-group">
+            <a href="@Url.Action("FilterOrdersByAdmin", new { status = "", search = currentSearch })"
+               class="btn @(string.IsNullOrEmpty(currentStatus) ? "btn-dark" : "btn-outline-dark")">
+                All
+            </a>
+            <a href="@Url.Action("FilterOrdersByAdmin", new { status = "Not Approved", search = currentSearch })"
+               class="btn @(currentStatus == "Not Approved" ? "btn-secondary" : "btn-outline-secondary")">
+                Not Approved
+            </a>
+            <a href="@Url.Action("FilterOrdersByAdmin", new { status = "Preparing", search = currentSearch })"
+               class="btn @(currentStatus == "Preparing" ? "btn-warning text-dark" : "btn-outline-warning")">
+                Preparing
+            </a>
+            <a href="@Url.Action("FilterOrdersByAdmin", new { status = "Delivering", search = currentSearch })"
+               class="btn @(currentStatus == "Delivering" ? "btn-info text-white" : "btn-outline-info")">
+                Delivering
+            </a>
+            <a href="@Url.Action("FilterOrdersByAdmin", new { status = "Completed", search = currentSearch })"
+               class="btn @(currentStatus == "Completed" ? "btn-success" : "btn-outline-success")">
+                Completed
+            </a>
+            <a href="@Url.Action("FilterOrdersByAdmin", new { status = "Cancelled", search = currentSearch })"
+               class="btn @(currentStatus == "Cancelled" ? "btn-danger" : "btn-outline-danger")">
+                Cancelled
+            </a>
+        </div>
+
+        <form method="get" action="@Url.Action("FilterOrdersByAdmin")" class="d-flex" style="max-width: 300px;">
+            <input type="text" name="search" value="@currentSearch" class="form-control me-2" placeholder="Search by book or customer..." />
+            <button type="submit" class="btn btn-primary">
+                <i class="bi bi-search"></i>
+            </button>
+        </form>
+    </div>
     <table class="table table-hover align-middle">
         <thead class="table-dark">
             <tr>
                 <th>ID</th>
                 <th>Customer</th>
                 <th>Address</th>
-                <th>Books</th> <!-- 🆕 -->
+                <th>Books</th>
                 <th>Order Date</th>
                 <th>Delivered Date</th>
                 <th>Status</th>
+                <th>Payment Method</th> 
+                <th>Payment Status</th>
                 <th>Total</th>
                 <th>Discount</th>
                 <th class="text-center">Actions</th>
@@ -103,6 +143,42 @@
                             }
                             <span class="badge bg-@badgeClass px-3 py-2">@order.Status</span>
                         </td>
+
+                        <!-- Payment Method -->
+                        <td>
+                            @if (!string.IsNullOrEmpty(order.PaymentMethod))
+                            {
+                                string methodColor = order.PaymentMethod.ToLower() switch
+                                {
+                                    "online" => "info",
+                                    "cash" => "warning text-dark",
+                                    _ => "dark"
+                                };
+
+                                <span class="badge bg-@methodColor px-3 py-2 text-uppercase">
+                                    @order.PaymentMethod
+                                </span>
+                            }
+                            else
+                            {
+                                <span class="text-muted">N/A</span>
+                            }
+                        </td>
+
+                        <!-- Payment Status -->
+                        <td>
+                            @{
+                                string payBadge = order.PaymentStatus?.ToLower() switch
+                                {
+                                    "paid" => "success",
+                                    "unpaid" => "secondary",
+                                    "failed" => "danger",
+                                    _ => "dark"
+                                };
+                            }
+                            <span class="badge bg-@payBadge px-3 py-2">@order.PaymentStatus</span>
+                        </td>
+
                         <td>@String.Format("{0:N0}", order.TotalAmount) đ</td>
                         <td>@order.Discount %</td>
 
@@ -127,7 +203,7 @@
                             <!-- 🟡 Nút chuyển sang "Preparing" -->
                             @if (order.Status == "Approved")
                             {
-                                <form asp-controller="Order" asp-action="Prepare" asp-route-id="@order.OrderId"
+                                <form asp-controller="Order" asp-action="Approve" asp-route-id="@order.OrderId"
                                       method="post" class="d-inline">
                                     <button type="submit" class="btn btn-sm btn-outline-warning me-1">
                                         <i class="bi bi-gear"></i> Prepare
@@ -138,7 +214,7 @@
                             <!-- 🚚 Nút giao hàng -->
                             @if (order.Status == "Preparing")
                             {
-                                <form asp-controller="Order" asp-action="Deliver" asp-route-id="@order.OrderId"
+                                <form asp-controller="Order" asp-action="Approve" asp-route-id="@order.OrderId"
                                       method="post" class="d-inline">
                                     <button type="submit" class="btn btn-sm btn-outline-info me-1">
                                         <i class="bi bi-truck"></i> Deliver
@@ -149,7 +225,7 @@
                             <!-- ✅ Nút hoàn thành -->
                             @if (order.Status == "Delivering")
                             {
-                                <form asp-controller="Order" asp-action="Complete" asp-route-id="@order.OrderId"
+                                <form asp-controller="Order" asp-action="Approve" asp-route-id="@order.OrderId"
                                       method="post" class="d-inline">
                                     <button type="submit" class="btn btn-sm btn-outline-success me-1">
                                         <i class="bi bi-bag-check"></i> Complete
