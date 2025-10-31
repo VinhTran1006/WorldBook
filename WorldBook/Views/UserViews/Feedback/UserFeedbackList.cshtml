@@ -1,0 +1,60 @@
+﻿@model IEnumerable<WorldBook.ViewModel.UserFeedbackViewModel>
+@{
+    ViewData["Title"] = "My Feedbacks";
+    Layout = "~/Views/Shared/_UserLayout.cshtml";
+}
+
+<h2 class="text-center mb-4">
+    <i class="bi bi-chat-left-text text-primary"></i> My Feedbacks
+</h2>
+
+@if (Context.Request.Query["orderId"].Any())
+{
+    <div class="alert alert-info text-center">
+        <i class="bi bi-info-circle"></i> Showing feedback for order
+        <strong>#@Context.Request.Query["orderId"]</strong>
+    </div>
+}
+
+@if (!Model.Any())
+{
+    <div class="text-center py-5">
+        <i class="bi bi-emoji-smile display-3 text-muted"></i>
+        <h5>You haven't written any feedback yet!</h5>
+        <a href="@Url.Action("OrderHistory", "Order")" class="btn btn-primary mt-3">
+            Go to My Orders
+        </a>
+    </div>
+}
+else
+{
+    <div class="row">
+        @foreach (var item in Model)
+        {
+            <div class="col-md-6 mb-4">
+                <div class="card shadow-sm p-3">
+                    <div class="d-flex align-items-center mb-2">
+                        <img src="@item.ImageUrl" alt="@item.BookName" width="60" class="rounded me-3 border" />
+                        <div>
+                            <h5 class="mb-0">@item.BookName</h5>
+                            <small class="text-muted">@item.CreateAt?.ToString("dd/MM/yyyy")</small>
+                        </div>
+                    </div>
+
+                    <div class="mb-2">
+                        @for (int i = 0; i < item.Star; i++)
+                        {
+                            <i class="bi bi-star-fill text-warning"></i>
+                        }
+                        @for (int i = item.Star ?? 0; i < 5; i++)
+                        {
+                            <i class="bi bi-star text-muted"></i>
+                        }
+                    </div>
+
+                    <p class="text-muted">@item.Comment</p>
+                </div>
+            </div>
+        }
+    </div>
+}
