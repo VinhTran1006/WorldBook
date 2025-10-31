@@ -37,7 +37,7 @@ namespace WorldBook.Services
 
                 PaymentMethod = o.Payment?.PaymentMethod,
                 PaymentStatus = o.Payment?.PaymentStatus
-            });
+            }).ToList();
         }
         public async Task<OrderDetailViewModel?> GetOrderByIdAsync(int id)
         {
@@ -134,7 +134,7 @@ namespace WorldBook.Services
 
                 PaymentMethod = o.Payment?.PaymentMethod,
                 PaymentStatus = o.Payment?.PaymentStatus
-            });
+            }).ToList();
         }
 
         public async Task<IEnumerable<OrderViewModel>> FilterOrdersAsync(int userId, string? status, string? search)
@@ -144,10 +144,10 @@ namespace WorldBook.Services
             if (!string.IsNullOrEmpty(status))
                 orders = orders.Where(o => string.Equals(o.Status, status, StringComparison.OrdinalIgnoreCase));
 
-            // Nếu không có search thì trả về luôn
+            // Nếu không có search thì trả về luôn (có .ToList() ép thực thi)
             if (string.IsNullOrWhiteSpace(search))
             {
-                return orders.Select(MapToViewModel);
+                return orders.Select(MapToViewModel).ToList();
             }
 
             // Normalize input: trim, lowercase, remove diacritics
@@ -166,11 +166,12 @@ namespace WorldBook.Services
             }
 
             var query = search.Trim();
+
             // nếu người dùng nhập số, ưu tiên tìm theo orderId
             if (int.TryParse(query, out var parsedId))
             {
                 orders = orders.Where(o => o.OrderId == parsedId);
-                return orders.Select(MapToViewModel);
+                return orders.Select(MapToViewModel).ToList();
             }
 
             // split thành tokens (loại bỏ các khoảng trắng thừa)
@@ -181,7 +182,7 @@ namespace WorldBook.Services
                 .ToArray();
 
             if (!tokens.Any())
-                return orders.Select(MapToViewModel);
+                return orders.Select(MapToViewModel).ToList();
 
             // filter: tìm trong mỗi Order -> có bất kỳ OrderDetail mà tên sách sau normalize chứa tất cả token
             orders = orders.Where(o =>
@@ -195,7 +196,8 @@ namespace WorldBook.Services
                 })
             );
 
-            return orders.Select(MapToViewModel);
+            // cuối cùng ép thực thi, tạo list thật
+            return orders.Select(MapToViewModel).ToList();
 
 
             // local mapper (reuse existing mapping logic)

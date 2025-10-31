@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using CloudinaryDotNet.Actions;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using System.Security.Claims;
@@ -23,13 +24,15 @@ namespace WorldBook.Controllers
         private readonly IOrderRepository _orderRepository;
         private readonly ICartRepository _cartRepository;
         private readonly MomoOptions _momoOptions;
+        private readonly IFeedbackService _feedbackService;
 
         public OrderController(IOrderService orderService, ICheckoutService checkoutService,
                        MomoPaymentService momoPaymentService,
                        IPaymentRepository paymentRepository,
                        IOrderRepository orderRepository, 
                        ICartRepository cartRepository,
-                       IOptions<MomoOptions> momoOptions)
+                       IOptions<MomoOptions> momoOptions,
+                       IFeedbackService feedbackService)
         {
             _orderService = orderService;
             _checkoutService = checkoutService;
@@ -38,6 +41,7 @@ namespace WorldBook.Controllers
             _orderRepository = orderRepository;
             _cartRepository = cartRepository;
             _momoOptions = momoOptions.Value;
+            _feedbackService = feedbackService;
         }
 
         // ============ EXISTING METHODS (Admin) ============
@@ -278,7 +282,13 @@ namespace WorldBook.Controllers
                 return RedirectToAction("Login", "Logins");
             }
 
-            var orders = await _orderService.GetOrdersByUserIdAsync(userId);
+            var orders = (await _orderService.GetOrdersByUserIdAsync(userId)).ToList();
+
+            foreach (var order in orders)
+            {
+                order.HasFeedback = await _feedbackService.HasFeedbackAsync(order.OrderId, userId);
+            }
+
             return View("~/Views/UserViews/Order/OrderHistory.cshtml", orders);
         }
 
@@ -570,6 +580,12 @@ namespace WorldBook.Controllers
             int userId = int.Parse(userIdClaim);
 
             var orders = await _orderService.FilterOrdersAsync(userId, status, search);
+
+            foreach (var order in orders)
+            {
+                order.HasFeedback = await _feedbackService.HasFeedbackAsync(order.OrderId, userId);
+            }
+
             return View("~/Views/UserViews/Order/OrderHistory.cshtml", orders);
         }
 

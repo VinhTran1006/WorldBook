@@ -184,7 +184,6 @@ else
 
                         <td class="fw-bold text-danger">@String.Format("{0:N0}", order.TotalAmount) ₫</td>
                         <td>@order.Discount %</td>
-
                         <td class="text-center">
                             <a asp-action="UserOrderDetails" asp-route-id="@order.OrderId"
                                class="btn btn-sm btn-outline-primary rounded-pill">
@@ -204,6 +203,24 @@ else
                                     </button>
                                 </form>
                             }
+                                @if (order.Status == "Completed" && !order.HasFeedback)
+                                {
+                                    <a asp-controller="Feedback"
+                                       asp-action="WriteFeedback"
+                                       asp-route-orderId="@order.OrderId"
+                                       class="btn btn-sm btn-outline-success rounded-pill ms-2">
+                                        <i class="bi bi-chat-dots"></i> Write Feedback
+                                    </a>
+                                }
+                                else if (order.Status == "Completed" && order.HasFeedback)
+                                {
+                                    <a asp-controller="Feedback"
+                                       asp-action="UserFeedbackList"
+                                       asp-route-orderId="@order.OrderId"
+                                       class="btn btn-sm btn-outline-secondary rounded-pill ms-2">
+                                        <i class="bi bi-chat-left-text"></i> View Feedback
+                                    </a>
+                                }
                         </td>
                     </tr>
                 }

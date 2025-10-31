@@ -16,6 +16,8 @@
 
         public string? PaymentMethod { get; set; }
         public string? PaymentStatus { get; set; }
+
+        public bool HasFeedback { get; set; } = false;
     }
 
     public class OrderBookItem

@@ -1,0 +1,52 @@
+﻿@model IEnumerable<WorldBook.ViewModel.FeedbackViewModel>
+
+@{
+    ViewData["Title"] = "Manage Feedback";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<h2 class="text-center mb-4">Danh Sách Feedback Khách Hàng</h2>
+
+<table class="table table-striped table-hover text-center align-middle">
+    <thead class="table-dark">
+        <tr>
+            <th>Image</th>
+            <th>Book Name</th>
+            <th>Customer</th>
+            <th>Star</th>
+            <th>Date</th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (Model.Any())
+        {
+            foreach (var item in Model)
+            {
+                <tr>
+                    <td>
+                        <img src="@item.ImageUrl" alt="@item.BookName" width="80" class="rounded shadow-sm" />
+                    </td>
+                    <td>@item.BookName</td>
+                    <td>@item.UserName</td>
+                    <td>
+                        @for (int i = 0; i < item.Star; i++)
+                        {
+                            <i class="bi bi-star-fill text-warning"></i>
+                        }
+                        @for (int i = item.Star ?? 0; i < 5; i++)
+                        {
+                            <i class="bi bi-star text-muted"></i>
+                        }
+                    </td>
+                    <td>@item.CreateAt?.ToString("dd/MM/yyyy")</td>
+                </tr>
+            }
+        }
+        else
+        {
+            <tr>
+                <td colspan="6" class="text-muted">Feedback not found</td>
+            </tr>
+        }
+    </tbody>
+</table>
