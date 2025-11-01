@@ -29,17 +29,18 @@
     display: none;
     width: 340px;
     height: 450px;
-    background: white;
-    border-radius: 12px;
+    background: #fff;
+    border-radius: 16px;
     overflow: hidden;
     border: 1px solid #ccc;
     flex-direction: column;
     position: absolute;
     bottom: 70px;
     left: 0;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.25);
 }
 
+/* 🧭 Header */
 #chatbot-header {
     background-color: #007bff;
     color: white;
@@ -50,14 +51,15 @@
     font-weight: bold;
 }
 
+/* 💬 Tin nhắn */
 #chatbot-messages {
     flex: 1;
     padding: 10px;
     overflow-y: auto;
-    height: 300px;
     display: flex;
     flex-direction: column;
     gap: 10px;
+    word-break: break-word;
 }
 
 /* 🗨️ Bong bóng chat */
@@ -79,9 +81,9 @@
         padding: 8px 12px;
         border-radius: 12px;
         max-width: 75%;
-        word-wrap: break-word;
         font-size: 14px;
         line-height: 1.4;
+        word-wrap: break-word;
     }
 
     .message.user .bubble {
@@ -94,7 +96,6 @@
         border-bottom-left-radius: 2px;
     }
 
-    /* 👤 Icon */
     .message i {
         font-size: 18px;
         color: #007bff;
@@ -149,7 +150,7 @@
         background-color: #0056b3;
     }
 
-/* Dấu chấm nhảy */
+/* ⏳ Dấu chấm nhảy */
 .typing {
     font-size: 18px;
     margin-left: 10px;

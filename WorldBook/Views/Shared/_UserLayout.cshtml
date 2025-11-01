@@ -97,7 +97,7 @@
             &copy; 2025 - WorldBook - <a asp-area="" asp-controller="Home" asp-action="#">Privacy</a>
         </div>
     </footer>
-    <!-- 💬 Chat AI nổi góc trái -->
+    <!-- Chat AI nổi góc trái -->
     <div id="chatbot-container">
         <div id="chatbot-toggle">
             <i class="bi bi-robot"></i>
@@ -121,179 +121,22 @@
                 <input type="text" id="chatbot-input" placeholder="Nhập câu hỏi..." />
                 <button id="chatbot-send"><i class="bi bi-send"></i></button>
             </div>
+
+            <div id="chatbot-footer">
+                <button id="contact-admin" class="btn btn-warning w-100 mt-2">
+                    <i class="bi bi-person-lines-fill"></i> Liên hệ Admin
+                </button>
+            </div>
         </div>
     </div>
 
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/7.0.5/signalr.min.js"></script>
 
     <!-- Script cho chatbot -->
-    <script>
-        const toggleBtn = document.getElementById("chatbot-toggle");
-        const chatBox = document.getElementById("chatbot-box");
-        const closeBtn = document.getElementById("chatbot-close");
-        const sendBtn = document.getElementById("chatbot-send");
-        const input = document.getElementById("chatbot-input");
-        const messages = document.getElementById("chatbot-messages");
-        const suggestBox = document.getElementById("chatbot-suggestions");
-
-        // ✅ Danh sách gợi ý gốc
-        const defaultSuggestions = [
-            "Hôm nay có sách nào đang sale?",
-            "Sách nào vừa mới được ra mắt?",
-            "Cách đặt sách ở trang web?",
-            "Giới thiệu về Website WorldBook Shop"
-        ];
-
-        // ✅ Gợi ý hiện tại (sẽ thay đổi sau khi user bấm)
-        let suggestions = [...defaultSuggestions];
-
-        // 🚀 Mở chat
-        toggleBtn.onclick = () => {
-            chatBox.style.display = "flex";
-            toggleBtn.style.display = "none";
-            loadChatState(); // ⬅️ Load lại lịch sử nếu có
-            if (messages.innerHTML.trim() === "") showWelcomeMessage();
-        };
-
-        // 🚪 Đóng chat
-        closeBtn.onclick = () => {
-            chatBox.style.display = "none";
-            toggleBtn.style.display = "flex";
-            saveChatState(); // ⬅️ Lưu trạng thái trước khi đóng
-        };
-
-        // 💬 Hiển thị lời chào đầu tiên
-        function showWelcomeMessage() {
-            messages.innerHTML = `
-                <div class="message bot">
-                    <i class="bi bi-robot"></i>
-                    <div class="bubble">
-                        Chào mừng bạn đến với <b>WorldBook Shop</b>!<br/>
-                        Bạn cần tui tư vấn gì hông nè 😄
-                    </div>
-                </div>`;
-            renderSuggestions();
-            saveChatState();
-        }
-
-        // 🔁 Vẽ lại danh sách gợi ý
-        function renderSuggestions() {
-            suggestBox.innerHTML = "";
-
-            if (suggestions.length === 0) {
-                suggestBox.style.display = "none"; // Ẩn nếu hết
-                return;
-            }
-
-            suggestBox.style.display = "flex";
-            suggestions.forEach(q => {
-                const btn = document.createElement("button");
-                btn.className = "chat-suggestion";
-                btn.textContent = q;
-                btn.onclick = () => handleSuggestionClick(q);
-                suggestBox.appendChild(btn);
-            });
-
-            saveChatState(); // ⬅️ Lưu khi render lại
-        }
-
-        // 🧩 Thêm tin nhắn vào khung chat
-        function addMessage(role, text) {
-            const div = document.createElement("div");
-            div.className = `message ${role}`;
-            div.innerHTML = role === "bot"
-                ? `<i class="bi bi-robot"></i><div class="bubble">${text}</div>`
-                : `<div class="bubble">${text}</div><i class="bi bi-person-circle"></i>`;
-            messages.appendChild(div);
-            messages.scrollTop = messages.scrollHeight;
-            saveChatState();
-        }
-
-        // 🧠 Khi người dùng chọn 1 gợi ý
-        async function handleSuggestionClick(text) {
-            suggestions = suggestions.filter(s => s !== text);
-            renderSuggestions();
-            await sendMessage(text);
-        }
-
-        // 🚀 Gửi tin nhắn (từ input hoặc gợi ý)
-        async function sendMessage(forcedText = null) {
-            const msg = forcedText || input.value.trim();
-            if (!msg) return;
-
-            addMessage("user", msg);
-            input.value = "";
-
-            const typingEl = document.createElement("div");
-            typingEl.className = "typing";
-            typingEl.innerHTML = "<span>.</span><span>.</span><span>.</span>";
-            messages.appendChild(typingEl);
-            messages.scrollTop = messages.scrollHeight;
-
-            try {
-                const res = await fetch("/chat/ask", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/x-www-form-urlencoded" },
-                    body: "message=" + encodeURIComponent(msg)
-                });
-
-                const data = await res.json();
-                typingEl.remove();
-
-                addMessage("bot", data.reply || "Xin lỗi, AI hiện không thể trả lời được 😔");
-
-                if (suggestions.length > 0) renderSuggestions();
-                else suggestBox.style.display = "none";
-            } catch {
-                typingEl.remove();
-                addMessage("bot", "Xin lỗi, có lỗi xảy ra 😔");
-            }
-        }
-
-        // 🎯 Gửi khi nhấn nút hoặc Enter
-        sendBtn.onclick = () => sendMessage();
-        input.addEventListener("keypress", e => {
-            if (e.key === "Enter") sendMessage();
-        });
-
-        // 💾 Lưu trạng thái chat (tin nhắn + gợi ý)
-        function saveChatState() {
-            const state = {
-                messages: messages.innerHTML,
-                suggestions: suggestions
-            };
-            sessionStorage.setItem("worldbook_chat_state_v1", JSON.stringify(state));
-        }
-
-        // 🔄 Khôi phục trạng thái chat
-        function loadChatState() {
-            const state = sessionStorage.getItem("worldbook_chat_state_v1");
-            if (state) {
-                const parsed = JSON.parse(state);
-                messages.innerHTML = parsed.messages || "";
-                suggestions = parsed.suggestions || [...defaultSuggestions];
-                renderSuggestions();
-            }
-        }
-
-        // ❌ KHÔNG cần beforeunload — sessionStorage tự dọn khi tắt tab
-    </script>
-
-    <!-- Ẩn/hiện chatbot tùy trang -->
-    <script>
-        // 📌 Kiểm tra đường dẫn hiện tại
-        const currentPath = window.location.pathname;
-
-        // 📌 Chỉ hiển thị chatbot ở trang chủ và trang chi tiết sách
-        const chatContainer = document.getElementById("chatbot-container");
-        if (currentPath === "/" || currentPath.startsWith("/Book/GetBookDetails")) {
-            chatContainer.style.display = "block"; // ✅ Hiện chatbot
-        } else {
-            chatContainer.style.display = "none";  // ❌ Ẩn chatbot
-        }
-    </script>
+    <script src="~/js/chatbot.js" asp-append-version="true"></script>
 
     @await RenderSectionAsync("Scripts", required: false)
 </body>

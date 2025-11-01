@@ -414,14 +414,43 @@
                 }, 3000);
             }
 
-                    $('#momoPaymentBtn').click(async function () {
+                            $('#momoPaymentBtn').click(async function () {
             try {
-                // Lấy dữ liệu đơn hàng
+                // 🟢 Validate địa chỉ trước
+                const address = $('#Address').val().trim();
+                if (!address) {
+                    alert('Vui lòng nhập địa chỉ giao hàng');
+                    return;
+                }
+
+                // 🟢 Lấy giá đã áp dụng voucher từ hidden field
+                const totalAmount = $('#totalAmount').val() || $('#displayTotalAmount').text();
+
+                // Parse giá từ display (loại bỏ " $")
+                let amount = totalAmount;
+                if (typeof totalAmount === 'string') {
+                    amount = parseInt(totalAmount.replace(/[^0-9]/g, '')) || 0;
+                }
+
+                if (amount <= 0) {
+                    alert('Không thể xác định số tiền thanh toán');
+                    return;
+                }
+
+                // Show loading
+                $('#loadingOverlay').show();
+                $('#momoPaymentBtn').prop('disabled', true);
+
+                // 🟢 Gửi request với giá đã áp dụng voucher
                 const data = {
-                    fullName: $('#FullName').val(),
-                    address: $('#Address').val(),
-                    phone: $('#Phone').val(),
-                    note: $('#Note').val()
+                    userId: $('#UserId').val(),
+                    address: address,
+                    items: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.Items)),
+                    subtotal: @Model.Subtotal,
+                    selectedVoucherId: $('#selectedVoucherId').val(),
+                    discountPercent: $('#discountPercent').val(),
+                    discountAmount: $('#discountAmount').val(),
+                    totalAmount: amount  // 🟢 Giá với voucher
                 };
 
                 // Gọi API tạo đơn hàng
@@ -434,10 +463,13 @@
                 const result = await res.json();
                 if (!res.ok) throw new Error(result.message || 'Không thể tạo đơn hàng');
 
-                // Redirect sang MoMo payment URL
+                // 🟢 Redirect sang MoMo payment URL với giá đã áp dụng voucher
                 window.location.href = `/api/v1/user/payments/momo?orderId=${result.orderId}&amount=${result.amount}`;
             } catch (err) {
                 alert('Thanh toán thất bại: ' + err.message);
+            } finally {
+                $('#loadingOverlay').hide();
+                $('#momoPaymentBtn').prop('disabled', false);
             }
         });
 

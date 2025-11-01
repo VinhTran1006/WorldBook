@@ -56,18 +56,29 @@
                     </td>
                     <td>@item.CreateAt?.ToString("dd/MM/yyyy")</td>
                     <td>
-                        @if (string.IsNullOrEmpty(item.Reply))
-                        {
-                            <a href="@Url.Action("Detail", "AdminFeedback", new { id = item.FeedbackId })" class="btn btn-sm btn-success">
-                                <i class="bi bi-reply"></i> Reply
+                        <div class="btn-group btn-group-sm" role="group">
+                            <!-- View Button -->
+                            <a href="@Url.Action("View", "AdminFeedback", new { id = item.FeedbackId })"
+                               class="btn btn-info" title="View Details">
+                                <i class="bi bi-eye"></i> View
                             </a>
-                        }
-                        else
-                        {
-                            <a href="@Url.Action("Detail", "AdminFeedback", new { id = item.FeedbackId })" class="btn btn-sm btn-warning">
-                                <i class="bi bi-pencil-square"></i> Edit
-                            </a>
-                        }
+
+                            <!-- Reply/Edit Button -->
+                            @if (string.IsNullOrEmpty(item.Reply))
+                            {
+                                <a href="@Url.Action("Detail", "AdminFeedback", new { id = item.FeedbackId })"
+                                   class="btn btn-success" title="Reply to Feedback">
+                                    <i class="bi bi-reply"></i> Reply
+                                </a>
+                            }
+                            else
+                            {
+                                <a href="@Url.Action("Detail", "AdminFeedback", new { id = item.FeedbackId })"
+                                   class="btn btn-warning" title="Edit Reply">
+                                    <i class="bi bi-pencil-square"></i> Edit
+                                </a>
+                            }
+                        </div>
                     </td>
                 </tr>
             }

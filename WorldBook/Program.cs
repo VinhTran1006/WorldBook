@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using WorldBook.Config;
+using WorldBook.Hubs;
 using WorldBook.Models;
 using WorldBook.Repositories;
 using WorldBook.Repositories.Interfaces;
@@ -59,6 +60,8 @@ builder.Services.AddScoped<IPaymentRepository, PaymentRepository>();
 builder.Services.AddScoped<IFeedbackRepository, FeedbackRepository>();
 builder.Services.AddScoped<IFeedbackService, FeedbackService>();
 
+builder.Services.AddSignalR();
+
 //Cookie schema
 builder.Services.AddAuthentication("MyCookieAuth")
     .AddCookie("MyCookieAuth", options =>
@@ -72,6 +75,8 @@ builder.Services.AddAuthentication("MyCookieAuth")
     });
 
 var app = builder.Build();
+
+app.MapHub<ChatHub>("/chatHub");
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())

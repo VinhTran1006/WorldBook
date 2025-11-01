@@ -62,7 +62,7 @@
                         <!-- ✅ Comment - Optional -->
                         <div class="mb-3">
                             <label asp-for="@Model[i].Comment" class="form-label fw-semibold">
-                                Your Comment: <span class="text-muted">(Optional)</span>
+                                Your Comment: <span class="text-muted">(Optional - Max 255 characters)</span>
                             </label>
                             <textarea class="form-control rounded-3"
                                       asp-for="@Model[i].Comment"
@@ -102,4 +102,27 @@
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+
+    <script>
+        // Character counter for each comment textarea
+        document.querySelectorAll('textarea[data-index]').forEach(textarea => {
+            const index = textarea.getAttribute('data-index');
+            const charCount = document.querySelector(`.char-count[data-index="${index}"]`);
+
+            // Initialize counter on page load
+            charCount.textContent = textarea.value.length;
+
+            // Update counter on input
+            textarea.addEventListener('input', function () {
+                charCount.textContent = this.value.length;
+
+                // Change color if exceeding limit (optional visual feedback)
+                if (this.value.length >= 240) {
+                    charCount.closest('div').classList.add('text-warning');
+                } else {
+                    charCount.closest('div').classList.remove('text-warning');
+                }
+            });
+        });
+    </script>
 }

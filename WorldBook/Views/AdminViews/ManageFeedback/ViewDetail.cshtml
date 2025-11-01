@@ -1,0 +1,140 @@
+﻿@model WorldBook.ViewModel.FeedbackViewModel
+@{
+    ViewData["Title"] = "Feedback View";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-10 offset-md-1">
+            <!-- Header -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2>
+                    <i class="bi bi-eye"></i> Feedback Detail
+                </h2>
+                <a href="@Url.Action("Index", "AdminFeedback")" class="btn btn-secondary">
+                    <i class="bi bi-arrow-left"></i> Back to List
+                </a>
+            </div>
+
+            <!-- Main Content Card -->
+            <div class="card shadow-sm p-4 mb-4">
+                <div class="row">
+                    <!-- Book Image -->
+                    <div class="col-md-3 text-center mb-3 mb-md-0">
+                        <img src="@Model.ImageUrl" alt="@Model.BookName" class="img-fluid rounded shadow-sm" />
+                        <p class="fw-bold mt-3 text-truncate">@Model.BookName</p>
+                    </div>
+
+                    <!-- Feedback Details -->
+                    <div class="col-md-9">
+                        <!-- Book Name -->
+                        <div class="mb-3">
+                            <label class="form-label fw-bold text-muted">Book Name</label>
+                            <p class="form-control-plaintext fs-5">@Model.BookName</p>
+                        </div>
+
+                        <!-- Customer Name -->
+                        <div class="mb-3">
+                            <label class="form-label fw-bold text-muted">Customer Name</label>
+                            <p class="form-control-plaintext">@Model.UserName</p>
+                        </div>
+
+                        <!-- Rating -->
+                        <div class="mb-3">
+                            <label class="form-label fw-bold text-muted">Rating</label>
+                            <div>
+                                @for (int i = 0; i < (Model.Star ?? 0); i++)
+                                {
+                                        <i class="bi bi-star-fill text-warning fs-5"></i>
+                                }
+                                @for (int i = (Model.Star ?? 0); i < 5; i++)
+                                {
+                                        <i class="bi bi-star text-muted fs-5"></i>
+                                }
+                                <span class="ms-2 fw-bold">@Model.Star / 5</span>
+                            </div>
+                        </div>
+
+                        <!-- Submitted Date -->
+                        <div class="mb-3">
+                            <label class="form-label fw-bold text-muted">Submitted On</label>
+                            <p class="form-control-plaintext">@Model.CreateAt?.ToString("dd/MM/yyyy HH:mm")</p>
+                        </div>
+                    </div>
+                </div>
+
+                <hr />
+
+                <!-- Customer Comment Section -->
+                <div class="mb-4">
+                    <label class="form-label fw-bold fs-5">Customer Comment</label>
+                    <div class="p-3 bg-light rounded border-start border-4 border-primary">
+                        @if (string.IsNullOrEmpty(Model.Comment))
+                        {
+                                <p class="text-muted fst-italic mb-0">No comment provided</p>
+                        }
+                        else
+                        {
+                                <p class="mb-0">@Model.Comment</p>
+                        }
+                    </div>
+                </div>
+
+                <!-- Admin Reply Section -->
+                @if (!string.IsNullOrEmpty(Model.Reply))
+                {
+                        <hr />
+                        <div>
+                            <label class="form-label fw-bold fs-5">Admin Reply</label>
+                            <div class="alert alert-info border-0">
+                                <div class="mb-2">
+                                    <span class="badge bg-primary">@Model.ReplyAccountName</span>
+                                    <small class="text-muted">@Model.ReplyDate?.ToString("dd/MM/yyyy HH:mm")</small>
+                                </div>
+                                <p class="mb-0 mt-2">@Model.Reply</p>
+                            </div>
+                        </div>
+                }
+            </div>
+
+            <!-- Action Button -->
+            <div class="text-center">
+                @if (string.IsNullOrEmpty(Model.Reply))
+                {
+                        <a href="@Url.Action("Detail", "AdminFeedback", new { id = Model.FeedbackId })" class="btn btn-success btn-lg">
+                            <i class="bi bi-reply"></i> Reply to This Feedback
+                        </a>
+                }
+                else
+                {
+                        <a href="@Url.Action("Detail", "AdminFeedback", new { id = Model.FeedbackId })" class="btn btn-warning btn-lg">
+                            <i class="bi bi-pencil-square"></i> Edit Reply
+                        </a>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .card {
+        border: none;
+        border-radius: 0.5rem;
+    }
+
+    .border-start {
+        border-left-width: 0.4rem !important;
+    }
+
+    .form-control-plaintext {
+        color: #212529;
+    }
+
+    @@media (max-width: 768px) {
+        .col-md-3,
+        .col-md-9 {
+            margin-bottom: 1.5rem;
+        }
+    }
+</style>

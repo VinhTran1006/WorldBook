@@ -21,6 +21,15 @@ namespace WorldBook.Controllers
             ViewBag.CurrentFilter = filter;
             return View("~/Views/AdminViews/ManageFeedback/Index.cshtml", pagedFeedbacks);
         }
+        public async Task<IActionResult> View(int id)
+        {
+            var feedback = await _feedbackService.AdminGetFeedbackByIdAsync(id);
+            if (feedback == null)
+            {
+                return NotFound();
+            }
+            return View("~/Views/AdminViews/ManageFeedback/ViewDetail.cshtml", feedback);
+        }
 
         public async Task<IActionResult> Detail(int id)
         {

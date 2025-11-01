@@ -11,11 +11,31 @@ namespace WorldBook.Services
         private readonly HttpClient _httpClient;
         private readonly WorldBookDbContext _context;
 
+        private static HashSet<string> UsersInAdminChat = new();
+
         public GeminiService(IConfiguration configuration, WorldBookDbContext context)
         {
             _configuration = configuration;
             _httpClient = new HttpClient();
             _context = context;
+        }
+
+        // Đánh dấu user bắt đầu chat với admin
+        public void StartAdminChat(string userName)
+        {
+            UsersInAdminChat.Add(userName);
+        }
+
+        // Kiểm tra user có đang chat với admin không
+        public bool IsUserInAdminChat(string userName)
+        {
+            return UsersInAdminChat.Contains(userName);
+        }
+
+        // Xóa user khỏi chat admin (khi admin đóng cuộc chat)
+        public void EndAdminChat(string userName)
+        {
+            UsersInAdminChat.Remove(userName);
         }
 
         public List<string> GetSuggestions()
@@ -29,14 +49,14 @@ namespace WorldBook.Services
             };
         }
 
-        // ✅ Hàm chính xử lý tin nhắn chat
+        // Hàm chính xử lý tin nhắn chat
         public async Task<string> AskGeminiAsync(string userMessage)
         {
             var message = userMessage.Trim().ToLower();
 
-            // 🔹 1. Xử lý mấy câu cơ bản đầu tiên
+            // 1. Xử lý mấy câu cơ bản đầu tiên
             if (string.IsNullOrWhiteSpace(message))
-                return "Ní ơi, nhập câu hỏi trước nghen 😄";
+                return "Bạn ơi, nhập câu hỏi trước nghen";
 
             if (message.Contains("sale"))
                 return await GetSaleBooksAsync();
@@ -45,9 +65,9 @@ namespace WorldBook.Services
                 return await GetNewBooksAsync();
 
             if (message.Contains("đặt sách") || message.Contains("mua"))
-                return "Để đặt sách, ní chỉ cần vào <b>Cart</b> rồi chọn thanh toán là xong nghen ❤️.";
+                return "Để đặt sách, Bạn chỉ cần vào <b>Cart</b> rồi chọn thanh toán là xong nghen.";
 
-            // 🔹 2. Nếu người dùng hỏi về website / giới thiệu
+            // 2. Nếu người dùng hỏi về website / giới thiệu
             if (IsAboutWebsite(message))
             {
                 return @"
@@ -58,23 +78,23 @@ namespace WorldBook.Services
         ";
             }
 
-            // 🔹 3. Nếu người dùng hỏi tóm tắt / review / nội dung sách
+            // 3. Nếu người dùng hỏi tóm tắt / review / nội dung sách
             if (IsSummaryRequest(message))
                 return await HandleSummaryOrReviewAsync(userMessage);
 
-            // 🔹 4. Nếu người dùng nhắc đến tên sách, tác giả hoặc thể loại trong DB
+            // 4. Nếu người dùng nhắc đến tên sách, tác giả hoặc thể loại trong DB
             var dbReply = await GetBookFromDatabaseAsync(message);
             if (!string.IsNullOrEmpty(dbReply))
                 return dbReply;
 
-            // 🔹 5. Không khớp gì hết → gọi Gemini API mặc định
+            // 5. Không khớp gì hết → gọi Gemini API mặc định
             return await CallGeminiAPIAsync(userMessage);
         }
 
-        // 🔹 Xác định user đang hỏi tóm tắt / review
+        // Xác định user đang hỏi tóm tắt / review
         private bool IsSummaryRequest(string message)
         {
-            // ⚠️ Không bắt mấy từ "website", "worldbook" để tránh nhầm
+            // Không bắt mấy từ "website", "worldbook" để tránh nhầm
             if (message.Contains("worldbook") || message.Contains("website"))
                 return false;
 
@@ -82,7 +102,7 @@ namespace WorldBook.Services
             return keywords.Any(k => message.Contains(k));
         }
 
-        // 🔹 Xử lý yêu cầu tóm tắt / review
+        // Xử lý yêu cầu tóm tắt / review
         private async Task<string> HandleSummaryOrReviewAsync(string userMessage)
         {
             var lower = userMessage.ToLower();
@@ -125,10 +145,10 @@ namespace WorldBook.Services
             var geminiSummary = await CallGeminiAPIAsync($"Tóm tắt ngắn (2 câu) nội dung sách {userMessage}");
             var suggestRandom = await BuildSuggestionsHtmlAsync();
 
-            return $"{geminiSummary}<br/><br/>Sách này hiện chưa có trong WorldBook Shop ní ơi 😢.<br/>Ní có thể xem mấy quyển tương tự nè:<br/>{suggestRandom}";
+            return $"{geminiSummary}<br/><br/>Sách này hiện chưa có trong WorldBook Shop Bạn ơi.<br/>Bạn có thể xem mấy quyển tương tự nè:<br/>{suggestRandom}";
         }
 
-        // 🔹 Lấy danh sách sách tương tự theo thể loại
+        // Lấy danh sách sách tương tự theo thể loại
         private async Task<string> GetSimilarBooksHtmlAsync(Book foundBook)
         {
             var categoryId = foundBook.BookCategories.FirstOrDefault()?.CategoryId;
@@ -149,10 +169,10 @@ namespace WorldBook.Services
 
             var list = string.Join("<br/>", similarBooks.Select(b =>
                 $"• <a href='/Book/GetBookDetails/{b.BookId}'><b>{b.BookName}</b></a> - {b.BookPrice:N0} VND"));
-            return $"<br/>📚 Ní có thể xem thêm mấy quyển tương tự nè:<br/>{list}";
+            return $"<br/>Bạn có thể xem thêm mấy quyển tương tự nè:<br/>{list}";
         }
 
-        // 🔹 Gợi ý 3 quyển sách ngẫu nhiên (sale hoặc mới)
+        // Gợi ý 3 quyển sách ngẫu nhiên (sale hoặc mới)
         private async Task<string> BuildSuggestionsHtmlAsync()
         {
             var books = await _context.Books
@@ -169,7 +189,7 @@ namespace WorldBook.Services
             return list;
         }
 
-        // 🔹 Tìm sách theo tên trong DB
+        // Tìm sách theo tên trong DB
         private async Task<string> GetBookFromDatabaseAsync(string message)
         {
             var books = await _context.Books
@@ -202,7 +222,7 @@ namespace WorldBook.Services
             return string.Empty;
         }
 
-        // 🔹 Danh sách sách đang sale
+        // Danh sách sách đang sale
         private async Task<string> GetSaleBooksAsync()
         {
             var saleBooks = await _context.Books
@@ -211,14 +231,14 @@ namespace WorldBook.Services
                 .ToListAsync();
 
             if (!saleBooks.Any())
-                return "Hiện tại chưa có chương trình sale nào ní ơi 😢.";
+                return "Hiện tại chưa có chương trình sale nào Bạn ơi.";
 
             var list = string.Join("<br/>", saleBooks.Select(b =>
                 $"📘 <a href='/Book/GetBookDetails/{b.BookId}'><b>{b.BookName}</b></a> - {b.BookPrice:N0} VND"));
-            return $"Dưới đây là vài cuốn đang sale nè ní ơi 😍:<br/>{list}";
+            return $"Dưới đây là vài cuốn đang sale nè Bạn ơi:<br/>{list}";
         }
 
-        // 🔹 Sách mới ra mắt
+        // Sách mới ra mắt
         private async Task<string> GetNewBooksAsync()
         {
             var newBooks = await _context.Books
@@ -228,10 +248,10 @@ namespace WorldBook.Services
 
             var list = string.Join("<br/>", newBooks.Select(b =>
                 $"✨ <a href='/Book/GetBookDetails/{b.BookId}'><b>{b.BookName}</b></a> - {b.BookPrice:N0} VND"));
-            return $"Mấy quyển mới ra mắt gần đây nè ní 😍:<br/>{list}";
+            return $"Mấy quyển mới ra mắt gần đây nè bạn:<br/>{list}";
         }
 
-        // 🔹 Gọi Gemini API
+        // Gọi Gemini API
         private async Task<string> CallGeminiAPIAsync(string userMessage)
         {
             var apiKey = _configuration["Gemini:ApiKey"];
@@ -268,10 +288,10 @@ namespace WorldBook.Services
                 .GetProperty("text")
                 .GetString();
 
-            return text ?? "AI hiện không thể phản hồi 😔";
+            return text ?? "AI hiện không thể phản hồi";
         }
 
-        // 🔹 Rút ngắn text (nếu mô tả quá dài)
+        // Rút ngắn text (nếu mô tả quá dài)
         private string ShortenText(string? text, int maxChars)
         {
             if (string.IsNullOrWhiteSpace(text)) return string.Empty;

@@ -11,6 +11,7 @@ namespace WorldBook.ViewModel
 
         [Required(ErrorMessage = "Please select a rating")]
         public int? Star { get; set; }
+        [StringLength(255, ErrorMessage = "Comment cannot exceed 255 characters")]
         public string? Comment { get; set; }
         public DateTime? CreateAt { get; set; }
         public string? BookName { get; set; }
