@@ -1,4 +1,5 @@
-﻿using CloudinaryDotNet.Actions;
+﻿using Azure;
+using CloudinaryDotNet.Actions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
@@ -45,10 +46,11 @@ namespace WorldBook.Controllers
         }
 
         // ============ EXISTING METHODS (Admin) ============
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(int page = 1)
         {
-            var orders = await _orderService.GetAllOrdersAsync();
-            return View("~/Views/AdminViews/ManageOrder/Index.cshtml", orders);
+            if (page < 1) page = 1;
+            var paginatedOrders = await _orderService.GetAllOrdersPaginatedAsync(page);
+            return View("~/Views/AdminViews/ManageOrder/Index.cshtml", paginatedOrders);
         }
 
         [HttpGet]
@@ -590,10 +592,11 @@ namespace WorldBook.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> FilterOrdersByAdmin(string? status, string? search)
+        public async Task<IActionResult> FilterOrdersByAdmin(string? status, string? search, int page = 1)
         {
-            var orders = await _orderService.FilterOrdersForAdminAsync(status, search);
-            return View("~/Views/AdminViews/ManageOrder/Index.cshtml", orders);
+            if (page < 1) page = 1;
+            var paginatedOrders = await _orderService.FilterOrdersForAdminPaginatedAsync(status, search, page);
+            return View("~/Views/AdminViews/ManageOrder/Index.cshtml", paginatedOrders);
         }
 
     }

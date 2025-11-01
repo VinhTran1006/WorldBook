@@ -9,5 +9,8 @@
         public int? Star { get; set; }
         public string? Comment { get; set; }
         public DateTime? CreateAt { get; set; }
+        public string? Reply { get; set; }
+        public DateTime? ReplyDate { get; set; }
+        public string? ReplyAccountName { get; set; }
     }
 }

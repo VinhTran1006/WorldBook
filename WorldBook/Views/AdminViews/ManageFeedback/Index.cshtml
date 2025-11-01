@@ -1,11 +1,26 @@
-﻿@model IEnumerable<WorldBook.ViewModel.FeedbackViewModel>
+﻿@model WorldBook.ViewModel.AdminPaginatedFeedbackViewModel
 
 @{
     ViewData["Title"] = "Manage Feedback";
     Layout = "~/Views/Shared/_AdminLayout.cshtml";
 }
 
-<h2 class="text-center mb-4">Danh Sách Feedback Khách Hàng</h2>
+<h2 class="text-center mb-4">Customer Feedback List</h2>
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2>Customer Feedback List</h2>
+    <div>
+        <a asp-action="Index" asp-route-filter="all" class="btn btn-outline-primary @(ViewBag.CurrentFilter == "all" ? "active" : "")">
+            <i class="bi bi-list"></i> All
+        </a>
+        <a asp-action="Index" asp-route-filter="noreply" class="btn btn-outline-warning @(ViewBag.CurrentFilter == "noreply" ? "active" : "")">
+            <i class="bi bi-reply"></i> No Reply
+        </a>
+        <a asp-action="Index" asp-route-filter="replied" class="btn btn-outline-success @(ViewBag.CurrentFilter == "replied" ? "active" : "")">
+            <i class="bi bi-check-circle"></i> Replied
+        </a>
+    </div>
+</div>
 
 <table class="table table-striped table-hover text-center align-middle">
     <thead class="table-dark">
@@ -13,18 +28,19 @@
             <th>Image</th>
             <th>Book Name</th>
             <th>Customer</th>
-            <th>Star</th>
+            <th>Rating</th>
             <th>Date</th>
+            <th>Action</th>
         </tr>
     </thead>
     <tbody>
-        @if (Model.Any())
+        @if (Model.Feedbacks.Any())
         {
-            foreach (var item in Model)
+            foreach (var item in Model.Feedbacks)
             {
                 <tr>
                     <td>
-                        <img src="@item.ImageUrl" alt="@item.BookName" width="80" class="rounded shadow-sm" />
+                        <img src="@item.ImageUrl" alt="@item.BookName" width="70" class="rounded shadow-sm" />
                     </td>
                     <td>@item.BookName</td>
                     <td>@item.UserName</td>
@@ -39,14 +55,40 @@
                         }
                     </td>
                     <td>@item.CreateAt?.ToString("dd/MM/yyyy")</td>
+                    <td>
+                        @if (string.IsNullOrEmpty(item.Reply))
+                        {
+                            <a href="@Url.Action("Detail", "AdminFeedback", new { id = item.FeedbackId })" class="btn btn-sm btn-success">
+                                <i class="bi bi-reply"></i> Reply
+                            </a>
+                        }
+                        else
+                        {
+                            <a href="@Url.Action("Detail", "AdminFeedback", new { id = item.FeedbackId })" class="btn btn-sm btn-warning">
+                                <i class="bi bi-pencil-square"></i> Edit
+                            </a>
+                        }
+                    </td>
                 </tr>
             }
         }
         else
         {
             <tr>
-                <td colspan="6" class="text-muted">Feedback not found</td>
+                <td colspan="6" class="text-muted">No feedbacks found.</td>
             </tr>
         }
     </tbody>
 </table>
+
+<nav aria-label="Page navigation" class="mt-4">
+    <ul class="pagination justify-content-center">
+        @for (int i = 1; i <= Model.TotalPages; i++)
+        {
+            <li class="page-item @(i == Model.CurrentPage ? "active" : "")">
+                <a class="page-link" asp-action="Index" asp-route-page="@i" asp-route-filter="@ViewBag.CurrentFilter">@i</a>
+            </li>
+        }
+    </ul>
+</nav>
+

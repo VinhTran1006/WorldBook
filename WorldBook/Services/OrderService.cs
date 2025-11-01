@@ -1,5 +1,6 @@
 ﻿using System.Globalization;
 using System.Text;
+using Braintree;
 using WorldBook.Repositories.Interfaces;
 using WorldBook.Services.Interfaces;
 using WorldBook.ViewModel;
@@ -9,6 +10,7 @@ namespace WorldBook.Services
     public class OrderService : IOrderService
     {
         private readonly IOrderRepository _orderRepository;
+        private const int DefaultPageSize = 10;
 
         public OrderService(IOrderRepository orderRepository)
         {
@@ -258,5 +260,124 @@ namespace WorldBook.Services
             });
         }
 
+        // ============ SỬA 3 METHODS TRONG ORDERSERVICE ============
+
+        // METHOD 1 - SỬA GetAllOrdersPaginatedAsync
+        public async Task<AdminPaginatedOrderViewModel<OrderViewModel>> GetAllOrdersPaginatedAsync(int pageNumber = 1)
+        {
+            var (orders, totalCount) = await _orderRepository.GetAllOrdersPaginatedAsync(pageNumber, DefaultPageSize);
+
+            var viewModels = orders.Select(o => new OrderViewModel
+            {
+                OrderId = o.OrderId,
+                CustomerName = o.User?.Name ?? "Unknown",
+                Address = o.Address,
+                OrderDate = o.OrderDate,
+                DeliveredDate = o.DeliveredDate,
+                Status = o.Status,
+                TotalAmount = o.TotalAmount,
+                Discount = o.Discount,
+                Books = o.OrderDetails.Select(od => new OrderBookItem
+                {
+                    BookName = od.Book?.BookName,
+                    ImageUrl = od.Book?.ImageUrl1
+                }).ToList(),
+                PaymentMethod = o.Payment?.PaymentMethod,
+                PaymentStatus = o.Payment?.PaymentStatus
+            }).ToList();
+
+            return new AdminPaginatedOrderViewModel<OrderViewModel>(
+                viewModels,
+                pageNumber,
+                DefaultPageSize,
+                totalCount
+            );
+        }
+
+        // METHOD 2 - SỬA FilterOrdersForAdminPaginatedAsync
+        public async Task<AdminPaginatedOrderViewModel<OrderViewModel>> FilterOrdersForAdminPaginatedAsync(
+            string? status, string? search, int pageNumber = 1)
+        {
+            var (allOrders, _) = await _orderRepository.GetAllOrdersPaginatedAsync(1, int.MaxValue);
+
+            var filteredOrders = allOrders.AsEnumerable();
+
+            if (!string.IsNullOrEmpty(status))
+                filteredOrders = filteredOrders.Where(o => o.Status == status);
+
+            if (!string.IsNullOrEmpty(search))
+            {
+                var lowerSearch = search.ToLower();
+                filteredOrders = filteredOrders.Where(o =>
+                    (o.User != null && o.User.Name.ToLower().Contains(lowerSearch)) ||
+                    o.OrderDetails.Any(od => od.Book.BookName.ToLower().Contains(lowerSearch))
+                );
+            }
+
+            var totalCount = filteredOrders.Count();
+            var pageSize = DefaultPageSize;
+            var paginatedOrders = filteredOrders
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
+                .ToList();
+
+            var viewModels = paginatedOrders.Select(o => new OrderViewModel
+            {
+                OrderId = o.OrderId,
+                CustomerName = o.User?.Name ?? "Unknown",
+                Address = o.Address,
+                OrderDate = o.OrderDate,
+                DeliveredDate = o.DeliveredDate,
+                Status = o.Status,
+                TotalAmount = o.TotalAmount,
+                Discount = o.Discount,
+                Books = o.OrderDetails.Select(od => new OrderBookItem
+                {
+                    BookName = od.Book?.BookName,
+                    ImageUrl = od.Book?.ImageUrl1
+                }).ToList(),
+                PaymentMethod = o.Payment?.PaymentMethod,
+                PaymentStatus = o.Payment?.PaymentStatus
+            }).ToList();
+
+            return new AdminPaginatedOrderViewModel<OrderViewModel>(
+                viewModels,
+                pageNumber,
+                pageSize,
+                totalCount
+            );
+        }
+
+        // METHOD 3 - SỬA GetOrdersByUserIdPaginatedAsync
+        public async Task<AdminPaginatedOrderViewModel<OrderViewModel>> GetOrdersByUserIdPaginatedAsync(int userId, int pageNumber = 1)
+        {
+            var (orders, totalCount) = await _orderRepository.GetOrdersByUserIdPaginatedAsync(userId, pageNumber, DefaultPageSize);
+
+            var viewModels = orders.Select(o => new OrderViewModel
+            {
+                OrderId = o.OrderId,
+                CustomerName = o.User?.Name ?? "Unknown",
+                Address = o.Address,
+                OrderDate = o.OrderDate,
+                DeliveredDate = o.DeliveredDate,
+                Status = o.Status,
+                TotalAmount = o.TotalAmount,
+                Discount = o.Discount,
+                Books = o.OrderDetails.Select(od => new OrderBookItem
+                {
+                    BookName = od.Book?.BookName,
+                    ImageUrl = od.Book?.ImageUrl1
+                }).ToList(),
+                PaymentMethod = o.Payment?.PaymentMethod,
+                PaymentStatus = o.Payment?.PaymentStatus
+            }).ToList();
+
+            return new AdminPaginatedOrderViewModel<OrderViewModel>(
+                viewModels,
+                pageNumber,
+                DefaultPageSize,
+                totalCount
+            );
+        }
     }
 }

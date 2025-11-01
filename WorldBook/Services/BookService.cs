@@ -17,6 +17,7 @@ namespace WorldBook.Services
         private readonly IBookAuthorRepository _bookAuthorRepository;
         private readonly ICategoryRepository _categoryRepository;
         private readonly IBookCategoryRepository _bookCategoryRepository;
+        private readonly IFeedbackService _feedbackService;
 
         public BookService(
             CloudinaryService cloudinaryService,
@@ -26,7 +27,8 @@ namespace WorldBook.Services
             IAuthorRepository authorRepository,
             IBookAuthorRepository bookAuthorRepository,
             ICategoryRepository categoryRepository,
-            IBookCategoryRepository bookCategoryRepository)
+            IBookCategoryRepository bookCategoryRepository,
+            IFeedbackService feedbackService)
         {
             _cloudinaryService = cloudinaryService;
             _bookRepository = bookRepository;
@@ -36,6 +38,7 @@ namespace WorldBook.Services
             _bookAuthorRepository = bookAuthorRepository;
             _categoryRepository = categoryRepository;
             _bookCategoryRepository = bookCategoryRepository;
+            _feedbackService = feedbackService;
         }
 
         public async Task AddBookAsync(BookCreateEditViewModel vm)
@@ -297,6 +300,35 @@ namespace WorldBook.Services
                                await _categoryRepository.AddAsync(new Category { CategoryName = categoryName });
                 await _bookCategoryRepository.AddBookCategoryAsync(new BookCategory { BookId = book.BookId, CategoryId = category.CategoryId });
             }
+        }
+
+        public async Task<BookDetailWithFeedbackViewModel> GetBookByIdWithFeedbacksAsync(int id)
+        {
+            var book = await GetBookByIdAsync(id);
+            if (book == null) return null;
+
+            var feedbacks = await _feedbackService.GetFeedbacksByBookIdAsync(id);
+            var ratingStats = await _feedbackService.GetRatingStatisticsAsync(id);
+
+            return new BookDetailWithFeedbackViewModel
+            {
+                BookId = book.BookId,
+                BookName = book.BookName,
+                BookDescription = book.BookDescription,
+                BookPrice = book.BookPrice,
+                BookQuantity = book.BookQuantity,
+                ImageUrl1 = book.ImageUrl1,
+                ImageUrl2 = book.ImageUrl2,
+                ImageUrl3 = book.ImageUrl3,
+                ImageUrl4 = book.ImageUrl4,
+                AddedAt = book.AddedAt,
+                PublisherName = book.PublisherName,
+                SupplierName = book.SupplierName,
+                AuthorNames = book.AuthorNames,
+                Categories = book.Categories,
+                Feedbacks = feedbacks,
+                RatingStatistics = ratingStats
+            };
         }
     }
 }

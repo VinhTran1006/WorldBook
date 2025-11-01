@@ -1,4 +1,4 @@
-﻿@model IEnumerable<WorldBook.ViewModel.OrderViewModel>
+﻿@model WorldBook.ViewModel.AdminPaginatedOrderViewModel<WorldBook.ViewModel.OrderViewModel>
 
 @{
     Layout = "~/Views/Shared/_AdminLayout.cshtml";
@@ -20,29 +20,30 @@
 }
 
 <div class="card shadow-sm rounded-3 p-3">
+    <!-- Filter & Search Section -->
     <div class="d-flex justify-content-between align-items-center mb-3">
         <div class="btn-group">
-            <a href="@Url.Action("FilterOrdersByAdmin", new { status = "", search = currentSearch })"
+            <a href="@Url.Action("Index")"
                class="btn @(string.IsNullOrEmpty(currentStatus) ? "btn-dark" : "btn-outline-dark")">
                 All
             </a>
-            <a href="@Url.Action("FilterOrdersByAdmin", new { status = "Not Approved", search = currentSearch })"
+            <a href="@Url.Action("FilterOrdersByAdmin", new { status = "Not Approved", search = currentSearch, page = 1 })"
                class="btn @(currentStatus == "Not Approved" ? "btn-secondary" : "btn-outline-secondary")">
                 Not Approved
             </a>
-            <a href="@Url.Action("FilterOrdersByAdmin", new { status = "Preparing", search = currentSearch })"
+            <a href="@Url.Action("FilterOrdersByAdmin", new { status = "Preparing", search = currentSearch, page = 1 })"
                class="btn @(currentStatus == "Preparing" ? "btn-warning text-dark" : "btn-outline-warning")">
                 Preparing
             </a>
-            <a href="@Url.Action("FilterOrdersByAdmin", new { status = "Delivering", search = currentSearch })"
+            <a href="@Url.Action("FilterOrdersByAdmin", new { status = "Delivering", search = currentSearch, page = 1 })"
                class="btn @(currentStatus == "Delivering" ? "btn-info text-white" : "btn-outline-info")">
                 Delivering
             </a>
-            <a href="@Url.Action("FilterOrdersByAdmin", new { status = "Completed", search = currentSearch })"
+            <a href="@Url.Action("FilterOrdersByAdmin", new { status = "Completed", search = currentSearch, page = 1 })"
                class="btn @(currentStatus == "Completed" ? "btn-success" : "btn-outline-success")">
                 Completed
             </a>
-            <a href="@Url.Action("FilterOrdersByAdmin", new { status = "Cancelled", search = currentSearch })"
+            <a href="@Url.Action("FilterOrdersByAdmin", new { status = "Cancelled", search = currentSearch, page = 1 })"
                class="btn @(currentStatus == "Cancelled" ? "btn-danger" : "btn-outline-danger")">
                 Cancelled
             </a>
@@ -50,11 +51,19 @@
 
         <form method="get" action="@Url.Action("FilterOrdersByAdmin")" class="d-flex" style="max-width: 300px;">
             <input type="text" name="search" value="@currentSearch" class="form-control me-2" placeholder="Search by book or customer..." />
+            <input type="hidden" name="status" value="@currentStatus" />
             <button type="submit" class="btn btn-primary">
                 <i class="bi bi-search"></i>
             </button>
         </form>
     </div>
+
+    <!-- Info Statistics -->
+    <div class="mb-3 text-muted">
+        <small>Showing @(Model.Items.Any() ? ((Model.PageNumber - 1) * Model.PageSize + 1) : 0) to @(Math.Min(Model.PageNumber * Model.PageSize, Model.TotalCount)) of @Model.TotalCount orders</small>
+    </div>
+
+    <!-- Table -->
     <table class="table table-hover align-middle">
         <thead class="table-dark">
             <tr>
@@ -65,7 +74,7 @@
                 <th>Order Date</th>
                 <th>Delivered Date</th>
                 <th>Status</th>
-                <th>Payment Method</th> 
+                <th>Payment Method</th>
                 <th>Payment Status</th>
                 <th>Total</th>
                 <th>Discount</th>
@@ -73,9 +82,9 @@
             </tr>
         </thead>
         <tbody>
-            @if (Model != null && Model.Any())
+            @if (Model.Items.Any())
             {
-                foreach (var order in Model)
+                foreach (var order in Model.Items)
                 {
                     var collapseId = $"books_{order.OrderId}";
                     <tr>
@@ -83,7 +92,7 @@
                         <td>@order.CustomerName</td>
                         <td>@order.Address</td>
 
-                        <!-- 🆕 Cột Sách + Ảnh -->
+                        <!-- Books Column -->
                         <td>
                             @if (order.Books != null && order.Books.Any())
                             {
@@ -109,11 +118,7 @@
                                             @foreach (var book in order.Books)
                                             {
                                                 <div class="d-flex align-items-center mb-1">
-                                                    <img src="@book.ImageUrl"
-                                                         alt="Book"
-                                                         width="40"
-                                                         height="55"
-                                                         class="rounded me-2 border" />
+                                                    <img src="@book.ImageUrl" alt="Book" width="40" height="55" class="rounded me-2 border" />
                                                     <span>@book.BookName</span>
                                                 </div>
                                             }
@@ -129,6 +134,8 @@
 
                         <td>@order.OrderDate?.ToString("dd/MM/yyyy")</td>
                         <td>@order.DeliveredDate?.ToString("dd/MM/yyyy")</td>
+
+                        <!-- Status Badge -->
                         <td>
                             @{
                                 string badgeClass = order.Status switch
@@ -154,10 +161,7 @@
                                     "cash" => "warning text-dark",
                                     _ => "dark"
                                 };
-
-                                <span class="badge bg-@methodColor px-3 py-2 text-uppercase">
-                                    @order.PaymentMethod
-                                </span>
+                                <span class="badge bg-@methodColor px-3 py-2 text-uppercase">@order.PaymentMethod</span>
                             }
                             else
                             {
@@ -182,14 +186,13 @@
                         <td>@String.Format("{0:N0}", order.TotalAmount) đ</td>
                         <td>@order.Discount %</td>
 
+                        <!-- Actions -->
                         <td class="text-center">
-                            <!-- 👁 Nút xem chi tiết -->
                             <a asp-controller="Order" asp-action="Details" asp-route-id="@order.OrderId"
                                class="btn btn-sm btn-outline-primary me-1">
                                 <i class="bi bi-eye"></i> View
                             </a>
 
-                            <!-- ✅ Nút duyệt đơn -->
                             @if (order.Status == "Not Approved")
                             {
                                 <form asp-controller="Order" asp-action="Approve" asp-route-id="@order.OrderId"
@@ -200,18 +203,6 @@
                                 </form>
                             }
 
-                            <!-- 🟡 Nút chuyển sang "Preparing" -->
-                            @if (order.Status == "Approved")
-                            {
-                                <form asp-controller="Order" asp-action="Approve" asp-route-id="@order.OrderId"
-                                      method="post" class="d-inline">
-                                    <button type="submit" class="btn btn-sm btn-outline-warning me-1">
-                                        <i class="bi bi-gear"></i> Prepare
-                                    </button>
-                                </form>
-                            }
-
-                            <!-- 🚚 Nút giao hàng -->
                             @if (order.Status == "Preparing")
                             {
                                 <form asp-controller="Order" asp-action="Approve" asp-route-id="@order.OrderId"
@@ -222,7 +213,6 @@
                                 </form>
                             }
 
-                            <!-- ✅ Nút hoàn thành -->
                             @if (order.Status == "Delivering")
                             {
                                 <form asp-controller="Order" asp-action="Approve" asp-route-id="@order.OrderId"
@@ -233,7 +223,6 @@
                                 </form>
                             }
 
-                            <!-- ❌ Nút hủy -->
                             @if (order.Status != "Cancelled" && order.Status != "Completed")
                             {
                                 <form asp-controller="Order" asp-action="Cancel" asp-route-id="@order.OrderId"
@@ -250,11 +239,82 @@
             else
             {
                 <tr>
-                    <td colspan="10" class="text-center text-muted">No orders found.</td>
+                    <td colspan="12" class="text-center text-muted">No orders found.</td>
                 </tr>
             }
         </tbody>
     </table>
+
+    <!-- Pagination Controls -->
+    @if (Model.TotalPages > 1)
+    {
+        <nav aria-label="Page navigation" class="mt-4">
+            <ul class="pagination justify-content-center">
+                <!-- Previous -->
+                <li class="page-item @(Model.HasPreviousPage ? "" : "disabled")">
+                    @if (Model.HasPreviousPage)
+                    {
+                        <a class="page-link" href="@Url.Action("FilterOrdersByAdmin", new { status = currentStatus, search = currentSearch, page = Model.PageNumber - 1 })">
+                            Previous
+                        </a>
+                    }
+                    else
+                    {
+                        <span class="page-link">Previous</span>
+                    }
+                </li>
+
+                <!-- Page Numbers -->
+                @{
+                    int startPage = Math.Max(1, Model.PageNumber - 2);
+                    int endPage = Math.Min(Model.TotalPages, Model.PageNumber + 2);
+                }
+
+                @if (startPage > 1)
+                {
+                    <li class="page-item">
+                        <a class="page-link" href="@Url.Action("FilterOrdersByAdmin", new { status = currentStatus, search = currentSearch, page = 1 })">1</a>
+                    </li>
+                    @if (startPage > 2)
+                    {
+                        <li class="page-item disabled"><span class="page-link">...</span></li>
+                    }
+                }
+
+                @for (int i = startPage; i <= endPage; i++)
+                {
+                    <li class="page-item @(i == Model.PageNumber ? "active" : "")">
+                        <a class="page-link" href="@Url.Action("FilterOrdersByAdmin", new { status = currentStatus, search = currentSearch, page = i })">@i</a>
+                    </li>
+                }
+
+                @if (endPage < Model.TotalPages)
+                {
+                    @if (endPage < Model.TotalPages - 1)
+                    {
+                        <li class="page-item disabled"><span class="page-link">...</span></li>
+                    }
+                    <li class="page-item">
+                        <a class="page-link" href="@Url.Action("FilterOrdersByAdmin", new { status = currentStatus, search = currentSearch, page = Model.TotalPages })">@Model.TotalPages</a>
+                    </li>
+                }
+
+                <!-- Next -->
+                <li class="page-item @(Model.HasNextPage ? "" : "disabled")">
+                    @if (Model.HasNextPage)
+                    {
+                        <a class="page-link" href="@Url.Action("FilterOrdersByAdmin", new { status = currentStatus, search = currentSearch, page = Model.PageNumber + 1 })">
+                            Next
+                        </a>
+                    }
+                    else
+                    {
+                        <span class="page-link">Next</span>
+                    }
+                </li>
+            </ul>
+        </nav>
+    }
 </div>
 
 <style>

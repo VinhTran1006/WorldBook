@@ -21,6 +21,7 @@ namespace WorldBook.Repositories
                     .ThenInclude(od => od.Book)
                 .Include(o => o.Payment)
                 .Include(o => o.User)
+                .OrderByDescending(o => o.OrderDate)
                 .ToListAsync();
         }
 
@@ -101,6 +102,45 @@ namespace WorldBook.Repositories
         {
             _context.Orders.Update(order);
             await _context.SaveChangesAsync();
+        }
+
+        public async Task<(IEnumerable<Order> Orders, int TotalCount)> GetAllOrdersPaginatedAsync(int pageNumber, int pageSize)
+        {
+            var query = _context.Orders
+                .Include(o => o.User)
+                .Include(o => o.OrderDetails)
+                    .ThenInclude(od => od.Book)
+                .Include(o => o.Payment)
+                .OrderByDescending(o => o.OrderDate);
+
+            var totalCount = await query.CountAsync();
+            var orders = await query
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            return (orders, totalCount);
+        }
+
+        // METHOD 2 - Thêm vào OrderRepository.cs
+        public async Task<(IEnumerable<Order> Orders, int TotalCount)> GetOrdersByUserIdPaginatedAsync(
+            int userId, int pageNumber, int pageSize)
+        {
+            var query = _context.Orders
+                .Where(o => o.UserId == userId)
+                .Include(o => o.OrderDetails)
+                    .ThenInclude(od => od.Book)
+                .Include(o => o.Payment)
+                .Include(o => o.User)
+                .OrderByDescending(o => o.OrderDate);
+
+            var totalCount = await query.CountAsync();
+            var orders = await query
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            return (orders, totalCount);
         }
     }
 }
