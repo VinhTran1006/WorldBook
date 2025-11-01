@@ -37,7 +37,7 @@ namespace WorldBook.Controllers
 
         public async Task<IActionResult> GetBookDetails(int id)
         {
-            var book = await _bookService.GetBookByIdAsync(id);
+            var book = await _bookService.GetBookByIdWithFeedbacksAsync(id);
             if (book == null)
             {
                 return NotFound();

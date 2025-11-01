@@ -1,21 +1,31 @@
 ﻿@model List<WorldBook.ViewModel.UserFeedbackViewModel>
-
 @{
     ViewData["Title"] = "Write Feedback";
     Layout = "~/Views/Shared/_UserLayout.cshtml";
 }
-
 <div class="container mt-4">
     <h2 class="text-center fw-bold mb-4">
         <i class="bi bi-chat-dots text-success"></i> Write Your Feedback
     </h2>
-
     <form asp-action="WriteFeedback" method="post" class="needs-validation" novalidate>
         @Html.AntiForgeryToken()
 
+        <!-- ✅ Hiển thị lỗi tổng quát nếu có -->
+        @if (!ViewData.ModelState.IsValid)
+        {
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="bi bi-exclamation-circle"></i>
+                <strong>Validation Error!</strong> Please check all required fields.
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        }
+
         @for (int i = 0; i < Model.Count; i++)
         {
-            <div class="card mb-4 shadow-sm border-0 rounded-4 overflow-hidden">
+            var starKey = $"[{i}].Star";
+            var hasStarError = ViewData.ModelState.ContainsKey(starKey) && ViewData.ModelState[starKey].Errors.Count > 0;
+
+            <div class="card mb-4 shadow-sm border-0 rounded-4 overflow-hidden @(hasStarError ? "border-danger border-2" : "")">
                 <div class="row g-0 align-items-center">
                     <!-- Hình sách bên trái -->
                     <div class="col-md-3 bg-light text-center p-3 d-flex align-items-center justify-content-center">
@@ -26,17 +36,19 @@
                              class="img-fluid rounded-3 shadow-sm border"
                              style="max-height: 180px; object-fit: cover;">
                     </div>
-
                     <!-- Phần nội dung feedback bên phải -->
                     <div class="col-md-9 p-4">
                         <h5 class="fw-bold mb-3">@Model[i].BookName</h5>
-
                         <input type="hidden" asp-for="@Model[i].BookId" />
                         <input type="hidden" asp-for="@Model[i].OrderId" />
 
+                        <!-- ✅ Rating - Bắt buộc -->
                         <div class="mb-3">
-                            <label asp-for="@Model[i].Star" class="form-label fw-semibold">Rating:</label>
-                            <select class="form-select w-auto d-inline-block" asp-for="@Model[i].Star" required>
+                            <label asp-for="@Model[i].Star" class="form-label fw-semibold">
+                                Rating: <span class="text-danger">*</span>
+                            </label>
+                            <select class="form-select w-auto d-inline-block @(hasStarError ? "is-invalid" : "")"
+                                    asp-for="@Model[i].Star">
                                 <option value="">Choose...</option>
                                 <option value="5">⭐⭐⭐⭐⭐ - Excellent</option>
                                 <option value="4">⭐⭐⭐⭐ - Good</option>
@@ -44,23 +56,24 @@
                                 <option value="2">⭐⭐ - Poor</option>
                                 <option value="1">⭐ - Terrible</option>
                             </select>
-                            <span asp-validation-for="@Model[i].Star" class="text-danger small"></span>
+                            <span asp-validation-for="@Model[i].Star" class="text-danger small d-block mt-1"></span>
                         </div>
 
+                        <!-- ✅ Comment - Optional -->
                         <div class="mb-3">
-                            <label asp-for="@Model[i].Comment" class="form-label fw-semibold">Your Comment:</label>
+                            <label asp-for="@Model[i].Comment" class="form-label fw-semibold">
+                                Your Comment: <span class="text-muted">(Optional)</span>
+                            </label>
                             <textarea class="form-control rounded-3"
                                       asp-for="@Model[i].Comment"
                                       rows="3"
-                                      placeholder="Write your feedback here..."
-                                      required></textarea>
-                            <span asp-validation-for="@Model[i].Comment" class="text-danger small"></span>
+                                      placeholder="Write your feedback here..."></textarea>
+                            <span asp-validation-for="@Model[i].Comment" class="text-danger small d-block mt-1"></span>
                         </div>
                     </div>
                 </div>
             </div>
         }
-
         <div class="text-center mt-4">
             <button type="submit" class="btn btn-success px-5 py-2 rounded-pill shadow">
                 <i class="bi bi-send"></i> Submit All Feedbacks
@@ -68,6 +81,24 @@
         </div>
     </form>
 </div>
+
+<style>
+    .is-invalid {
+        border-color: #dc3545 !important;
+    }
+
+    .needs-validation .form-control.is-invalid,
+    .needs-validation .form-select.is-invalid {
+        border-color: #dc3545;
+        background-image: none;
+    }
+
+        .needs-validation .form-control.is-invalid:focus,
+        .needs-validation .form-select.is-invalid:focus {
+            border-color: #dc3545;
+            box-shadow: 0 0 0 0.25rem rgba(220, 53, 69, 0.25);
+        }
+</style>
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />

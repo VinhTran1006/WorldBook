@@ -1,4 +1,4 @@
-﻿@model WorldBook.ViewModel.BookDetailViewModel
+﻿@model WorldBook.ViewModel.BookDetailWithFeedbackViewModel
 @{
     ViewData["Title"] = "Book Details";
     Layout = "~/Views/Shared/_UserLayout.cshtml";
@@ -51,6 +51,136 @@
             </form>
         </div>
     </div>
+</div>
+
+<!-- PHẦN RATING STATISTICS - COMPACT -->
+<div class="container mt-5 mb-4">
+    <div class="card border-0 shadow-sm p-4">
+        <h5 class="mb-4 d-flex align-items-center">
+            <i class="bi bi-star-fill text-warning me-2"></i> Customer Ratings
+        </h5>
+
+        <div class="row g-3">
+            <!-- Overall Rating - Compact -->
+            <div class="col-lg-3 col-md-4">
+                <div class="text-center">
+                    <div class="rating-score-large mb-2">
+                        <span style="font-size: 2rem; font-weight: bold; color: #ffc107;">
+                            @Model.RatingStatistics.AverageRating
+                        </span>
+                        <span class="text-muted" style="font-size: 0.9rem;">/5</span>
+                    </div>
+                    <div class="text-warning mb-2">
+                        @for (int i = 0; i < (int)Model.RatingStatistics.AverageRating; i++)
+                        {
+                            <i class="bi bi-star-fill"></i>
+                        }
+                        @if (Model.RatingStatistics.AverageRating % 1 != 0)
+                        {
+                            <i class="bi bi-star-half"></i>
+                        }
+                        @for (int i = (int)Math.Ceiling(Model.RatingStatistics.AverageRating); i < 5; i++)
+                        {
+                            <i class="bi bi-star"></i>
+                        }
+                    </div>
+                    <small class="text-muted d-block">
+                        @Model.RatingStatistics.TotalReviews Reviews
+                    </small>
+                </div>
+            </div>
+
+            <!-- Rating Distribution - Compact -->
+            <div class="col-lg-9 col-md-8">
+                @for (int star = 5; star >= 1; star--)
+                {
+                    var count = Model.RatingStatistics.RatingDistribution[star];
+                    var percentage = Model.RatingStatistics.TotalReviews > 0
+                    ? (count * 100 / Model.RatingStatistics.TotalReviews)
+                    : 0;
+
+                    <div class="rating-bar-compact mb-2">
+                        <div class="d-flex align-items-center gap-2">
+                            <span class="rating-star-label" style="min-width: 45px; font-size: 0.85rem;">
+                                @star <i class="bi bi-star-fill" style="font-size: 0.75rem;"></i>
+                            </span>
+                            <div class="progress flex-grow-1" style="height: 18px; background-color: #e9ecef;">
+                                <div class="progress-bar bg-warning"
+                                     style="width: @(percentage)%;"
+                                     role="progressbar">
+                                </div>
+                            </div>
+                            <span class="badge bg-light text-dark" style="min-width: 35px; font-size: 0.8rem;">
+                                @count
+                            </span>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- PHẦN FEEDBACK DANH SÁCH -->
+<div class="container mb-5">
+    <h5 class="mb-3">
+        <i class="bi bi-chat-left-text"></i> Feedback (@Model.Feedbacks.Count())
+    </h5>
+
+    @if (!Model.Feedbacks.Any())
+    {
+        <div class="alert alert-info text-center p-3">
+            <i class="bi bi-info-circle"></i> No feedback yet. Be the first to review!
+        </div>
+    }
+    else
+    {
+        <div class="feedback-list-compact">
+            @foreach (var feedback in Model.Feedbacks)
+            {
+                <div class="card border-0 shadow-sm mb-2 p-3">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div class="flex-grow-1">
+                            <div class="d-flex align-items-center gap-2 mb-1">
+                                <h6 class="mb-0" style="font-size: 0.95rem;">@feedback.UserName</h6>
+                                <div class="text-warning" style="font-size: 0.85rem;">
+                                    @for (int i = 0; i < feedback.Star; i++)
+                                    {
+                                        <i class="bi bi-star-fill"></i>
+                                    }
+                                    @for (int i = feedback.Star ?? 0; i < 5; i++)
+                                    {
+                                        <i class="bi bi-star"></i>
+                                    }
+                                </div>
+                            </div>
+                            <small class="text-muted d-block" style="font-size: 0.8rem;">
+                                @feedback.CreateAt?.ToString("dd/MM/yyyy HH:mm")
+                            </small>
+                        </div>
+                    </div>
+
+                    @if (!string.IsNullOrEmpty(feedback.Comment))
+                    {
+                        <p class="mt-2 mb-2" style="font-size: 0.9rem;">@feedback.Comment</p>
+                    }
+
+                    @if (!string.IsNullOrEmpty(feedback.Reply))
+                    {
+                        <div class="alert alert-light border-start border-3 border-success mt-2 mb-0 p-2" style="font-size: 0.85rem;">
+                            <strong class="text-success d-block mb-1">
+                                <i class="bi bi-reply"></i> Reply from @feedback.ReplyAccountName
+                            </strong>
+                            <small class="text-muted d-block mb-1">
+                                @feedback.ReplyDate?.ToString("dd/MM/yyyy HH:mm")
+                            </small>
+                            <p class="mb-0">@feedback.Reply</p>
+                        </div>
+                    }
+                </div>
+            }
+        </div>
+    }
 </div>
 
 <style>

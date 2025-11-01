@@ -11,5 +11,6 @@ namespace WorldBook.Services.Interfaces
         Task AddBookAsync(BookCreateEditViewModel book);
         Task UpdateBookAsync(BookEditViewModel book);
         Task DeleteBookAsync(int id);
+        Task<BookDetailWithFeedbackViewModel> GetBookByIdWithFeedbacksAsync(int id);
     }
 }

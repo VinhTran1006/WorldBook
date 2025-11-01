@@ -17,5 +17,8 @@ namespace WorldBook.Repositories.Interfaces
 
         Task<Order?> GetByIdAsync(int orderId);
         Task UpdateAsync(Order order);
+
+        Task<(IEnumerable<Order> Orders, int TotalCount)> GetAllOrdersPaginatedAsync(int pageNumber, int pageSize);
+        Task<(IEnumerable<Order> Orders, int TotalCount)> GetOrdersByUserIdPaginatedAsync(int userId, int pageNumber, int pageSize);
     }
 }

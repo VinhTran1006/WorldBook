@@ -1,0 +1,95 @@
+﻿@model WorldBook.ViewModel.UserFeedbackViewModel
+@{
+    ViewData["Title"] = "Edit Feedback";
+    Layout = "~/Views/Shared/_UserLayout.cshtml";
+}
+
+<h2 class="text-center mb-4">
+    <i class="bi bi-pencil-square text-primary"></i> Edit Feedback
+</h2>
+
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow-sm p-4">
+                <div class="text-center mb-4">
+                    <img src="@Model.ImageUrl" alt="@Model.BookName" width="100" class="rounded border" />
+                    <h5 class="mt-3">@Model.BookName</h5>
+                </div>
+
+                <form asp-action="EditFeedback" method="post">
+                    <input type="hidden" asp-for="FeedbackId" />
+                    <input type="hidden" asp-for="BookId" />
+                    <input type="hidden" asp-for="OrderId" />
+                    <input type="hidden" asp-for="UserId" />
+                    <!-- ✅ Thêm hidden input để capture giá trị Star -->
+                    <input type="hidden" id="starValue" name="Star" value="@Model.Star" />
+
+                    <div class="mb-3">
+                        <label class="form-label">Rating</label>
+                        <div class="star-rating d-flex gap-1" aria-label="Star rating">
+                            @for (int i = 1; i <= 5; i++)
+                            {
+                                <label for="star@i"
+                                       class="star-label"
+                                       data-value="@i"
+                                       style="font-size: 2rem; cursor: pointer; user-select: none;">
+                                    <i class="bi @(Model.Star >= i ? "bi-star-fill" : "bi-star") text-warning"></i>
+                                </label>
+                            }
+                        </div>
+                        <span asp-validation-for="Star" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Comment" class="form-label">Your Comment</label>
+                        <textarea asp-for="Comment" class="form-control" rows="4" placeholder="Share your thoughts..."></textarea>
+                    </div>
+
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-primary flex-grow-1">
+                            <i class="bi bi-check-circle"></i> Update Feedback
+                        </button>
+                        <a href="@Url.Action("UserFeedbackList")" class="btn btn-secondary">
+                            <i class="bi bi-x-circle"></i> Cancel
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const labels = document.querySelectorAll('.star-label');
+        const starValueInput = document.getElementById('starValue');
+
+        function renderStars(value) {
+            labels.forEach(label => {
+                const icon = label.querySelector('i');
+                const starValue = parseInt(label.dataset.value);
+                if (starValue <= value) {
+                    icon.classList.remove('bi-star');
+                    icon.classList.add('bi-star-fill');
+                } else {
+                    icon.classList.remove('bi-star-fill');
+                    icon.classList.add('bi-star');
+                }
+            });
+        }
+
+        // 🟡 Khi click chọn sao
+        labels.forEach(label => {
+            label.addEventListener('click', function () {
+                const value = parseInt(this.dataset.value);
+                starValueInput.value = value; // ✅ Cập nhật hidden input
+                renderStars(value);
+            });
+        });
+
+        // 🟢 Khởi tạo đúng số sao đã lưu khi load
+        const initialValue = parseInt(starValueInput.value) || 0;
+        renderStars(initialValue);
+    });
+</script>
