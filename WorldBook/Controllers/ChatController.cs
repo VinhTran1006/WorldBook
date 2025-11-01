@@ -26,10 +26,18 @@ namespace WorldBook.Controllers
         public async Task<IActionResult> Ask([FromForm] string message)
         {
             if (string.IsNullOrWhiteSpace(message))
-                return Json(new { reply = "Bạn chưa nhập câu hỏi 😅" });
+                return Json(new { reply = "Bạn chưa nhập câu hỏi" });
 
             var reply = await _geminiService.AskGeminiAsync(message);
             return Json(new { reply });
+        }
+
+        [HttpGet("is-in-admin-chat")]
+        public IActionResult IsInAdminChat()
+        {
+            var userName = User.Identity?.Name ?? "Khách";
+            var isInChat = _geminiService.IsUserInAdminChat(userName);
+            return Json(new { inAdminChat = isInChat });
         }
     }
 }

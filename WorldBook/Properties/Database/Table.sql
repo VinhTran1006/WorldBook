@@ -141,7 +141,6 @@ go
 create table [Order] (
 OrderId int primary key Identity(1,1),
 UserId int,
-PaymentId INT,
 Address varchar(255),
 OrderDate datetime,
 deliveredDate datetime,
@@ -150,7 +149,6 @@ TotalAmount Bigint,
 Discount int,
 UpdateAt datetime,
 foreign key (UserId) references [User](UserId),
-FOREIGN KEY (PaymentId) REFERENCES Payment(PaymentId),
 )
 
 go 

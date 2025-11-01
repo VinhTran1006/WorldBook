@@ -74,12 +74,326 @@
         </div>
     </div>
 
+    <!-- Chat box cho ADMIN -->
+    <div id="admin-chat-container">
+        <!-- Nút tròn bật chat -->
+        <button id="admin-chat-toggle" class="shadow">
+            <i class="bi bi-chat-dots"></i>
+            <span id="admin-chat-badge" class="badge bg-danger position-absolute top-0 start-100 translate-middle" style="display: none;">
+                <span id="admin-chat-count">1</span>
+            </span>
+        </button>
+
+        <!-- Hộp chat -->
+        <div id="admin-chat-box" class="shadow">
+            <div id="admin-chat-header">
+                <strong><i class="bi bi-person-lines-fill"></i> Admin Chat</strong>
+                <button id="admin-chat-close" class="btn btn-sm btn-light"><i class="bi bi-x-lg"></i></button>
+            </div>
+
+            <div id="admin-chat-messages"></div>
+
+            <div id="admin-chat-input-area">
+                <input type="text" id="admin-chat-input" placeholder="Nhập tin nhắn..." />
+                <button id="admin-chat-send"><i class="bi bi-send"></i></button>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        /* Vị trí khung chat */
+        #admin-chat-container {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            z-index: 3000; /* nằm trên sidebar nhưng không phá layout */
+        }
+
+        /* Nút bật chat */
+        #admin-chat-toggle {
+            width: 60px;
+            height: 60px;
+            background-color: #0d6efd;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 26px;
+            transition: transform 0.2s ease, background 0.2s;
+            position: relative;
+        }
+
+            #admin-chat-toggle:hover {
+                transform: scale(1.1);
+                background-color: #0b5ed7;
+            }
+        
+        #admin-chat-badge {
+            min-width: 24px;
+            height: 24px;
+            padding: 0 6px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: bold;
+            animation: bounce 0.5s infinite;
+        }
+
+        @@keyframes bounce {
+            0%, 100%
+
+        {
+            transform: scale(1);
+        }
+
+        50% {
+            transform: scale(1.2);
+        }
+
+        }
+
+        /* Khung chat box */
+        #admin-chat-box {
+            display: none;
+            flex-direction: column;
+            position: absolute;
+            bottom: 80px;
+            left: 0;
+            width: 340px;
+            height: 450px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.25);
+            overflow: hidden;
+            animation: fadeInUp 0.25s ease;
+        }
+
+        @@keyframes fadeInUp {
+            from
+
+        {
+            transform: translateY(20px);
+            opacity: 0;
+        }
+
+        to {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        }
+
+        #admin-chat-header {
+            background: #0d6efd;
+            color: white;
+            padding: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        #admin-chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 10px;
+            font-size: 14px;
+        }
+
+        #admin-chat-input-area {
+            display: flex;
+            border-top: 1px solid #ddd;
+            padding: 8px;
+            gap: 5px;
+        }
+
+        #admin-chat-input {
+            flex: 1;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            padding: 6px 10px;
+        }
+
+        #admin-chat-send {
+            background: #0d6efd;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 6px 12px;
+            transition: background 0.2s;
+        }
+
+            #admin-chat-send:hover {
+                background: #0b5ed7;
+            }
+    </style>
+
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/7.0.5/signalr.min.js"></script>
     <script>
         $("#menu-toggle").click(function (e) {
             e.preventDefault();
             $("#wrapper").toggleClass("toggled");
+        });
+    </script>
+    <script>
+        // Điều khiển bật/tắt
+        const toggle = document.getElementById("admin-chat-toggle");
+        const box = document.getElementById("admin-chat-box");
+        const close = document.getElementById("admin-chat-close");
+        const send = document.getElementById("admin-chat-send");
+        const input = document.getElementById("admin-chat-input");
+        const messages = document.getElementById("admin-chat-messages");
+        const badge = document.getElementById("admin-chat-badge"); 
+        const badgeCount = document.getElementById("admin-chat-count"); 
+
+        // Lưu userName người dùng hiện tại đang chat (để trả lời lại)
+        let currentChatUserName = null;
+        let notificationCount = 0;
+
+        function saveChatHistory() {
+            const state = {
+                messages: messages.innerHTML,
+                currentChatUserName: currentChatUserName,
+                notificationCount: notificationCount
+            };
+            sessionStorage.setItem("worldbook_admin_chat_state", JSON.stringify(state));
+        }
+
+        function loadChatHistory() {
+            const state = sessionStorage.getItem("worldbook_admin_chat_state");
+            if (state) {
+                try {
+                    const parsed = JSON.parse(state);
+                    messages.innerHTML = parsed.messages || "";
+                    currentChatUserName = parsed.currentChatUserName || null;
+                    notificationCount = parsed.notificationCount || 0;
+
+                    // Hiển thị badge nếu có thông báo chưa đọc
+                    if (notificationCount > 0) {
+                        badge.style.display = "flex";
+                        badgeCount.textContent = notificationCount;
+                    }
+
+                    console.log(`Loaded chat history for user: ${currentChatUserName}`);
+                } catch (err) {
+                    console.error("Error loading chat state:", err);
+                }
+            }
+        }
+
+        window.addEventListener("DOMContentLoaded", () => {
+            loadChatHistory();
+        });
+
+        toggle.onclick = () => {
+            if (!currentChatUserName || messages.innerHTML.trim() === "") {
+                alert("Chưa có user nào liên hệ admin!");
+                return;
+            }
+
+            box.style.display = "flex";
+            toggle.style.display = "none";
+
+            badge.style.display = "none";
+            notificationCount = 0;
+            saveChatHistory();
+        };
+
+        close.onclick = () => {
+            box.style.display = "none";
+            toggle.style.display = "flex";
+            saveChatHistory();
+        };
+
+        // Kết nối SignalR
+        const adminConn = new signalR.HubConnectionBuilder()
+            .withUrl("/chatHub")
+            .build();
+
+        adminConn.start()
+            .then(() => console.log("Admin connected"))
+            .catch(err => console.error("SignalR error:", err));
+
+        // Nhận yêu cầu ban đầu từ user (liên hệ admin)
+        adminConn.on("ReceiveUserNotification", (userName, message) => {
+            currentChatUserName = userName; // Lưu userName
+            addMessage(`👤 <b>${userName}:</b> ${message}`, false);
+            console.log(`🔔 User ${userName} requested admin chat`);
+
+            if (box.style.display !== "flex") {
+                notificationCount++;
+                showNotification();
+            }
+            saveChatHistory();
+        });
+
+        // Nhận tin nhắn tiếp theo từ user
+        adminConn.on("ReceiveUserMessage", (userName, message) => {
+            currentChatUserName = userName; // Cập nhật userName
+            addMessage(`👤 <b>${userName}:</b> ${message}`, false);
+            console.log(`💬 User ${userName} sent: ${message}`);
+
+            if (box.style.display !== "flex") {
+                notificationCount++;
+                showNotification();
+            }
+            saveChatHistory();
+        });
+
+        function showNotification() {
+            badge.style.display = "flex";
+            badgeCount.textContent = notificationCount;
+        }
+
+        // Hàm thêm tin nhắn vào khung
+        function addMessage(content, isAdmin = false) {
+            const div = document.createElement("div");
+            if (isAdmin) {
+                div.className = "text-end text-primary";
+            } else {
+                div.className = "text-start text-dark";
+            }
+            div.innerHTML = `<div class="p-2">${content}</div>`;
+            messages.appendChild(div);
+            messages.scrollTop = messages.scrollHeight;
+        }
+
+        // Gửi tin nhắn từ admin trả lời user cụ thể
+        send.onclick = async () => {
+            const msg = input.value.trim();
+            if (!msg) {
+                alert("Vui lòng nhập tin nhắn");
+                return;
+            }
+
+            if (!currentChatUserName) {
+                alert("Chưa có user nào liên hệ admin");
+                return;
+            }
+
+            addMessage(`<b>Admin:</b> ${msg}`, true);
+            input.value = "";
+            saveChatHistory();
+
+            try {
+                console.log(`Admin sending to ${currentChatUserName}: ${msg}`);
+                //Gửi cho user cụ thể thay vì SendMessageToAll
+                await adminConn.invoke("SendMessageToUser", currentChatUserName, msg);
+            } catch (err) {
+                console.error("Send error:", err);
+                addMessage("Gửi thất bại", false);
+                saveChatHistory();
+            }
+        };
+
+        input.addEventListener("keypress", e => {
+            if (e.key === "Enter") send.click();
         });
     </script>
     @await RenderSectionAsync("Scripts", required: false)

@@ -1,4 +1,5 @@
 ﻿using Azure;
+using Braintree;
 using CloudinaryDotNet.Actions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -26,6 +27,7 @@ namespace WorldBook.Controllers
         private readonly ICartRepository _cartRepository;
         private readonly MomoOptions _momoOptions;
         private readonly IFeedbackService _feedbackService;
+        private readonly IUserVoucherRepository _userVoucherRepository;
 
         public OrderController(IOrderService orderService, ICheckoutService checkoutService,
                        MomoPaymentService momoPaymentService,
@@ -33,7 +35,8 @@ namespace WorldBook.Controllers
                        IOrderRepository orderRepository, 
                        ICartRepository cartRepository,
                        IOptions<MomoOptions> momoOptions,
-                       IFeedbackService feedbackService)
+                       IFeedbackService feedbackService,
+                       IUserVoucherRepository userVoucherRepository)
         {
             _orderService = orderService;
             _checkoutService = checkoutService;
@@ -43,6 +46,7 @@ namespace WorldBook.Controllers
             _cartRepository = cartRepository;
             _momoOptions = momoOptions.Value;
             _feedbackService = feedbackService;
+            _userVoucherRepository = userVoucherRepository;
         }
 
         // ============ EXISTING METHODS (Admin) ============
@@ -374,6 +378,14 @@ namespace WorldBook.Controllers
                 if (!cartItems.Any())
                     return BadRequest(new { message = "Giỏ hàng trống" });
 
+                long totalAmount = request.TotalAmount > 0
+            ? Convert.ToInt64(request.TotalAmount)
+            : (long)cartItems.Sum(c => c.Quantity * (c.Book.BookPrice));
+
+                int? discountPercent = request.DiscountPercent > 0
+                    ? request.DiscountPercent
+                    : (int?)null;
+
                 // 2️⃣ Tạo Order mới
                 var order = new Order
                 {
@@ -381,8 +393,10 @@ namespace WorldBook.Controllers
                     OrderDate = DateTime.Now,
                     Address = request.Address,
                     Status = "Not Approved",
-                    TotalAmount = (long)cartItems.Sum(c => c.Quantity * (c.Book.BookPrice)),
-                    UpdateAt = DateTime.Now
+                    TotalAmount = totalAmount,
+                    UpdateAt = DateTime.Now,
+
+                    Discount = discountPercent
                 };
 
                 await _orderRepository.CreateOrderAsync(order);
@@ -397,6 +411,19 @@ namespace WorldBook.Controllers
                 }).ToList();
 
                 await _orderRepository.AddOrderDetailsAsync(orderDetails);
+
+                if (request.SelectedVoucherId.HasValue && request.SelectedVoucherId.Value > 0)
+                {
+                    var userVoucher = new UserVoucher
+                    {
+                        UserId = userId,
+                        VoucherId = request.SelectedVoucherId.Value,
+                        OrderId = order.OrderId,
+                        UsedAt = DateTime.Now
+                    };
+
+                    await _userVoucherRepository.AddUserVoucherAsync(userVoucher);
+                }
 
                 // 4️⃣ Xóa khỏi giỏ
                 await _orderRepository.RemoveCartItemsAsync(userId, cartItems.Select(c => c.BookId.Value).ToList());
