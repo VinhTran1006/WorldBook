@@ -1,0 +1,35 @@
+﻿@model WorldBook.Models.Author
+
+@{
+    Layout = null; // vì sẽ hiển thị trong modal
+}
+
+<div class="container">
+    <h4 class="mb-3 text-primary">Author Details</h4>
+
+    <dl class="row">
+        <dt class="col-sm-3 fw-bold">Author Name</dt>
+        <dd class="col-sm-9">@Model.AuthorName</dd>
+
+        <dt class="col-sm-3 fw-bold">Description</dt>
+        <dd class="col-sm-9">@Model.AuthorDescription</dd>
+
+        <dt class="col-sm-3 fw-bold">Status</dt>
+        <dd class="col-sm-9">
+            @if (Model.IsActive == true)
+            {
+                <span class="badge bg-success">Active</span>
+            }
+            else
+            {
+                <span class="badge bg-secondary">Inactive</span>
+            }
+        </dd>
+    </dl>
+
+    <div class="text-end">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+            <i class="bi bi-x-circle"></i> Close
+        </button>
+    </div>
+</div>

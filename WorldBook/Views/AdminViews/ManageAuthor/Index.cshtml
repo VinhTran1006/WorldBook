@@ -1,0 +1,159 @@
+﻿@model IEnumerable<Author>
+
+@{
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    ViewData["Title"] = "Manage Authors";
+}
+
+<h2 class="mb-3">Author List</h2>
+
+<p>
+    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#authorModal"
+            data-url="@Url.Action("Create", "Authors")">
+        <i class="bi bi-plus-circle"></i> Add Author
+    </button>
+</p>
+
+<table class="table table-hover table-striped align-middle">
+    <thead class="table-dark">
+        <tr>
+            <th>ID</th>
+            <th>Author Name</th>
+            <th>Description</th>
+            <th>Active</th>
+            <th style="width:160px;">Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (Model != null && Model.Any())
+        {
+            foreach (var author in Model)
+            {
+                <tr>
+                    <td>@author.AuthorId</td>
+                    <td>@author.AuthorName</td>
+                    <td>@author.AuthorDescription</td>
+                    <td>
+                        @if (author.IsActive == true)
+                        {
+                            <span class="badge bg-success">Active</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-secondary">Inactive</span>
+                        }
+                    </td>
+                    <td>
+                        <button class="btn btn-sm btn-info text-white" data-bs-toggle="modal" data-bs-target="#authorModal"
+                                data-url="@Url.Action("Details", "Authors", new { id = author.AuthorId })">
+                            <i class="bi bi-eye"></i>
+                        </button>
+
+                        <button class="btn btn-sm btn-warning text-white" data-bs-toggle="modal" data-bs-target="#authorModal"
+                                data-url="@Url.Action("Edit", "Authors", new { id = author.AuthorId })">
+                            <i class="bi bi-pencil-square"></i>
+                        </button>
+
+                        <button class="btn btn-sm btn-danger" data-bs-toggle="modal" data-bs-target="#authorModal"
+                                data-url="@Url.Action("Delete", "Authors", new { id = author.AuthorId })">
+                            <i class="bi bi-trash"></i>
+                        </button>
+                    </td>
+                </tr>
+            }
+        }
+        else
+        {
+            <tr>
+                <td colspan="5" class="text-center text-muted py-3">No author available.</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<!-- Modal -->
+<div class="modal fade" id="authorModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Author</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="authorModalBody"></div>
+        </div>
+    </div>
+</div>
+
+<!-- Loading overlay -->
+<div id="pageLoadingOverlay" style="
+    display:none;
+    position:fixed;
+    top:0;
+    left:0;
+    width:100%;
+    height:100%;
+    background: rgba(255,255,255,0.7);
+    z-index:2000;
+    justify-content:center;
+    align-items:center;
+    flex-direction:column;
+">
+    <div class="spinner-border text-primary" role="status" style="width:3rem;height:3rem"></div>
+    <p class="mt-2">Processing, Please wait...</p>
+</div>
+
+<!-- Toast -->
+<div class="position-fixed bottom-0 end-0 p-3" style="z-index: 1100">
+    <div id="liveToast" class="toast bg-success text-white" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="toast-body"></div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Load partial vào modal khi mở
+        $('#authorModal').on('show.bs.modal', function (e) {
+            var button = $(e.relatedTarget);
+            var url = button.data('url');
+            $("#authorModalBody").load(url);
+        });
+
+        // Submit form trong modal bằng AJAX
+        $('#authorModal').on('submit', 'form', function (e) {
+            e.preventDefault();
+            var form = $(this);
+            var formData = new FormData(form[0]);
+
+            $("#pageLoadingOverlay").css("display", "flex");
+
+            $.ajax({
+                url: form.attr('action'),
+                type: form.attr('method'),
+                data: formData,
+                contentType: false,
+                processData: false,
+                success: function (res) {
+                    $("#pageLoadingOverlay").hide();
+
+                    if (res.success) {
+                        $('#authorModal').modal('hide');
+                        showToast("Success");
+                        setTimeout(() => location.reload(), 1000);
+                    } else {
+                        $("#authorModalBody").html(res); // reload form nếu lỗi validation
+                    }
+                },
+                error: function (err) {
+                    $("#pageLoadingOverlay").hide();
+                    showToast("Error");
+                }
+            });
+        });
+
+        function showToast(message) {
+            $('#liveToast .toast-body').text(message);
+            var toast = new bootstrap.Toast(document.getElementById('liveToast'));
+            toast.show();
+        }
+    </script>
+}

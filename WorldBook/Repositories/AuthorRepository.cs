@@ -16,7 +16,7 @@ namespace WorldBook.Repositories
 
         public async Task<Author?> GetByNameAsync(string name)
         {
-            // So sánh không phân biệt hoa thường
+            
             return await _db.Authors
                 .FirstOrDefaultAsync(a => a.AuthorName.ToLower() == name.ToLower());
         }
@@ -26,6 +26,29 @@ namespace WorldBook.Repositories
             _db.Authors.Add(author);
             await _db.SaveChangesAsync();
             return author;
+        }
+
+        public async Task<Author?> GetByIdAsync(int authorId)
+        {
+           return await _db.Authors.FindAsync(authorId);
+        }
+
+        public async Task<IEnumerable<Author>> GetAuthorsAsync()
+        {
+           return await _db.Authors.Where(a => a.IsActive == true).ToListAsync();
+        }
+
+        public async Task UpdateAsync(Author author)
+        {
+            _db.Authors.Update(author);
+            await _db.SaveChangesAsync();
+        }
+
+        public async Task DeleteAsync(int authorId)
+        {
+            Author author = await _db.Authors.FindAsync(authorId);
+              author!.IsActive = false;
+             _db.SaveChanges();
         }
     }
 }

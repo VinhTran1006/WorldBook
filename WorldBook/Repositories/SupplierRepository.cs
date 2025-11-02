@@ -24,4 +24,27 @@ public class SupplierRepository : ISupplierRepository
         await _db.SaveChangesAsync();
         return supplier;
     }
+
+    public async Task UpdateAsync(Supplier supplier)
+    {
+        _db.Suppliers.Update(supplier);
+    }
+
+    public async Task<Supplier?> GetByIdAsync(int id)
+    {
+       return await _db.Suppliers.FindAsync(id);
+    }
+
+    public async Task<List<Supplier>> GetAllAsync()
+    {
+        return await _db.Suppliers.ToListAsync();
+    }
+
+    public async Task DeleteAsync(int id)
+    {
+       Supplier sup = await _db.Suppliers.FindAsync(id);
+
+        sup!.IsActive = false;
+        _db.SaveChanges();
+    }
 }

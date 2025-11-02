@@ -1,8 +1,8 @@
 ﻿using WorldBook.Models;
 
-namespace WorldBook.Repositories.Interfaces
+namespace WorldBook.Services.Interfaces
 {
-    public interface IAuthorRepository
+    public interface IAuthorService
     {
         Task<Author?> GetByNameAsync(string name);
 
