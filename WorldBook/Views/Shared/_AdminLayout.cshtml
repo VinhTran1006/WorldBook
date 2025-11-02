@@ -20,18 +20,18 @@
                 <a asp-controller="Book" asp-action="GetBookDashBoard" class="list-group-item list-group-item-action bg-dark text-white">
                     <i class="bi bi-book"></i> Manage Books
                 </a>
-                <a asp-controller="Category" asp-action="Index" class="list-group-item list-group-item-action bg-dark text-white">
-                    <i class="bi bi-tags"></i> Manage Categorys
-                </a>
-                <a asp-controller="ManageCustomers" asp-action="Index" class="list-group-item list-group-item-action bg-dark text-white">
-                    <i class="bi bi-people"></i> Manage Customers
-                </a>
-                <a asp-controller="ManageStaff" asp-action="Index" class="list-group-item list-group-item-action bg-dark text-white">
-                    <i class="bi bi-person-badge"></i> Manage Staff
-                </a>
-                <a asp-controller="Voucher" asp-action="Index" class="list-group-item list-group-item-action bg-dark text-white">
-                    <i class="bi bi-ticket-perforated"></i> Manage Voucher
-                </a>
+                @if (User.IsInRole("Admin"))
+                {
+                    <a asp-controller="Category" asp-action="Index" class="list-group-item list-group-item-action bg-dark text-white">
+                        <i class="bi bi-tags"></i> Manage Categorys
+                    </a>
+                    <a asp-controller="ManageStaff" asp-action="Index" class="list-group-item list-group-item-action bg-dark text-white">
+                        <i class="bi bi-person-badge"></i> Manage Staff
+                    </a>
+                    <a asp-controller="Voucher" asp-action="Index" class="list-group-item list-group-item-action bg-dark text-white">
+                        <i class="bi bi-ticket-perforated"></i> Manage Voucher
+                    </a>
+                }
                 <a asp-controller="Order" asp-action="Index" class="list-group-item list-group-item-action bg-dark text-white">
                     <i class="bi bi-ticket-perforated"></i> Manage Order
                 </a>
@@ -50,6 +50,24 @@
             <nav class="navbar navbar-expand-lg navbar-light bg-light border-bottom">
                 <div class="container-fluid">
                     <button class="btn btn-primary" id="menu-toggle">☰</button>
+                    <!-- Thông tin tài khoản -->
+                    <div class="ms-auto d-flex align-items-center gap-3">
+                        <div class="d-flex align-items-center px-3 py-2 bg-white border rounded shadow-sm">
+                            <i class="bi bi-person-circle fs-4 text-primary me-2"></i>
+                            <div>
+                                <div class="fw-semibold text-dark">@User.Identity?.Name</div>
+                                <div class="small text-muted">
+                                    @if (User.IsInRole("Admin"))
+                                    {
+                                        @:Admin
+                                    }
+                                    else if (User.IsInRole("Staff"))
+                                    {
+                                        @:Staff
+                                    }
+                                </div>
+                            </div>
+                        </div>
                     <ul class="navbar-nav ms-auto">
                         <li class="nav-item"><a asp-controller="Logins" asp-action="Logout" class="nav-link">Logout</a></li>
                     </ul>
@@ -74,6 +92,8 @@
         </div>
     </div>
 
+    @if (User.IsInRole("Admin"))
+    {
     <!-- Chat box cho ADMIN -->
     <div id="admin-chat-container">
         <!-- Nút tròn bật chat -->
@@ -99,6 +119,7 @@
             </div>
         </div>
     </div>
+    }
 
     <style>
         /* Vị trí khung chat */
@@ -229,6 +250,52 @@
 
             #admin-chat-send:hover {
                 background: #0b5ed7;
+            }
+
+        #wrapper.toggled #sidebar-wrapper {
+            margin-left: -250px; /* Ẩn sidebar ra ngoài màn hình */
+            transition: all 0.3s ease;
+        }
+
+        /* Sidebar bình thường */
+        #sidebar-wrapper {
+            width: 250px;
+            transition: all 0.3s ease;
+        }
+
+        /* Khi sidebar bị ẩn thì phần content giãn ra */
+        #wrapper.toggled #page-content-wrapper {
+            margin-left: 0;
+            transition: all 0.3s ease;
+        }
+
+        #menu-toggle {
+            font-size: 20px;
+            font-weight: bold;
+            transition: all 0.2s ease;
+        }
+
+            #menu-toggle:hover {
+                background-color: #0d6efd;
+                color: #fff;
+                transform: scale(1.05);
+            }
+
+        .navbar .fw-semibold {
+            font-size: 1rem;
+        }
+
+        .navbar .small {
+            font-size: 0.85rem;
+        }
+
+        .navbar .btn-danger {
+            transition: all 0.2s ease;
+        }
+
+            .navbar .btn-danger:hover {
+                transform: scale(1.05);
+                background-color: #dc3545;
             }
     </style>
 
@@ -391,6 +458,11 @@
                 saveChatHistory();
             }
         };
+
+                $("#menu-toggle").click(function (e) {
+            e.preventDefault();
+            $("#wrapper").toggleClass("toggled");
+        });
 
         input.addEventListener("keypress", e => {
             if (e.key === "Enter") send.click();

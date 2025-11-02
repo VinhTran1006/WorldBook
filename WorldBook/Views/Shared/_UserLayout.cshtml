@@ -45,40 +45,51 @@
 
                     <!-- Phải: Profile -->
                     <div class="dropdown text-end">
-                        <a href="#" class="d-flex align-items-center link-light text-decoration-none dropdown-toggle"
-                           data-bs-toggle="dropdown" aria-expanded="false">
-                            <i class="bi bi-person-circle fs-4 me-2"></i>
-                            <strong>@User.Identity?.Name</strong>  <!-- hoặc thay bằng tên user -->
-                        </a>
+                        @if (User.Identity?.IsAuthenticated ?? false)
+                        {
+                            <!-- Nếu đã đăng nhập -->
+                            <a href="#" class="d-flex align-items-center link-light text-decoration-none dropdown-toggle"
+                               data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="bi bi-person-circle fs-4 me-2"></i>
+                                <strong>@User.Identity?.Name</strong>
+                            </a>
 
-                        <ul class="dropdown-menu dropdown-menu-end text-small shadow">
-                            <li>
-                                <a class="dropdown-item" asp-controller="User" asp-action="Profile">
-                                    <i class="bi bi-person me-2"></i> Profile
-                                </a>
-                            </li>
-                            <li>
-                                <a class="dropdown-item" asp-controller="Order" asp-action="OrderHistory">
-                                    <i class="bi bi-clock-history"></i> Orders
-                                </a>
-                            </li>
-                            <li>
-                                <a class="dropdown-item" asp-controller="Cart" asp-action="Index">
-                                    <i class="bi bi-cart"></i> Cart
-                                </a>
-                            </li>
-                            <li>
-                                <a class="dropdown-item" asp-controller="Feedback" asp-action="UserFeedbackList">
-                                    <i class="bi bi-chat-left-text"></i> My Feedbacks
-                                </a>
-                            </li>
-                            <li><hr class="dropdown-divider"></li>
-                            <li>
-                                <a class="dropdown-item text-danger" asp-controller="Logins" asp-action="Logout">
-                                    <i class="bi bi-box-arrow-right me-2"></i> Sign out
-                                </a>
-                            </li>                          
-                        </ul>
+                            <ul class="dropdown-menu dropdown-menu-end text-small shadow">
+                                <li>
+                                    <a class="dropdown-item" asp-controller="User" asp-action="Profile">
+                                        <i class="bi bi-person me-2"></i> Profile
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" asp-controller="Order" asp-action="OrderHistory">
+                                        <i class="bi bi-clock-history me-2"></i> Orders
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" asp-controller="Cart" asp-action="Index">
+                                        <i class="bi bi-cart me-2"></i> Cart
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" asp-controller="Feedback" asp-action="UserFeedbackList">
+                                        <i class="bi bi-chat-left-text me-2"></i> My Feedbacks
+                                    </a>
+                                </li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <a class="dropdown-item text-danger" asp-controller="Logins" asp-action="Logout">
+                                        <i class="bi bi-box-arrow-right me-2"></i> Sign out
+                                    </a>
+                                </li>
+                            </ul>
+                        }
+                        else
+                        {
+                            <!-- Nếu chưa đăng nhập -->
+                            <a href="@Url.Action("Login", "Logins")" class="btn btn-outline-light">
+                                <i class="bi bi-box-arrow-in-right me-1"></i> Sign in
+                            </a>
+                        }
                     </div>
 
                 </div>
