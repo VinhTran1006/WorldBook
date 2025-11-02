@@ -102,7 +102,7 @@ app.Use(async (context, next) =>
     {
         var isAdmin = user.IsInRole("Admin");
         var isCustomer = user.IsInRole("Customer");
-        var isStaff = user.IsInRole("Staff");
+        var isStaff = user.IsInRole("Staff"); // staff
         var path = context.Request.Path.Value?.ToLower() ?? "";
 
         // Nếu admin mà đang ở trang customer => redirect qua dashboard
