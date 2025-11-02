@@ -94,6 +94,35 @@ app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
 
+app.Use(async (context, next) =>
+{
+    var user = context.User;
+
+    if (user?.Identity?.IsAuthenticated == true)
+    {
+        var isAdmin = user.IsInRole("Admin");
+        var isCustomer = user.IsInRole("Customer");
+        var isStaff = user.IsInRole("Staff");
+        var path = context.Request.Path.Value?.ToLower() ?? "";
+
+        // Nếu admin mà đang ở trang customer => redirect qua dashboard
+        if ((isAdmin || isStaff) && (path == "/" || path.StartsWith("/book/getbookhomepage")))
+        {
+            context.Response.Redirect("/Book/GetBookDashBoard");
+            return;
+        }
+
+        // Nếu customer mà đang ở trang admin => redirect về trang customer
+        if (isCustomer && path.StartsWith("/book/getbookdashboard"))
+        {
+            context.Response.Redirect("/Book/GetBookHomePage");
+            return;
+        }
+    }
+
+    await next();
+});
+
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Book}/{action=GetBookHomePage}/{id?}");
