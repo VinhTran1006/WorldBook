@@ -26,5 +26,6 @@ namespace WorldBook.Services
             var hash = sha.ComputeHash(bytes);
             return BitConverter.ToString(hash).Replace("-", "").ToLower();
         }
+
     }
 }
