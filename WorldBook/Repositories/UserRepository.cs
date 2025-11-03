@@ -37,15 +37,18 @@ namespace WorldBook.Repositories
 
         public async Task<IEnumerable<User>> GetAllAsync()
         {
-            return await _db.Users.Include(u => u.UserRoles).ThenInclude(ur => ur.Role).ToListAsync();
+            return await _db.Users
+                .Include(u => u.UserRoles)
+                .ThenInclude(ur => ur.Role)
+                .ToListAsync();
         }
 
         public async Task<User> GetByIdAsync(int id)
         {
             return await _db.Users
-                    .Include(u => u.UserRoles)
-                        .ThenInclude(ur => ur.Role)
-                    .FirstOrDefaultAsync(u => u.UserId == id);
+                .Include(u => u.UserRoles)
+                .ThenInclude(ur => ur.Role)
+                .FirstOrDefaultAsync(u => u.UserId == id);
         }
 
         public async Task UpdateAsync(User user)
@@ -72,10 +75,20 @@ namespace WorldBook.Repositories
 
 
         public async Task<User> GetByUsernameAsync(string username)
-            => await _db.Users.FirstOrDefaultAsync(u => u.Username == username);
+        {
+            return await _db.Users
+                .Include(u => u.UserRoles)
+                .ThenInclude(ur => ur.Role)
+                .FirstOrDefaultAsync(u => u.Username == username);
+        }
 
         public async Task<User> GetByEmailAsync(string email)
-            => await _db.Users.FirstOrDefaultAsync(u => u.Email == email);
+        {
+            return await _db.Users
+                .Include(u => u.UserRoles)
+                .ThenInclude(ur => ur.Role)
+                .FirstOrDefaultAsync(u => u.Email == email);
+        }
 
         public async Task AssignRoleAsync(int userId, int roleId)
         {
@@ -91,7 +104,10 @@ namespace WorldBook.Repositories
         public async Task<User> GetByPhoneAsync(string phone)
     => await _db.Users.FirstOrDefaultAsync(u => u.Phone == phone);
 
-
+        public async Task<Role> GetRoleByNameAsync(string roleName)
+        {
+            return await _db.Roles.FirstOrDefaultAsync(r => r.Name == roleName);
+        }
     }
 }
 

@@ -21,5 +21,7 @@ namespace WorldBook.Repositories.Interfaces
         Task AssignRoleAsync(int userId, int roleId);
 
         Task<User> GetByPhoneAsync(string phone);
+
+        Task<Role> GetRoleByNameAsync(string roleName);
     }
 }

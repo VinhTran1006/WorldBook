@@ -6,6 +6,7 @@ using WorldBook.Repositories;
 using WorldBook.Repositories.Interfaces;
 using WorldBook.Services;
 using WorldBook.Services.Interfaces;
+using Microsoft.AspNetCore.Authentication.Google;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -64,17 +65,31 @@ builder.Services.AddScoped<IFeedbackService, FeedbackService>();
 
 builder.Services.AddSignalR();
 
+builder.Services.AddScoped<IGoogleAuthService, GoogleAuthService>();
+
+builder.Services.AddScoped<IEmailService, EmailService>();
+
 //Cookie schema
-builder.Services.AddAuthentication("MyCookieAuth")
-    .AddCookie("MyCookieAuth", options =>
-    {
-        options.LoginPath = "/Logins/Login";      // Trang login khi chưa đăng nhập
-        //options.LogoutPath = "/Account/Logout";    // Trang logout
-        //options.AccessDeniedPath = "/Account/Denied"; // Trang khi không đủ quyền
-        options.Cookie.Name = "MyCookie";      // Tên cookie
-        options.ExpireTimeSpan = TimeSpan.FromMinutes(60); // Thời gian hết hạn
-        options.SlidingExpiration = true;          // Tự gia hạn nếu user hoạt động
-    });
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultScheme = "MyCookieAuth";
+    options.DefaultChallengeScheme = GoogleDefaults.AuthenticationScheme;
+})
+.AddCookie("MyCookieAuth", options =>
+{
+    options.LoginPath = "/Logins/Login";
+    options.Cookie.Name = "MyCookie";
+    options.ExpireTimeSpan = TimeSpan.FromMinutes(60);
+    options.SlidingExpiration = true;
+})
+.AddGoogle(options =>
+{
+    options.ClientId = builder.Configuration["Authentication:Google:ClientId"];
+    options.ClientSecret = builder.Configuration["Authentication:Google:ClientSecret"];
+    options.SaveTokens = true;
+    options.Scope.Add("profile");
+    options.Scope.Add("email");
+});
 
 var app = builder.Build();
 
