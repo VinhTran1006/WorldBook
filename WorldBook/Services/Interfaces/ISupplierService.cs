@@ -1,10 +1,9 @@
 ﻿using WorldBook.Models;
 
-namespace WorldBook.Repositories.Interfaces
+namespace WorldBook.Services.Interfaces
 {
-    public interface ISupplierRepository
+    public interface ISupplierService
     {
-        Task<Supplier?> GetByNameAsync(string name);
         Task<Supplier> AddAsync(Supplier supplier);
 
         Task<IEnumerable<Supplier>> GetSuppliers();
@@ -15,5 +14,4 @@ namespace WorldBook.Repositories.Interfaces
 
         Task DeleteSupplierAsync(int id);
     }
-
 }

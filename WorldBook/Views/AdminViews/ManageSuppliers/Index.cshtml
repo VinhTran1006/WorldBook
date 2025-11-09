@@ -1,0 +1,154 @@
+﻿@model IEnumerable<WorldBook.Models.Supplier>
+
+@{
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    ViewData["Title"] = "Manage Supplier";
+}
+
+<h2 class="mb-3">Supplier List</h2>
+
+<p>
+    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#supplierModal"
+            data-url="@Url.Action("Create", "Suppliers")">
+        <i class="bi bi-plus-circle"></i> Add Supplier
+    </button>
+</p>
+
+<table class="table table-hover table-striped align-middle">
+    <thead class="table-dark">
+        <tr>
+            <th>ID</th>
+            <th>Supplier Name</th>
+            <th>Email</th>
+            <th>Phone</th>
+            <th>Contact Person</th>
+            <th style="width:180px;">Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (Model != null && Model.Any())
+        {
+            foreach (var supplier in Model)
+            {
+                <tr>
+                    <td>@supplier.SupplierId</td>
+                    <td>@supplier.SupplierName</td>
+                    <td>@supplier.SupplierEmail</td>
+                    <td>@supplier.PhoneNumber</td>
+                    <td>@supplier.ContactPerson</td>
+                    <td>
+                        <button class="btn btn-sm btn-info text-white" data-bs-toggle="modal" data-bs-target="#supplierModal"
+                                data-url="@Url.Action("Details", "Suppliers", new { id = supplier.SupplierId })">
+                            <i class="bi bi-eye"></i>
+                        </button>
+
+                        <button class="btn btn-sm btn-warning text-white" data-bs-toggle="modal" data-bs-target="#supplierModal"
+                                data-url="@Url.Action("Edit", "Suppliers", new { id = supplier.SupplierId })">
+                            <i class="bi bi-pencil-square"></i>
+                        </button>
+
+                        <button class="btn btn-sm btn-danger" data-bs-toggle="modal" data-bs-target="#supplierModal"
+                                data-url="@Url.Action("Delete", "Suppliers", new { id = supplier.SupplierId })">
+                            <i class="bi bi-trash"></i>
+                        </button>
+                    </td>
+                </tr>
+            }
+        }
+        else
+        {
+            <tr>
+                <td colspan="7" class="text-center text-muted py-3">No Supplier available.</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<!-- Modal -->
+<div class="modal fade" id="supplierModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" id="supplierModalBody"></div>
+        </div>
+    </div>
+</div>
+
+<!-- Full-page loading overlay -->
+<div id="pageLoadingOverlay" style="
+    display:none;
+    position:fixed;
+    top:0;
+    left:0;
+    width:100%;
+    height:100%;
+    background: rgba(255,255,255,0.7);
+    z-index:2000;
+    justify-content:center;
+    align-items:center;
+    flex-direction:column;
+">
+    <div class="spinner-border text-primary" role="status" style="width:3rem;height:3rem"></div>
+    <p class="mt-2">Processing, Please wait...</p>
+</div>
+
+<!-- Toast thông báo -->
+<div class="position-fixed bottom-0 end-0 p-3" style="z-index: 1100">
+    <div id="liveToast" class="toast bg-success text-white" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="toast-body"></div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Load partial view vào modal khi mở
+        $('#supplierModal').on('show.bs.modal', function (e) {
+            var button = $(e.relatedTarget);
+            var url = button.data('url');
+            $("#supplierModalBody").load(url);
+        });
+
+        // Submit form trong modal bằng AJAX
+        $('#supplierModal').on('submit', 'form', function (e) {
+            e.preventDefault();
+            var form = $(this);
+            var formData = new FormData(form[0]);
+
+            $("#pageLoadingOverlay").css("display", "flex");
+
+            $.ajax({
+                url: form.attr('action'),
+                type: form.attr('method'),
+                data: formData,
+                contentType: false,
+                processData: false,
+                success: function(res) {
+                    $("#pageLoadingOverlay").hide();
+                    if (res.success) {
+                        $('#supplierModal').modal('hide');
+                        showToast("Success");
+                        setTimeout(function () {
+                            window.location.href = '@Url.Action("Index", "Suppliers")';
+                        }, 1000);
+                    } else {
+                        console.log("Validation errors", res);
+                    }
+                },
+                error: function(err) {
+                    $("#pageLoadingOverlay").hide();
+                    console.log("AJAX error", err);
+                    showToast("Error");
+                }
+            });
+        });
+
+        // Hàm show toast
+        function showToast(message) {
+            $('#liveToast .toast-body').text(message);
+            var toast = new bootstrap.Toast(document.getElementById('liveToast'));
+            toast.show();
+        }
+    </script>
+}

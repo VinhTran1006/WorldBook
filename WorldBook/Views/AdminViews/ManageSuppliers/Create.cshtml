@@ -1,0 +1,56 @@
+﻿@model WorldBook.Models.Supplier
+
+<div class="container mt-3 mb-3">
+    <div class="card shadow-lg rounded-4">
+        <div class="card-header bg-primary text-white">
+            <h3 class="mb-0"><i class="bi bi-plus-circle"></i> Add New Supplier</h3>
+        </div>
+
+        <div class="card-body p-4">
+            <form id="supplierForm" method="post" enctype="multipart/form-data" action="@Url.Action("Create", "Suppliers")">
+                @Html.AntiForgeryToken()
+
+                <div class="mb-3">
+                    <label asp-for="SupplierName" class="form-label fw-bold"></label>
+                    <input asp-for="SupplierName" class="form-control" placeholder="Enter Supplier Name" />
+                    <span asp-validation-for="SupplierName" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="SupplierEmail" class="form-label fw-bold"></label>
+                    <input asp-for="SupplierEmail" class="form-control" placeholder="Enter Supplier Email" />
+                    <span asp-validation-for="SupplierEmail" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="PhoneNumber" class="form-label fw-bold"></label>
+                    <input asp-for="PhoneNumber" class="form-control" placeholder="Enter Phone Number" />
+                    <span asp-validation-for="PhoneNumber" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="ContactPerson" class="form-label fw-bold"></label>
+                    <input asp-for="ContactPerson" class="form-control" placeholder="Enter Contact Person" />
+                    <span asp-validation-for="ContactPerson" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Address" class="form-label fw-bold"></label>
+                    <textarea asp-for="Address" class="form-control" rows="2" placeholder="Enter Address"></textarea>
+                    <span asp-validation-for="Address" class="text-danger"></span>
+                </div>
+
+
+                <div class="text-end">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-save"></i> Add
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

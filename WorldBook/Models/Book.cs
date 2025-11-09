@@ -15,7 +15,7 @@ public partial class Book
 
     public int BookQuantity { get; set; }
 
-    public bool IsActive { get; set; }
+    public bool IsActive { get; set; } = true;
 
     public int PublisherId { get; set; }
 

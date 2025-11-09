@@ -11,7 +11,7 @@ public partial class BookAuthor
 
     public int? AuthorId { get; set; }
 
-    public bool? IsActive { get; set; }
+    public bool? IsActive { get; set; } = true;
 
     public virtual Author? Author { get; set; }
 
