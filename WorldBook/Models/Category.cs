@@ -11,7 +11,7 @@ public partial class Category
 
     public string? CategoryDescription { get; set; }
 
-    public bool? IsActive { get; set; }
+    public bool? IsActive { get; set; } = true;
 
     public virtual ICollection<BookCategory> BookCategories { get; set; } = new List<BookCategory>();
 }

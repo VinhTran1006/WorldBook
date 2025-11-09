@@ -27,5 +27,28 @@ namespace WorldBook.Repositories
             await _db.SaveChangesAsync();
             return author;
         }
+
+        public async Task<IEnumerable<Author>> GetAuthors()
+        {
+           return await _db.Authors.Where(a => a.IsActive == true).ToListAsync();
+        }
+
+        public Task<Author?> GetAuthorByID(int id)
+        {
+           return _db.Authors.FirstOrDefaultAsync(a => a.AuthorId == id);
+        }
+
+        public async Task UpdateAuthor(Author author)
+        {
+            _db.Update(author);
+           await _db.SaveChangesAsync();
+        }
+
+        public async Task DeleteAuthor(int id)
+        {
+            var author = _db.Authors.Find(id);
+            author.IsActive = false;
+            await _db.SaveChangesAsync();
+        }
     }
 }

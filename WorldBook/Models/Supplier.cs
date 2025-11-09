@@ -13,7 +13,7 @@ public partial class Supplier
 
     public string? PhoneNumber { get; set; }
 
-    public bool? IsActive { get; set; }
+    public bool? IsActive { get; set; } = true;
 
     public string? ContactPerson { get; set; }
 

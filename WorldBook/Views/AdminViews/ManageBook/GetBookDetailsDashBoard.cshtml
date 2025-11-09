@@ -65,27 +65,6 @@
             <p><strong>Added at:</strong> @Model.AddedAt.ToString("dd/MM/yyyy")</p>
         </div>
 
-        <div class="book-actions">
-            <a asp-action="Edit" asp-route-id="@Model?.BookId" class="btn-edit">Edit</a>
-            <button class="btn btn-danger btn-delete-book"
-                    data-url="@Url.Action("Delete", "Book", new { id = Model.BookId })">
-                Delete
-            </button>
-
         </div>
     </div>
 </div>
-<script>
-        // Delegate click cho tất cả nút muốn load vào modal
-    $(document).on('click', '.btn-delete-book', function(e) {
-        e.preventDefault(); // ngăn form/button mặc định
-        var url = $(this).data('url');
-
-        // Load Partial Delete vào modal body
-        $("#addBookModelBody").load(url, function() {
-            // Show modal (nếu modal chưa mở)
-            $('#addBookModel').modal('show');
-        });
-    });
-
-</script>

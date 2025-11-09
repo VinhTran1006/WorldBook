@@ -11,7 +11,7 @@ public partial class Author
 
     public string? AuthorDescription { get; set; }
 
-    public bool? IsActive { get; set; }
+    public bool? IsActive { get; set; } = true;
 
     public virtual ICollection<BookAuthor> BookAuthors { get; set; } = new List<BookAuthor>();
 }

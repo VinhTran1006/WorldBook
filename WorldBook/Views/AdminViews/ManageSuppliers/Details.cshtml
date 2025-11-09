@@ -1,0 +1,25 @@
+﻿@model WorldBook.Models.Supplier
+
+@{
+    ViewData["Title"] = "Supplier Details";
+}
+
+<link rel="stylesheet" href="~/css/UserViews/Book/book-details.css" />
+
+<div class="card-header bg-primary text-white mb-3">
+    <h3 class="mb-0"><i class="bi bi-building"></i> Supplier Details</h3>
+</div>
+
+<div class="d-flex justify-content-between align-items-start border rounded-3 p-3 shadow-sm">
+
+    <!-- Bên trái: thông tin -->
+    <div class="supplier-meta">
+        <p><strong>Supplier ID:</strong> @Model.SupplierId</p>
+        <p><strong>Supplier Name:</strong> @Model.SupplierName</p>
+        <p><strong>Email:</strong> @Model.SupplierEmail</p>
+        <p><strong>Phone Number:</strong> @Model.PhoneNumber</p>
+        <p><strong>Contact Person:</strong> @Model.ContactPerson</p>
+        <p><strong>Address:</strong> @Model.Address</p>
+    </div>
+
+</div>

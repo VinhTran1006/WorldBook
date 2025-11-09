@@ -1,0 +1,20 @@
+﻿@model WorldBook.Models.Author
+
+@{
+    ViewData["Title"] = "Author Details";
+}
+
+<link rel="stylesheet" href="~/css/UserViews/Book/book-details.css" />
+
+<div class="card-header bg-primary text-white mb-3">
+    <h3 class="mb-0"><i class="bi bi-person-lines-fill"></i> Author Details</h3>
+</div>
+
+<div class="d-flex justify-content-between align-items-start border rounded-3 p-3 shadow-sm">
+
+    <!-- Bên trái: thông tin -->
+    <div class="author-meta">
+        <p><strong>Author ID:</strong> @Model.AuthorId</p>
+        <p><strong>Author Name:</strong> @Model.AuthorName</p>
+        <p><strong>Description:</strong> @Model.AuthorDescription</p>
+    </div>

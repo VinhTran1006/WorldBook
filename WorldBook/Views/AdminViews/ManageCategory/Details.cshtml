@@ -16,27 +16,3 @@
         <p><strong>Description:</strong> @Model.CategoryDescription</p>
     </div>
 
-    <!-- Bên phải: nút thao tác -->
-    <div class="book-actions text-end">
-        <a asp-action="Edit"
-           asp-route-id="@Model?.CategoryId"
-           class="btn btn-warning me-2">
-            <i class="bi bi-pencil-square"></i> Edit
-        </a>
-
-        <button class="btn btn-danger btn-delete-book"
-                data-url="@Url.Action("Delete", "Category", new { id = Model.CategoryId })">
-            <i class="bi bi-trash"></i> Delete
-        </button>
-    </div>
-</div>
-
-<script>
-    $(document).on('click', '.btn-delete-book', function (e) {
-        e.preventDefault();
-        var url = $(this).data('url');
-        $("#addCategoryModelBody").load(url, function () {
-            $('#addCategoryModel').modal('show');
-        });
-    });
-</script>

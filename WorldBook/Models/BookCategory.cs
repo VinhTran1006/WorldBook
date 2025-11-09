@@ -11,7 +11,7 @@ public partial class BookCategory
 
     public int? CategoryId { get; set; }
 
-    public bool? IsActive { get; set; }
+    public bool? IsActive { get; set; } = true;
 
     public virtual Book? Book { get; set; }
 
