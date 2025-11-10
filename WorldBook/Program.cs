@@ -34,6 +34,8 @@ builder.Services.AddScoped<IAuthorService, AuthorService>();
 builder.Services.AddScoped<IAuthorRepository, AuthorRepository>();
 builder.Services.AddScoped<ISupplierService, SupplierService>();
 builder.Services.AddScoped<ISupplierRepository, SupplierRepository>();
+builder.Services.AddScoped<IPublisherRepository, PublisherRepository>();
+builder.Services.AddScoped<IPublisherService, PublisherService>();
 
 
 builder.Services.AddScoped<IRoleRepository, RoleRepository>();
