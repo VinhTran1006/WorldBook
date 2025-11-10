@@ -228,3 +228,6 @@ CREATE TABLE Payment (
     RefundAt DATETIME NULL,
     FOREIGN KEY (OrderId) REFERENCES [Order](OrderId) ON DELETE CASCADE
 );
+
+ALTER TABLE [Order]
+ADD PaymentId int;
