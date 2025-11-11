@@ -177,14 +177,14 @@ async function sendMessage(forcedText = null) {
 
     try {
         if (isInAdminChat) {
-            const userNameEl = document.querySelector("strong");
-            const userName = userNameEl ? userNameEl.textContent.trim() : "Khách";
+            //const userNameEl = document.getElementById("nav-username");
+            //const userName = userNameEl ? userNameEl.textContent.trim() : "Khách";
 
             // 🆕 Lọc từ thô tục trước khi gửi admin
             const filteredMsg = filterProfanity(msg);
 
-            console.log(`Sending to admin as "${userName}": ${filteredMsg}`);
-            await userConn.invoke("SendMessageToAdmin", userName, filteredMsg);
+            console.log(`Sending to admin as "${myUserName}": ${filteredMsg}`);
+            await userConn.invoke("SendMessageToAdmin", myUserName, filteredMsg);
             typingEl.remove();
         } else {
             const res = await fetch("/chat/ask", {
@@ -258,7 +258,18 @@ document.addEventListener("DOMContentLoaded", () => {
         .build();
 
     userConn.start()
-        .then(() => console.log("SignalR User connected!"))
+        .then(() => {
+            console.log("SignalR User connected!");
+
+            // 🚀 BƯỚC SỬA LỖI:
+            // Ngay khi kết nối thành công, hỏi server xem tên thật của mình là gì
+            userConn.invoke("GetMyAuthenticatedName")
+                .then(name => {
+                    myUserName = name;
+                    console.log(`My authenticated name is: ${myUserName}`);
+                })
+                .catch(err => console.error("GetMyAuthenticatedName error:", err));
+        })
         .catch(err => console.error("❌ SignalR error:", err));
 
     // 🆕 Nhận tin nhắn từ Admin - SETUP TRƯỚC KHI CLICK
@@ -290,16 +301,16 @@ document.addEventListener("DOMContentLoaded", () => {
             contactBtn.disabled = true;
             contactBtn.innerHTML = "<i class='bi bi-hourglass-split'></i> Đang gửi yêu cầu...";
 
-            const userNameEl = document.querySelector("strong");
-            const userName = userNameEl ? userNameEl.textContent.trim() : "Khách";
+            //const userNameEl = document.querySelector("strong");
+            //const userName = userNameEl ? userNameEl.textContent.trim() : "Khách";
             const message = "Tui cần admin tư vấn!";
 
             addMessage("user", message);
 
             try {
                 isInAdminChat = true;
-                await userConn.invoke("StartAdminChat", userName);
-                await userConn.invoke("NotifyAdmin", userName, message);
+                await userConn.invoke("StartAdminChat", myUserName);
+                await userConn.invoke("NotifyAdmin", myUserName, message);
 
                 addMessage("bot", "Đã gửi yêu cầu đến admin, bạn đợi chút nghen");
                 contactBtn.classList.add("btn-secondary");

@@ -80,7 +80,7 @@
                                     <div class="user-avatar me-2">
                                         <i class="bi bi-person-circle fs-4"></i>
                                     </div>
-                                    <span class="d-none d-lg-inline">@User.Identity?.Name</span>
+                                    <span class="d-none d-lg-inline" id="nav-username">@User.Identity?.Name</span>
                                 </a>
 
                                 <ul class="dropdown-menu dropdown-menu-end dropdown-menu-dark shadow">
@@ -182,14 +182,11 @@
                 <button id="chatbot-send"><i class="bi bi-send"></i></button>
             </div>
 
-            @if (User.Identity?.IsAuthenticated ?? false)
-            {
-                <div id="chatbot-footer">
+            <div id="chatbot-footer">
                     <button id="contact-admin" class="btn btn-warning w-100 mt-2">
                         <i class="bi bi-person-lines-fill"></i> Liên hệ Admin
                     </button>
-                </div>
-            }
+            </div>
         </div>
     </div>
 
