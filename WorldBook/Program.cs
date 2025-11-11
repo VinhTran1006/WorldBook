@@ -75,6 +75,8 @@ builder.Services.AddScoped<IGoogleAuthService, GoogleAuthService>();
 
 builder.Services.AddScoped<IEmailService, EmailService>();
 
+builder.Services.AddScoped<IRegisterService, RegisterService>();
+
 //Cookie schema
 builder.Services.AddAuthentication(options =>
 {
