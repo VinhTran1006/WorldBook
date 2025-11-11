@@ -21,7 +21,7 @@ namespace WorldBook.Controllers
             var userId = GetCurrentUserId();
             if (userId == 0)
             {
-                TempData["Error"] = "Please log in to view your cart";
+                TempData["Error"] = "Please log in to view your cart!";
                 return RedirectToAction("Login", "Logins");
             }
 

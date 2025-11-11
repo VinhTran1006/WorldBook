@@ -1,86 +1,342 @@
 ﻿@{
-    //Layout cho trang ( )
     Layout = "_UserLayout";
-
     ViewData["Title"] = "Home Page";
     var loginMessage = TempData["LoginSuccess"] as string;
 }
-<link rel="stylesheet" href="~/css/UserViews/Book/book-list.css" />
 @model WorldBook.ViewModel.BookViewModel
 
-<div class="book-list-container">
-    <h2>Book List</h2>
+<link rel="stylesheet" href="~/css/UserViews/Home/homepage.css" />
 
-    <div class="book-grid">
-        
-        @if (Model?.Books != null && Model.Books.Any())
-        {
-            foreach (var book in Model.Books)
-            {
-                <a href="@Url.Action("GetBookDetails", "Book", new { id = book.BookId })" class="book-card-link">
-                    <div class="book-card">
-                        <img src="@book.ImageUrl1" alt="@book.BookName" class="book-image" />
-                        <div class="book-card-content">
-                            <h3 class="book-name">@book.BookName</h3>
-                            <p class="book-price">@book.BookPrice.ToString("C0")</p>
-                            <p class="book-quantity">Quantity: @book.BookQuantity</p>
-                        </div>
+<!-- Hero Banner Section -->
+<section class="hero-banner">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-6" data-aos="fade-right">
+                <h1 class="hero-title">
+                    Discover Your Next
+                    <span class="text-gradient">Great Read</span>
+                </h1>
+                <p class="hero-subtitle">
+                    Explore thousands of books from bestselling authors and discover
+                    hidden gems in every genre.
+                </p>
+                <div class="hero-buttons">
+                    <a href="#featured-books" class="btn btn-primary btn-lg">
+                        <i class="bi bi-book"></i> Browse Books
+                    </a>
+                    <a href="#categories" class="btn btn-outline-light btn-lg">
+                        <i class="bi bi-grid"></i> Categories
+                    </a>
+                </div>
+
+                <!-- Stats -->
+                <div class="hero-stats mt-5">
+                    <div class="stat-item">
+                        <h3>@Model.Books.Count()+</h3>
+                        <p>Books Available</p>
                     </div>
-                </a>
-            }
-        }
-        else
-        {
-            <p>No books available.</p>
-        }
-
-    </div>
-</div>
-
-
-
-
-
-@* Success login message *@
-<div class="modal fade" id="successModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header bg-success text-white">
-                <h5 class="modal-title">Success</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    <div class="stat-item">
+                        <h3>1000+</h3>
+                        <p>Happy Readers</p>
+                    </div>
+                    <div class="stat-item">
+                        <h3>50+</h3>
+                        <p>Categories</p>
+                    </div>
+                </div>
             </div>
-            <div class="modal-body">
-                @TempData["LoginSuccess"]
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+
+            <div class="col-lg-6" data-aos="fade-left">
+                <div class="hero-image">
+                    <img src="https://images.unsplash.com/photo-1507842217343-583bb7270b66?w=800"
+                         alt="Books" class="img-fluid floating-animation" />
+                </div>
             </div>
         </div>
     </div>
-</div>
 
+    <!-- Floating Shapes -->
+    <div class="floating-shape shape-1"></div>
+    <div class="floating-shape shape-2"></div>
+    <div class="floating-shape shape-3"></div>
+</section>
 
+<!-- Featured Books Section -->
+<section class="featured-section" id="featured-books">
+    <div class="container">
+        <div class="section-header text-center mb-5">
+            <h2 class="section-title">
+                <i class="bi bi-star-fill text-warning"></i>
+                Featured Books
+            </h2>
+            <p class="section-subtitle">Handpicked selections just for you</p>
+        </div>
 
-
-
-
-    @section Scripts {
-    <script>
-        @* Log F12 chỉ khi có TempData *@
-        @if (TempData["LoginSuccess"] != null)
+        @if (Model?.Books != null && Model.Books.Any())
         {
-            <text>
+            <!-- Filter Tabs -->
+            <div class="filter-tabs mb-4">
+                <button class="filter-tab active" data-filter="all">
+                    <i class="bi bi-grid-3x3-gap"></i> All Books
+                </button>
+                <button class="filter-tab" data-filter="new">
+                    <i class="bi bi-star"></i> New Arrivals
+                </button>
+                <button class="filter-tab" data-filter="popular">
+                    <i class="bi bi-fire"></i> Popular
+                </button>
+            </div>
 
-                var logMessage = "@Html.Raw(TempData["Log"])";
-                    console.log(logMessage.replace(/<br\/>/g, "\n"));
+            <div class="modern-book-grid">
+                @foreach (var book in Model.Books)
+                {
+                    <div class="modern-book-card" data-category="@string.Join(",", book.Categories ?? new List<string>())">
+                        <!-- Badge -->
+                        @if ((DateTime.Now - book.AddedAt).TotalDays <= 7)
+                        {
+                            <div class="book-badge new-badge">
+                                <i class="bi bi-star-fill"></i> NEW
+                            </div>
+                        }
 
-                document.addEventListener("DOMContentLoaded", function () {
-                    var successModal = new bootstrap.Modal(document.getElementById('successModal'));
-                    successModal.show();
+                        <!-- Book Image -->
+                        <div class="book-image-wrapper">
+                            <img src="@book.ImageUrl1" alt="@book.BookName" class="book-cover" />
+                            <div class="book-overlay">
+                                <a href="@Url.Action("GetBookDetails", "Book", new { id = book.BookId })"
+                                   class="btn btn-light btn-sm">
+                                    <i class="bi bi-eye"></i> View Details
+                                </a>
+                                <button class="btn btn-warning btn-sm add-to-cart-btn"
+                                        data-book-id="@book.BookId">
+                                    <i class="bi bi-cart-plus"></i> Add to Cart
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Book Info -->
+                        <div class="book-info">
+                            <h3 class="book-title" title="@book.BookName">
+                                @book.BookName
+                            </h3>
+
+                            @if (book.AuthorNames != null && book.AuthorNames.Any())
+                            {
+                                <p class="book-author">
+                                    <i class="bi bi-person"></i>
+                                    @string.Join(", ", book.AuthorNames.Take(2))
+                                </p>
+                            }
+
+                            <div class="book-meta">
+                                <span class="book-price">@book.BookPrice.ToString("N0") $</span>
+
+                                @if (book.BookQuantity > 0)
+                                {
+                                    <span class="stock-badge in-stock">
+                                        <i class="bi bi-check-circle"></i> In Stock
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="stock-badge out-of-stock">
+                                        <i class="bi bi-x-circle"></i> Out
+                                    </span>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+        else
+        {
+            <div class="text-center py-5">
+                <i class="bi bi-book display-1 text-muted"></i>
+                <p class="mt-3 text-muted">No books available at the moment.</p>
+            </div>
+        }
+    </div>
+</section>
+
+<!-- Categories Section -->
+<section class="categories-section" id="categories">
+    <div class="container">
+        <div class="section-header text-center mb-5">
+            <h2 class="section-title">
+                <i class="bi bi-grid text-primary"></i>
+                Browse by Category
+            </h2>
+            <p class="section-subtitle">Find your favorite genre</p>
+        </div>
+
+        <div class="row g-4">
+            @{
+                var categories = new[] {
+                        new { Name = "Fiction", Icon = "book", Color = "#667eea" },
+                        new { Name = "Non-Fiction", Icon = "journal-text", Color = "#f093fb" },
+                        new { Name = "Science", Icon = "flask", Color = "#4facfe" },
+                        new { Name = "Technology", Icon = "cpu", Color = "#43e97b" },
+                        new { Name = "Business", Icon = "briefcase", Color = "#fa709a" },
+                        new { Name = "Self-Help", Icon = "person-hearts", Color = "#30cfd0" },
+                        new { Name = "Children", Icon = "balloon-heart", Color = "#a8edea" },
+                        new { Name = "Romance", Icon = "heart", Color = "#ff9a9e" }
+                        };
+            }
+
+            @foreach (var category in categories)
+            {
+                <div class="col-lg-3 col-md-4 col-sm-6">
+                    <a href="@Url.Action("Index", "Search", new { query = category.Name, filter = "category" })"
+                       class="category-card" style="--category-color: @category.Color">
+                        <div class="category-icon">
+                            <i class="bi bi-@category.Icon"></i>
+                        </div>
+                        <h4 class="category-name">@category.Name</h4>
+                        <span class="category-arrow">
+                            <i class="bi bi-arrow-right"></i>
+                        </span>
+                    </a>
+                </div>
+            }
+        </div>
+    </div>
+</section>
+
+<!-- Newsletter Section -->
+<section class="newsletter-section">
+    <div class="container">
+        <div class="newsletter-card">
+            <div class="row align-items-center">
+                <div class="col-lg-6 mb-4 mb-lg-0">
+                    <h2 class="newsletter-title">
+                        <i class="bi bi-envelope-heart text-danger"></i>
+                        Stay Updated
+                    </h2>
+                    <p class="newsletter-text">
+                        Subscribe to our newsletter and get exclusive deals, new arrivals,
+                        and reading recommendations delivered to your inbox.
+                    </p>
+                </div>
+                <div class="col-lg-6">
+                    <form class="newsletter-form">
+                        <div class="input-group">
+                            <input type="email" class="form-control"
+                                   placeholder="Enter your email address" required />
+                            <button class="btn btn-primary" type="submit">
+                                <i class="bi bi-send"></i> Subscribe
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Success Modal -->
+@if (!string.IsNullOrEmpty(loginMessage))
+{
+    <div class="modal fade" id="successModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-success text-white">
+                    <h5 class="modal-title">Success</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    @loginMessage
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@section Scripts {
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+
+    <script>
+        // Initialize AOS animations
+        AOS.init({
+            duration: 800,
+            once: true,
+            offset: 100
+        });
+
+        // Filter functionality
+        $('.filter-tab').click(function() {
+            $('.filter-tab').removeClass('active');
+            $(this).addClass('active');
+
+            const filter = $(this).data('filter');
+
+            if (filter === 'all') {
+                $('.modern-book-card').fadeIn();
+            } else if (filter === 'new') {
+                $('.modern-book-card').hide();
+                $('.modern-book-card:has(.new-badge)').fadeIn();
+            }
+        });
+
+        // Add to cart functionality
+        $('.add-to-cart-btn').click(function(e) {
+            e.preventDefault();
+            const bookId = $(this).data('book-id');
+            const btn = $(this);
+
+            btn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm"></span>');
+
+            $.post('/Cart/AddToCart', { id: bookId, quantity: 1 })
+                .done(function(response) {
+                    if (response.success) {
+                        showToast('Book added to cart!', 'success');
+                        updateCartCount();
+                        btn.html('<i class="bi bi-check-circle"></i> Added');
+                        setTimeout(() => {
+                            btn.html('<i class="bi bi-cart-plus"></i> Add to Cart').prop('disabled', false);
+                        }, 2000);
+                    } else {
+                        showToast(response.message || 'Failed to add to cart', 'error');
+                        btn.html('<i class="bi bi-cart-plus"></i> Add to Cart').prop('disabled', false);
+                    }
+                })
+                .fail(function() {
+                    showToast('Please login to add to cart!', 'error');
+                    btn.html('<i class="bi bi-cart-plus"></i> Add to Cart').prop('disabled', false);
                 });
-            </text>
+        });
+
+        // Toast notification
+        function showToast(message, type) {
+            const bgColor = type === 'success' ? '#28a745' : '#dc3545';
+            const toast = $('<div>')
+                .css({
+                    position: 'fixed',
+                    top: '80px',
+                    right: '20px',
+                    padding: '15px 25px',
+                    background: bgColor,
+                    color: 'white',
+                    borderRadius: '8px',
+                    zIndex: 9999,
+                    boxShadow: '0 4px 12px rgba(0,0,0,0.2)',
+                    animation: 'slideInRight 0.3s ease'
+                })
+                .html('<i class="bi bi-' + (type === 'success' ? 'check-circle' : 'x-circle') + '"></i> ' + message)
+                .appendTo('body');
+
+            setTimeout(() => toast.fadeOut(300, () => toast.remove()), 3000);
+        }
+
+        // Show success modal if exists
+        @if (!string.IsNullOrEmpty(loginMessage))
+        {
+                <text>
+                $(document).ready(function() {
+                    new bootstrap.Modal($('#successModal')).show();
+                });
+                </text>
         }
     </script>
 }
-
-
