@@ -66,8 +66,8 @@
                                     <tr>
                                         <td>@item.BookName</td>
                                         <td class="text-center">@item.Quantity</td>
-                                        <td class="text-end">@item.UnitPrice.ToString("N0") $</td>
-                                        <td class="text-end">@((item.Quantity * item.UnitPrice).ToString("N0")) $</td>
+                                        <td class="text-end">@item.UnitPrice.ToString("N0")</td>
+                                        <td class="text-end">@((item.Quantity * item.UnitPrice).ToString("N0"))</td>
                                     </tr>
                                 }
                             </tbody>
@@ -80,7 +80,7 @@
                         <div class="col-md-6 offset-md-6">
                             <div class="d-flex justify-content-between mb-2">
                                 <span>Subtotal:</span>
-                                <span class="fw-bold">@Model.OrderItems.Sum(i => i.Quantity * i.UnitPrice).ToString("N0") $</span>
+                                <span class="fw-bold">@Model.OrderItems.Sum(i => i.Quantity * i.UnitPrice).ToString("N0")</span>
                             </div>
 
                             @if (Model.Discount > 0)
@@ -88,7 +88,7 @@
                                 <div class="d-flex justify-content-between mb-2">
                                     <span>Discount <span class="badge bg-danger">-@Model.Discount%</span>:</span>
                                     <span class="fw-bold text-success">
-                                        -@((Model.OrderItems.Sum(i => i.Quantity * i.UnitPrice) * Model.Discount / 100).ToString("N0")) $
+                                        -@((Model.OrderItems.Sum(i => i.Quantity * i.UnitPrice) * Model.Discount / 100).ToString("N0"))
                                     </span>
                                 </div>
                             }
@@ -97,7 +97,7 @@
 
                             <div class="d-flex justify-content-between">
                                 <h5>Total:</h5>
-                                <h5 class="text-danger">@Model.TotalAmount.ToString("N0") $</h5>
+                                <h5 class="text-danger">@Model.TotalAmount.ToString("N0")</h5>
                             </div>
                         </div>
                     </div>
