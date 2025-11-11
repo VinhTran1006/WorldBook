@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Internal;
 using System.Security.Claims;
 using WorldBook.Models;
 using WorldBook.Services.Interfaces;
@@ -14,13 +15,16 @@ namespace WorldBook.Controllers
         private readonly WorldBookDbContext _db;
         private readonly IAuthService _authService;
         private readonly IGoogleAuthService _googleAuthService;
+        private readonly IRegisterService _registerService;
         public LoginsController(
            IAuthService authService,
            IGoogleAuthService googleAuthService,
-           WorldBookDbContext db)
+           WorldBookDbContext db,
+           IRegisterService registerService)
         {
             _authService = authService;
             _googleAuthService = googleAuthService;
+            _registerService = registerService;
             _db = db;
         }
 
@@ -28,45 +32,52 @@ namespace WorldBook.Controllers
         public IActionResult Login() => View("~/Views/Logins/Login.cshtml");
 
         [HttpPost]
-        public async Task<IActionResult> Login(LoginViewModel model)
+        public async Task<IActionResult> Login([FromBody] LoginViewModel model)
         {
-            if (!ModelState.IsValid) return View(model);
-
-            var user = await _authService.ValidateUserAsync(model.Username, model.Password);
-            if (user == null)
+            // Handle JSON request
+            if (model != null && !string.IsNullOrEmpty(model.Username))
             {
-                ModelState.AddModelError("", "Wrong password or user name");
-                ViewData["LoginStatus"] = $"Login failed for user: {model.Username}";
-                return View(model);
+                if (!ModelState.IsValid)
+                    return Json(new { success = false, message = "Invalid input" });
+
+                var user = await _authService.ValidateUserAsync(model.Username, model.Password);
+                if (user == null)
+                {
+                    return Json(new { success = false, message = "Wrong username or password" });
+                }
+
+                var claims = new List<Claim>
+                {
+                    new Claim(ClaimTypes.Name, user.Username),
+                    new Claim(ClaimTypes.NameIdentifier, user.UserId.ToString()),
+                    new Claim(ClaimTypes.Email, user.Email)
+                };
+                foreach (var r in user.UserRoles)
+                    claims.Add(new Claim(ClaimTypes.Role, r.Role.Name));
+
+                var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+                await HttpContext.SignInAsync(
+                    "MyCookieAuth",
+                    new ClaimsPrincipal(identity),
+                    new AuthenticationProperties { IsPersistent = true });
+
+                TempData["LoginSuccess"] = $"Welcome {user.Username}";
+
+                var roles = user.UserRoles.Select(ur => ur.Role.Name).ToList();
+                string redirectUrl = roles.Contains("Customer")
+                    ? Url.Action("GetBookHomePage", "Book")
+                    : Url.Action("GetBookDashBoard", "Book");
+
+                return Json(new
+                {
+                    success = true,
+                    message = $"Welcome {user.Username}!",
+                    redirectUrl = redirectUrl
+                });
             }
 
-            var claims = new List<Claim>
-            {
-                new Claim(ClaimTypes.Name, user.Username),
-                new Claim(ClaimTypes.NameIdentifier, user.UserId.ToString()),
-                new Claim(ClaimTypes.Email, user.Email)
-            };
-            foreach (var r in user.UserRoles)
-                claims.Add(new Claim(ClaimTypes.Role, r.Role.Name));
-
-            var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
-            await HttpContext.SignInAsync(
-                "MyCookieAuth",
-                new ClaimsPrincipal(identity),
-                new AuthenticationProperties { IsPersistent = true });
-
-            TempData["LoginSuccess"] = $"Welcome {user.Username}";
-
-            TempData["Log"] = $"Username: {user.Username}\nEmail: {user.Email}\nID: {user.UserId}".Replace("\n", "<br/>");
-
-            var roles = user.UserRoles.Select(ur => ur.Role.Name).ToList();
-            if (roles.Contains("Customer"))
-            {
-                return RedirectToAction("GetBookHomePage", "Book");
-            } else
-            {
-                return RedirectToAction("GetBookDashBoard", "Book");
-            }
+            // Fallback: render view if not JSON
+            return View("~/Views/Logins/Login.cshtml");
         }
 
         public async Task<IActionResult> Logout()
@@ -170,6 +181,84 @@ namespace WorldBook.Controllers
             }
 
             return RedirectToAction("Login");
+        }
+
+        [HttpGet]
+        public IActionResult Register() => View("~/Views/Logins/Login.cshtml");
+
+        [HttpPost]
+        public async Task<IActionResult> Register([FromBody] RegisterViewModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                var errors = ModelState.Values.SelectMany(v => v.Errors);
+                var errorMessage = string.Join(", ", errors.Select(e => e.ErrorMessage));
+                return Json(new { success = false, message = errorMessage });
+            }
+
+            try
+            {
+                await _registerService.RegisterUserAsync(model);
+                return Json(new { success = true, message = "Registration successful! Please sign in." });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = ex.Message });
+            }
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> CheckUsernameExists([FromBody] dynamic request)
+        {
+            try
+            {
+                string username = request.username;
+                if (string.IsNullOrEmpty(username))
+                    return Json(new { exists = false });
+
+                var exists = await _registerService.UsernameExistsAsync(username);
+                return Json(new { exists });
+            }
+            catch
+            {
+                return Json(new { exists = false });
+            }
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> CheckEmailExists([FromBody] dynamic request)
+        {
+            try
+            {
+                string email = request.email;
+                if (string.IsNullOrEmpty(email))
+                    return Json(new { exists = false });
+
+                var exists = await _registerService.EmailExistsAsync(email);
+                return Json(new { exists });
+            }
+            catch
+            {
+                return Json(new { exists = false });
+            }
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> CheckPhoneExists([FromBody] dynamic request)
+        {
+            try
+            {
+                string phone = request.phone;
+                if (string.IsNullOrEmpty(phone))
+                    return Json(new { exists = false });
+
+                var exists = await _registerService.PhoneExistsAsync(phone);
+                return Json(new { exists });
+            }
+            catch
+            {
+                return Json(new { exists = false });
+            }
         }
     }
 }

@@ -108,6 +108,46 @@ namespace WorldBook.Repositories
         {
             return await _db.Roles.FirstOrDefaultAsync(r => r.Name == roleName);
         }
+
+        /// <summary>
+        /// Kiểm tra xem username đã tồn tại (chỉ kiểm tra user active)
+        /// </summary>
+        public async Task<bool> UsernameExistsAsync(string username)
+        {
+            if (string.IsNullOrWhiteSpace(username))
+                return false;
+            return await _db.Users.AnyAsync(u => u.Username == username && u.IsActive);
+        }
+
+        /// <summary>
+        /// Kiểm tra xem email đã tồn tại (chỉ kiểm tra user active)
+        /// </summary>
+        public async Task<bool> EmailExistsAsync(string email)
+        {
+            if (string.IsNullOrWhiteSpace(email))
+                return false;
+            return await _db.Users.AnyAsync(u => u.Email == email && u.IsActive);
+        }
+
+        /// <summary>
+        /// Kiểm tra xem phone đã tồn tại (chỉ kiểm tra user active)
+        /// </summary>
+        public async Task<bool> PhoneExistsAsync(string phone)
+        {
+            if (string.IsNullOrWhiteSpace(phone))
+                return false;
+            return await _db.Users.AnyAsync(u => u.Phone == phone && u.IsActive);
+        }
+
+        /// <summary>
+        /// Đăng ký user mới
+        /// </summary>
+        public async Task<User> RegisterAsync(User user)
+        {
+            _db.Users.Add(user);
+            await _db.SaveChangesAsync();
+            return user;
+        }
     }
 }
 

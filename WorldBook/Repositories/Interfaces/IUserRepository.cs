@@ -23,5 +23,12 @@ namespace WorldBook.Repositories.Interfaces
         Task<User> GetByPhoneAsync(string phone);
 
         Task<Role> GetRoleByNameAsync(string roleName);
+
+        Task<bool> UsernameExistsAsync(string username);
+        Task<bool> EmailExistsAsync(string email);
+        Task<bool> PhoneExistsAsync(string phone);
+
+        // Method đăng ký
+        Task<User> RegisterAsync(User user);
     }
 }
