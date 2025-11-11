@@ -104,6 +104,13 @@ namespace WorldBook.Hubs
             await Clients.Group("Users").SendAsync("ReceiveAdminMessage", message);
         }
 
-
+        public string GetMyAuthenticatedName()
+        {
+            // Trả về tên thật từ context,
+            // y hệt như logic bạn dùng trong OnConnectedAsync
+            var httpContext = Context.GetHttpContext();
+            var userName = httpContext?.User?.Identity?.Name ?? "Khách";
+            return userName;
+        }
     }
 }
