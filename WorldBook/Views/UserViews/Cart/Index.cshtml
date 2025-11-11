@@ -72,7 +72,7 @@
                                 <!-- Price Column -->
                                 <div class="col-md-2 text-center">
                                     <p class="fw-bold text-danger mb-0">
-                                        @item.BookPrice.ToString("N0") $
+                                        @item.BookPrice.ToString("N0")
                                     </p>
                                 </div>
 
@@ -95,7 +95,7 @@
                                 <!-- Actions Column -->
                                 <div class="col-md-2 text-end">
                                     <p class="fw-bold mb-2 item-subtotal">
-                                        @item.Subtotal.ToString("N0") $
+                                        @item.Subtotal.ToString("N0")
                                     </p>
                                     <button class="btn btn-sm btn-danger btn-remove" data-book-id="@item.BookId">
                                         <i class="fas fa-trash"></i> Remove
@@ -128,7 +128,7 @@
                     <div class="d-flex justify-content-between mb-3">
                         <h5>Total:</h5>
                         <h5 class="text-danger" id="selectedTotalPrice">
-                            0 $
+                            0
                         </h5>
                     </div>
 
@@ -195,8 +195,8 @@
 
                 // Update counts and totals
                 $('#selectedItemsCount').text(selectedCount);
-                $('#selectedSubtotal').text(totalPrice.toLocaleString('en-US') + ' $');
-                $('#selectedTotalPrice').text(totalPrice.toLocaleString('en-US') + ' $');
+                $('#selectedSubtotal').text(totalPrice.toLocaleString('en-US'));
+                $('#selectedTotalPrice').text(totalPrice.toLocaleString('en-US'));
 
                 // Update selected items list
                 if (selectedCount > 0) {
@@ -205,7 +205,7 @@
                         itemsHtml += `
                             <div class="d-flex justify-content-between mb-2">
                                 <span class="text-truncate" style="max-width: 60%;">${item.name}</span>
-                                <span class="text-muted">${item.subtotal.toLocaleString('en-US')} $</span>
+                                <span class="text-muted">${item.subtotal.toLocaleString('en-US')}</span>
                             </div>
                         `;
                     });
@@ -378,7 +378,7 @@
                 const price = parseInt(priceText.replace(/[^\d]/g, ''));
                 const subtotal = price * quantity;
 
-                item.find('.item-subtotal').text(subtotal.toLocaleString('en-US') + ' $');
+                item.find('.item-subtotal').text(subtotal.toLocaleString('en-US'));
             }
 
             // Initialize on page load

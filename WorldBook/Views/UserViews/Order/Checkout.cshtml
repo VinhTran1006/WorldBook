@@ -59,11 +59,11 @@
                                     <p class="text-muted small mb-0">Quantity: @item.Quantity</p>
                                 </div>
                                 <div class="col-md-2 text-center">
-                                    <p class="fw-bold mb-0">@item.Price.ToString("N0") $</p>
+                                    <p class="fw-bold mb-0">@item.Price.ToString("N0")</p>
                                 </div>
                                 <div class="col-md-3 text-end">
                                     <p class="fw-bold text-primary mb-0">
-                                        @item.Subtotal.ToString("N0") $
+                                        @item.Subtotal.ToString("N0")
                                     </p>
                                 </div>
                             </div>
@@ -132,14 +132,14 @@
                                                 {
                                                     <p class="small mb-1">
                                                         <i class="bi bi-cash"></i>
-                                                        Min: @voucher.MinOrderAmount.Value.ToString("N0") $
+                                                        Min: @voucher.MinOrderAmount.Value.ToString("N0")
                                                     </p>
                                                 }
                                                 @if (voucher.MaxOrderAmount.HasValue)
                                                 {
                                                     <p class="small mb-1">
                                                         <i class="bi bi-cash"></i>
-                                                        Max: @voucher.MaxOrderAmount.Value.ToString("N0") $
+                                                        Max: @voucher.MaxOrderAmount.Value.ToString("N0")
                                                     </p>
                                                 }
 
@@ -183,14 +183,14 @@
                     <div class="card-body">
                         <div class="d-flex justify-content-between mb-2">
                             <span>Subtotal:</span>
-                            <span class="fw-bold" id="displaySubtotal">@Model.Subtotal.ToString("N0") $</span>
+                            <span class="fw-bold" id="displaySubtotal">@Model.Subtotal.ToString("N0")</span>
                         </div>
 
                         <div class="d-flex justify-content-between mb-2 d-none" id="discountRow">
                             <span>
                                 Discount <span id="displayDiscountPercent" class="badge bg-danger"></span>:
                             </span>
-                            <span class="fw-bold text-success" id="displayDiscountAmount">0 $</span>
+                            <span class="fw-bold text-success" id="displayDiscountAmount">0</span>
                         </div>
 
                         <div id="appliedVoucherInfo" style="display: none;" class="alert alert-success mb-3">
@@ -209,7 +209,7 @@
 
                         <div class="d-flex justify-content-between mb-3">
                             <h5>Total:</h5>
-                            <h5 class="text-danger" id="displayTotalAmount">@Model.TotalAmount.ToString("N0") $</h5>
+                            <h5 class="text-danger" id="displayTotalAmount">@Model.TotalAmount.ToString("N0")</h5>
                         </div>
 
                         <button type="submit" class="btn btn-primary w-100 mb-2" id="placeOrderBtn">
@@ -353,19 +353,19 @@
 
             // Update pricing display
             function updatePricingDisplay() {
-                $('#displaySubtotal').text(subtotal.toLocaleString('en-US') + ' $');
+                $('#displaySubtotal').text(subtotal.toLocaleString('en-US'));
 
                 if (discountPercent > 0) {
                     $('#discountRow').removeClass('d-none').show();
-                    $('#displayDiscountPercent').text('-' + discountPercent + '%');
-                    $('#displayDiscountAmount').text('-' + discountAmount.toLocaleString('en-US') + ' $');
+                    $('#displayDiscountPercent').text('-' + discountPercent);
+                    $('#displayDiscountAmount').text('-' + discountAmount.toLocaleString('en-US'));
                     $('#appliedVoucherInfo').show();
                 } else {
                     $('#discountRow').addClass('d-none').hide();
                     $('#appliedVoucherInfo').hide();
                 }
 
-                $('#displayTotalAmount').text(totalAmount.toLocaleString('en-US') + ' $');
+                $('#displayTotalAmount').text(totalAmount.toLocaleString('en-US'));
             }
 
             // Form submit
@@ -414,26 +414,33 @@
                 }, 3000);
             }
 
-                            $('#momoPaymentBtn').click(async function () {
+                    $('#momoPaymentBtn').click(async function () {
             try {
-                // 🟢 Validate địa chỉ trước
+                //  Validate địa chỉ
                 const address = $('#Address').val().trim();
                 if (!address) {
                     alert('Vui lòng nhập địa chỉ giao hàng');
                     return;
                 }
 
-                // 🟢 Lấy giá đã áp dụng voucher từ hidden field
-                const totalAmount = $('#totalAmount').val() || $('#displayTotalAmount').text();
+                // FIX: Parse amount đúng cách
+                let amount = 0;
 
-                // Parse giá từ display (loại bỏ " $")
-                let amount = totalAmount;
-                if (typeof totalAmount === 'string') {
-                    amount = parseInt(totalAmount.replace(/[^0-9]/g, '')) || 0;
+                // Ưu tiên hidden field (từ checkout)
+                const hiddenAmount = $('#totalAmount').val();
+                if (hiddenAmount && hiddenAmount.toString().trim() !== '') {
+                    amount = parseFloat(hiddenAmount);
+                } else {
+                    // Fallback: lấy từ display text
+                    const displayAmount = $('#displayTotalAmount').text();
+                    amount = parseFloat(displayAmount.replace(/[^0-9.]/g, '')) || 0;
                 }
 
+                // Convert thành số nguyên VND (không có thập phân)
+                amount = Math.round(amount);
+
                 if (amount <= 0) {
-                    alert('Không thể xác định số tiền thanh toán');
+                    alert('Không thể xác định số tiền thanh toán: ' + amount);
                     return;
                 }
 
@@ -441,17 +448,34 @@
                 $('#loadingOverlay').show();
                 $('#momoPaymentBtn').prop('disabled', true);
 
-                // 🟢 Gửi request với giá đã áp dụng voucher
+                // Helper functions
+                function parseIntOrNull(val) {
+                    if (!val || val === "") {
+                        return null;
+                    }
+                    const num = parseInt(val);
+                    return isNaN(num) ? null : num;
+                }
+
+                function parseFloatOrZero(val) {
+                    if (!val || val === "") {
+                        return 0;
+                    }
+                    const num = parseFloat(val);
+                    return isNaN(num) ? 0 : num;
+                }
+
                 const data = {
-                    userId: $('#UserId').val(),
+                    userId: parseIntOrNull($('#UserId').val()) || 0,
                     address: address,
                     items: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.Items)),
                     subtotal: @Model.Subtotal,
-                    selectedVoucherId: $('#selectedVoucherId').val(),
-                    discountPercent: $('#discountPercent').val(),
-                    discountAmount: $('#discountAmount').val(),
-                    totalAmount: amount  // 🟢 Giá với voucher
+                    selectedVoucherId: parseIntOrNull($('#selectedVoucherId').val()),
+                    discountPercent: parseFloatOrZero($('#discountPercent').val()),
+                    discountAmount: parseFloatOrZero($('#discountAmount').val()),
+                    totalAmount: amount  // Amount đúng (VND, không nhân 100)
                 };
+
 
                 // Gọi API tạo đơn hàng
                 const res = await fetch('/Order/PlaceOrderWithMomo', {
@@ -461,10 +485,17 @@
                 });
 
                 const result = await res.json();
-                if (!res.ok) throw new Error(result.message || 'Không thể tạo đơn hàng');
 
-                // 🟢 Redirect sang MoMo payment URL với giá đã áp dụng voucher
-                window.location.href = `/api/v1/user/payments/momo?orderId=${result.orderId}&amount=${result.amount}`;
+
+                if (!res.ok) {
+                    throw new Error(result.message || 'Không thể tạo đơn hàng');
+                }
+
+                // Amount từ result phải là đúng giá (10000 = 10000 VND)
+                const paymentUrl = `/api/v1/user/payments/momo?orderId=${result.orderId}&amount=${result.amount}`;
+
+                window.location.href = paymentUrl;
+
             } catch (err) {
                 alert('Thanh toán thất bại: ' + err.message);
             } finally {

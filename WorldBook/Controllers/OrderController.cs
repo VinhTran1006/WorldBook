@@ -368,23 +368,37 @@ namespace WorldBook.Controllers
                 var userId = GetCurrentUserId();
                 if (userId == 0)
                 {
-                    TempData["Error"] = "Please log in to place order";
-                    return RedirectToAction("Login", "Logins");
+                    return BadRequest(new { message = "Please log in to place order" });
                 }
 
-                // Set UserId from current user
+                // Lấy cart items của user
                 var cartItems = await _cartRepository.GetCartItemsByUserIdAsync(userId);
 
                 if (!cartItems.Any())
                     return BadRequest(new { message = "Giỏ hàng trống" });
 
-                long totalAmount = request.TotalAmount > 0
-            ? Convert.ToInt64(request.TotalAmount)
-            : (long)cartItems.Sum(c => c.Quantity * (c.Book.BookPrice));
+                // 🔧 FIX: Tính toán TotalAmount - xử lý decimal đúng cách
+                decimal totalAmount;
+                if (request.TotalAmount > 0)
+                {
+                    totalAmount = request.TotalAmount;
+                }
+                else
+                {
+                    // Tính từ cart items: quantity (int) * price (decimal) = decimal
+                    totalAmount = 0m;
+                    foreach (var item in cartItems)
+                    {
+                        decimal itemPrice = item.Book?.BookPrice ?? 0m; // 🔧 Cast sang decimal rõ ràng
+                        totalAmount += (decimal)item.Quantity * itemPrice;
+                    }
+                }
 
-                int? discountPercent = request.DiscountPercent > 0
-                    ? request.DiscountPercent
-                    : (int?)null;
+                int? discountPercent = null;
+                if (request.DiscountPercent > 0)
+                {
+                    discountPercent = (int)request.DiscountPercent;
+                }
 
                 // 2️⃣ Tạo Order mới
                 var order = new Order
@@ -393,25 +407,29 @@ namespace WorldBook.Controllers
                     OrderDate = DateTime.Now,
                     Address = request.Address,
                     Status = "Not Approved",
-                    TotalAmount = totalAmount,
+                    TotalAmount = (long)totalAmount, // Convert decimal → long
                     UpdateAt = DateTime.Now,
-
                     Discount = discountPercent
                 };
 
                 await _orderRepository.CreateOrderAsync(order);
 
                 // 3️⃣ Tạo OrderDetail
-                var orderDetails = cartItems.Select(c => new OrderDetail
+                var orderDetails = new List<OrderDetail>();
+                foreach (var item in cartItems)
                 {
-                    OrderId = order.OrderId,
-                    BookId = c.BookId.Value,
-                    Quantity = c.Quantity,
-                    Price = (long)(c.Book.BookPrice)
-                }).ToList();
+                    orderDetails.Add(new OrderDetail
+                    {
+                        OrderId = order.OrderId,
+                        BookId = item.BookId.Value,
+                        Quantity = item.Quantity,
+                        Price = (long)(item.Book?.BookPrice ?? 0m) // Convert decimal → long
+                    });
+                }
 
                 await _orderRepository.AddOrderDetailsAsync(orderDetails);
 
+                // 4️⃣ Áp dụng voucher nếu có
                 if (request.SelectedVoucherId.HasValue && request.SelectedVoucherId.Value > 0)
                 {
                     var userVoucher = new UserVoucher
@@ -425,16 +443,23 @@ namespace WorldBook.Controllers
                     await _userVoucherRepository.AddUserVoucherAsync(userVoucher);
                 }
 
-                // 4️⃣ Xóa khỏi giỏ
+                // 5️⃣ Xóa khỏi giỏ
                 await _orderRepository.RemoveCartItemsAsync(userId, cartItems.Select(c => c.BookId.Value).ToList());
 
-                // 5️⃣ Trả về orderId cho JS
-                return Ok(new { orderId = order.OrderId, amount = order.TotalAmount });
+                // 6️⃣ Trả về orderId và amount cho MoMo
+                long momoAmount = (long)totalAmount; // 10000 VND = 10000
+
+                return Ok(new
+                {
+                    orderId = order.OrderId,
+                    amount = momoAmount
+                });
             }
             catch (Exception ex)
             {
-                Console.WriteLine("❌ PlaceOrderWithMomo error: " + ex.Message);
-                return StatusCode(500, new { message = "Lỗi hệ thống" });
+                Console.WriteLine($"❌ PlaceOrderWithMomo error: {ex.Message}");
+                Console.WriteLine($"Stack trace: {ex.StackTrace}");
+                return StatusCode(500, new { message = $"Lỗi hệ thống: {ex.Message}" });
             }
         }
 

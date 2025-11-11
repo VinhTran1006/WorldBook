@@ -124,13 +124,13 @@ namespace WorldBook.Services
                 if (voucher.MinOrderAmount.HasValue && totalAmount < voucher.MinOrderAmount.Value)
                 {
                     isApplicable = false;
-                    notApplicableReason = $"Minimum order amount: {voucher.MinOrderAmount.Value:N0} $";
+                    notApplicableReason = $"Minimum order amount: {voucher.MinOrderAmount.Value:N0}";
                 }
 
                 if (voucher.MaxOrderAmount.HasValue && totalAmount > voucher.MaxOrderAmount.Value)
                 {
                     isApplicable = false;
-                    notApplicableReason = $"Maximum order amount: {voucher.MaxOrderAmount.Value:N0} $";
+                    notApplicableReason = $"Maximum order amount: {voucher.MaxOrderAmount.Value:N0}";
                 }
 
                 availableVouchers.Add(new AvailableVoucherViewModel
@@ -178,13 +178,13 @@ namespace WorldBook.Services
             // Validate MinOrderAmount
             if (voucher.MinOrderAmount.HasValue && model.Subtotal < voucher.MinOrderAmount.Value)
             {
-                throw new Exception($"Order amount must be at least {voucher.MinOrderAmount.Value:N0} $");
+                throw new Exception($"Order amount must be at least {voucher.MinOrderAmount.Value:N0}");
             }
 
             // Validate MaxOrderAmount
             if (voucher.MaxOrderAmount.HasValue && model.Subtotal > voucher.MaxOrderAmount.Value)
             {
-                throw new Exception($"Order amount must not exceed {voucher.MaxOrderAmount.Value:N0} $");
+                throw new Exception($"Order amount must not exceed {voucher.MaxOrderAmount.Value:N0}");
             }
 
             // Áp dụng discount
