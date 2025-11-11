@@ -16,16 +16,19 @@ namespace WorldBook.Controllers
         private readonly IAuthService _authService;
         private readonly IGoogleAuthService _googleAuthService;
         private readonly IRegisterService _registerService;
+        private readonly IPasswordResetService _passwordResetService;
         public LoginsController(
            IAuthService authService,
            IGoogleAuthService googleAuthService,
            WorldBookDbContext db,
-           IRegisterService registerService)
+           IRegisterService registerService,
+           IPasswordResetService passwordResetService)
         {
             _authService = authService;
             _googleAuthService = googleAuthService;
             _registerService = registerService;
             _db = db;
+            _passwordResetService = passwordResetService;
         }
 
         [HttpGet]
@@ -258,6 +261,80 @@ namespace WorldBook.Controllers
             catch
             {
                 return Json(new { exists = false });
+            }
+        }
+
+        [HttpGet]
+        public IActionResult ForgotPassword()
+    => View("~/Views/Logins/ForgotPassword.cshtml");
+
+        [HttpPost]
+        public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordViewModel model)
+        {
+            if (!ModelState.IsValid)
+                return Json(new { success = false, message = "Invalid email" });
+
+            try
+            {
+                var result = await _passwordResetService.SendPasswordResetEmailAsync(model.Email);
+                if (result)
+                    return Json(new
+                    {
+                        success = true,
+                        message = "A password reset link has been sent to your email. Please check your inbox (and spam)."
+                    });
+
+                return Json(new { success = false, message = "Email does not exist in the system" });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = "Error: " + ex.Message });
+            }
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> ResetPassword(string token)
+        {
+            if (string.IsNullOrEmpty(token))
+                return RedirectToAction("Login");
+
+            var isValid = await _passwordResetService.ValidateResetTokenAsync(token);
+            if (!isValid)
+                return View("~/Views/Logins/ResetPasswordError.cshtml");
+
+            return View("~/Views/Logins/ResetPassword.cshtml", new ResetPasswordViewModel { Token = token });
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordViewModel model)
+        {
+            if (!ModelState.IsValid)
+                return Json(new { success = false, message = "Invalid data" });
+
+            if (string.IsNullOrEmpty(model.Token))
+                return Json(new { success = false, message = "Invalid token" });
+
+            if (model.NewPassword != model.ConfirmPassword)
+                return Json(new { success = false, message = "Passwords do not match" });
+
+            if (model.NewPassword.Length < 6)
+                return Json(new { success = false, message = "Password must be at least 6 characters" });
+
+            try
+            {
+                var result = await _passwordResetService.ResetPasswordAsync(model.Token, model.NewPassword);
+                if (result)
+                    return Json(new
+                    {
+                        success = true,
+                        message = "Password has been reset successfully. Please log in with the new password."
+                    });
+
+                return Json(new { success = false, message = "Token is invalid or expired" });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = "Error: " + ex.Message });
             }
         }
     }
