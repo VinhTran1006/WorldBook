@@ -204,5 +204,34 @@ namespace WorldBook.Services
                 return false;
             }
         }
+
+        public async Task<bool> SendEmailForgetPasswordAsync(string email, string subject, string body)
+        {
+            try
+            {
+                using (var client = new SmtpClient("smtp.gmail.com", 587))
+                {
+                    client.EnableSsl = true;
+                    client.Credentials = new NetworkCredential(_emailUsername, _emailPassword);
+
+                    var mailMessage = new MailMessage
+                    {
+                        From = new MailAddress(_emailUsername, "WorldBook"),
+                        Subject = subject,
+                        Body = body,
+                        IsBodyHtml = true
+                    };
+
+                    mailMessage.To.Add(email);
+                    await client.SendMailAsync(mailMessage);
+                    return true;
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Lỗi SMTP: {ex.Message}");
+                return false;
+            }
+        }
     }
 }
