@@ -1,0 +1,163 @@
+﻿@model WorldBook.ViewModel.SearchResultViewModel
+@{
+    ViewData["Title"] = $"Search Results for \"{Model.Query}\"";
+    Layout = "~/Views/Shared/_UserLayout.cshtml";
+}
+
+<link rel="stylesheet" href="~/css/UserViews/Book/book-list.css" />
+
+<div class="container my-5">
+    <!-- Search Results Header -->
+    <div class="search-header mb-4">
+        <h2 class="mb-3">
+            <i class="bi bi-search text-primary"></i>
+            Search Results for "<span class="text-warning">@Model.Query</span>"
+        </h2>
+
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+            <p class="text-muted mb-0">
+                Found <strong class="text-primary">@Model.TotalResults</strong> result(s)
+                @if (Model.Filter != "all")
+                {
+                    <span>in <strong class="text-info">@Model.Filter</strong></span>
+                }
+            </p>
+
+            <!-- Filter Buttons -->
+            <div class="btn-group" role="group">
+                <a href="@Url.Action("Index", new { query = Model.Query, filter = "all" })"
+                   class="btn btn-sm @(Model.Filter == "all" ? "btn-primary" : "btn-outline-primary")">
+                    All
+                </a>
+                <a href="@Url.Action("Index", new { query = Model.Query, filter = "bookname" })"
+                   class="btn btn-sm @(Model.Filter == "bookname" ? "btn-primary" : "btn-outline-primary")">
+                    Books
+                </a>
+                <a href="@Url.Action("Index", new { query = Model.Query, filter = "author" })"
+                   class="btn btn-sm @(Model.Filter == "author" ? "btn-primary" : "btn-outline-primary")">
+                    Authors
+                </a>
+                <a href="@Url.Action("Index", new { query = Model.Query, filter = "category" })"
+                   class="btn btn-sm @(Model.Filter == "category" ? "btn-primary" : "btn-outline-primary")">
+                    Categories
+                </a>
+                <a href="@Url.Action("Index", new { query = Model.Query, filter = "publisher" })"
+                   class="btn btn-sm @(Model.Filter == "publisher" ? "btn-primary" : "btn-outline-primary")">
+                    Publishers
+                </a>
+            </div>
+        </div>
+    </div>
+
+    @if (!Model.HasResults)
+    {
+        <!-- No Results Found -->
+        <div class="text-center py-5">
+            <i class="bi bi-search display-1 text-muted"></i>
+            <h3 class="mt-4">No Results Found</h3>
+            <p class="text-muted mb-4">
+                We couldn't find any books matching your search for "<strong>@Model.Query</strong>"
+            </p>
+            <div class="d-flex gap-3 justify-content-center">
+                <a href="@Url.Action("GetBookHomePage", "Book")" class="btn btn-primary">
+                    <i class="bi bi-house"></i> Back to Home
+                </a>
+                <button class="btn btn-outline-secondary" onclick="document.getElementById('searchInput').focus()">
+                    <i class="bi bi-search"></i> Try Another Search
+                </button>
+            </div>
+        </div>
+    }
+    else
+    {
+        <!-- Search Results Grid -->
+        <div class="book-grid">
+            @foreach (var book in Model.Books)
+            {
+                <a href="@Url.Action("GetBookDetails", "Book", new { id = book.BookId })"
+                   class="book-card-link">
+                    <div class="book-card">
+                        <img src="@book.ImageUrl1" alt="@book.BookName" class="book-image" />
+                        <div class="book-card-content">
+                            <h3 class="book-name" title="@book.BookName">@book.BookName</h3>
+
+                            @if (book.AuthorNames != null && book.AuthorNames.Any())
+                            {
+                                <p class="book-authors" title="@string.Join(", ", book.AuthorNames)">
+                                    <i class="bi bi-person-fill"></i>
+                                    @string.Join(", ", book.AuthorNames)
+                                </p>
+                            }
+
+                            @if (book.Categories != null && book.Categories.Any())
+                            {
+                                <div class="book-categories mb-2">
+                                    @foreach (var category in book.Categories.Take(2))
+                                    {
+                                        <span class="badge bg-info text-dark me-1">@category</span>
+                                    }
+                                    @if (book.Categories.Count > 2)
+                                    {
+                                        <span class="badge bg-secondary">+@(book.Categories.Count - 2)</span>
+                                    }
+                                </div>
+                            }
+
+                            <p class="book-price">@book.BookPrice.ToString("N0") $</p>
+                            <p class="book-quantity">
+                                @if (book.BookQuantity > 0)
+                                {
+                                    <span class="text-success">
+                                        <i class="bi bi-check-circle"></i> In Stock: @book.BookQuantity
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="text-danger">
+                                        <i class="bi bi-x-circle"></i> Out of Stock
+                                    </span>
+                                }
+                            </p>
+                        </div>
+                    </div>
+                </a>
+            }
+        </div>
+
+        <!-- Back to Top Button -->
+        @if (Model.TotalResults > 6)
+        {
+            <div class="text-center mt-5">
+                <button class="btn btn-outline-primary" onclick="window.scrollTo({top: 0, behavior: 'smooth'})">
+                    <i class="bi bi-arrow-up"></i> Back to Top
+                </button>
+            </div>
+        }
+    }
+</div>
+
+<style>
+    .search-header {
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        padding: 25px;
+        border-radius: 15px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+
+    .book-categories {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 5px;
+        justify-content: center;
+    }
+
+    .book-categories .badge {
+        font-size: 11px;
+        padding: 4px 8px;
+    }
+
+    .book-quantity {
+        font-size: 13px;
+        margin-top: auto;
+    }
+</style>
