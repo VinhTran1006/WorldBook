@@ -1,102 +1,166 @@
-﻿@model WorldBook.ViewModel.BookEditViewModel;
+﻿@model WorldBook.ViewModel.BookEditViewModel
 
 @{
     ViewData["Title"] = "Edit Book";
 }
 
-<h2 class="mb-4">Edit Book</h2>
-
-<!-- Validation tổng quát -->
-<div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
-
-<form id="editBookForm" asp-controller="Book" asp-action="Edit" method="post" enctype="multipart/form-data" class="needs-validation" novalidate>
-    <input type="hidden" asp-for="BookId" />
-
-    <div class="row mb-3">
-        <div class="col-md-6">
-            <label asp-for="BookName" class="form-label"></label>
-            <input asp-for="BookName" class="form-control" />
-            <span asp-validation-for="BookName" class="text-danger small"></span>
-        </div>
-        <div class="col-md-6">
-            <label asp-for="BookDescription" class="form-label"></label>
-            <input asp-for="BookDescription" class="form-control" />
-            <span asp-validation-for="BookDescription" class="text-danger small"></span>
-        </div>
-    </div>
-
-    <div class="mb-3">
-        <label asp-for="BookPrice" class="form-label"></label>
-        <input asp-for="BookPrice" class="form-control" type="number" />
-        <span asp-validation-for="BookPrice" class="text-danger small"></span>
-    </div>
-
-    <div class="mb-3">
-        <label asp-for="BookQuantity" class="form-label"></label>
-        <input asp-for="BookQuantity" class="form-control" type="number" />
-        <span asp-validation-for="BookQuantity" class="text-danger small"></span>
-    </div>
-
-    <div class="row mb-3">
-        <div class="col-md-6">
-            <label asp-for="PublisherName" class="form-label"></label>
-            <input asp-for="PublisherName" class="form-control"  />
-            <span asp-validation-for="PublisherName" class="text-danger small"></span>
+<div class="container mt-3 mb-3">
+    <div class="card shadow-lg rounded-4">
+        <div class="card-header bg-primary text-white">
+            <h3 class="mb-0"><i class="bi bi-pencil-square"></i> Cập nhật Sách</h3>
         </div>
 
-        <div class="row mb-3">
-            <div class="col-md-6">
-                <label asp-for="SupplierName" class="form-label"></label>
-                <input asp-for="SupplierName" class="form-control" />
-                <span asp-validation-for="SupplierName" class="text-danger small"></span>
-            </div>
+        <div class="card-body p-4">
+            <form id="editBookForm" method="post" enctype="multipart/form-data" asp-controller="Book" asp-action="Edit">
+                <input type="hidden" asp-for="BookId" />
 
-            <div class="row g-3 mb-3">
-                @for (int i = 1; i <= 4; i++)
-                {
-                    var previewId = $"previewImage{i}";
-                    var inputId = $"fileInput{i}";
-                    var name = $"ImageUrl{i}";
+                <!-- Tên & Mô tả -->
+                <div class="mb-3">
+                    <label asp-for="BookName" class="form-label fw-bold"></label>
+                    <input asp-for="BookName" class="form-control" placeholder="Nhập tên sách..." />
+                    <span asp-validation-for="BookName" class="text-danger"></span>
+                </div>
 
-                    var currentImage = i switch
-                    {
-                        1 => Model.ExistingImageUrl1,
-                        2 => Model.ExistingImageUrl2,
-                        3 => Model.ExistingImageUrl3,
-                        4 => Model.ExistingImageUrl4,
-                        _ => null
-                    };
-                    var imageSrc = !string.IsNullOrEmpty(currentImage) ? currentImage : $"https://via.placeholder.com/200x150?text=Ảnh+{i}";
-                    <div class="col-md-3 text-center">
-                        <div style="width:100%;height:200px;border-radius:15px;overflow:hidden;background-color:#f8f9fa;
-                        display:flex;justify-content:center;align-items:center;padding:10px;">
-                            <label for="@inputId" style="width:100%;cursor:pointer;margin:0;display:block;">
-                                <img id="@previewId"
-                                     src="@imageSrc"
-                                     style="width:100%;max-height:100%;object-fit:contain;border-radius:10px;"
-                                     alt="Click để chọn ảnh" title="Click để chọn ảnh">
-                            </label>
-                            <input type="file" name="@name" id="@inputId" accept="image/*"
-                                   style="display:none;" onchange="previewSelectedImage(this, '@previewId')">
-                        </div>
+                <div class="mb-3">
+                    <label asp-for="BookDescription" class="form-label fw-bold"></label>
+                    <textarea asp-for="BookDescription" class="form-control" rows="3" placeholder="Mô tả về sách..."></textarea>
+                </div>
+
+                <!-- Giá & Số lượng -->
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label asp-for="BookPrice" class="form-label fw-bold"></label>
+                        <input asp-for="BookPrice" class="form-control" type="number" step="0.01" placeholder="Giá sách..." />
+                        <span asp-validation-for="BookPrice" class="text-danger"></span>
                     </div>
-                }
-            </div>
+                    <div class="col-md-6">
+                        <label asp-for="BookQuantity" class="form-label fw-bold"></label>
+                        <input asp-for="BookQuantity" class="form-control" type="number" placeholder="Số lượng..." />
+                        <span asp-validation-for="BookQuantity" class="text-danger"></span>
+                    </div>
+                </div>
 
-   
+                <!-- Publisher & Supplier -->
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label asp-for="PublisherName" class="form-label fw-bold"></label>
+                        <input asp-for="PublisherName" class="form-control" placeholder="Nhà xuất bản..." />
+                        <span asp-validation-for="PublisherName" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-6">
+                        <label asp-for="SupplierName" class="form-label fw-bold"></label>
+                        <input asp-for="SupplierName" class="form-control" placeholder="Nhà cung cấp..." />
+                        <span asp-validation-for="SupplierName" class="text-danger"></span>
+                    </div>
+                </div>
 
-    <div class="d-flex justify-content-end gap-2">
-        <button type="submit" class="btn btn-success px-4">Save</button>
+                <hr class="my-4" />
+
+                <!-- Tác giả -->
+                <h5 class="fw-bold text-primary"><i class="bi bi-person-lines-fill"></i> Tác giả</h5>
+                <div id="authorList" class="mb-3">
+                    @if (Model.AuthorNames != null && Model.AuthorNames.Any())
+                    {
+                        foreach (var author in Model.AuthorNames)
+                        {
+                            <div class="input-group mb-2">
+                                <input name="AuthorNames" class="form-control" value="@author" />
+                                <button type="button" class="btn btn-danger remove-author">
+                                    <i class="bi bi-dash"></i>
+                                </button>
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        <div class="input-group mb-2">
+                            <input name="AuthorNames" class="form-control" placeholder="Tên tác giả..." />
+                            <button type="button" class="btn btn-success add-author"><i class="bi bi-plus"></i></button>
+                        </div>
+                    }
+                </div>
+
+                <!-- Thể loại -->
+                <h5 class="fw-bold text-primary"><i class="bi bi-tags-fill"></i> Thể loại</h5>
+                <div id="categoryList" class="mb-3">
+                    @if (Model.CategoryNames != null && Model.CategoryNames.Any())
+                    {
+                        foreach (var category in Model.CategoryNames)
+                        {
+                            <div class="input-group mb-2">
+                                <input name="CategoryNames" class="form-control" value="@category" />
+                                <button type="button" class="btn btn-danger remove-category">
+                                    <i class="bi bi-dash"></i>
+                                </button>
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        <div class="input-group mb-2">
+                            <input name="CategoryNames" class="form-control" placeholder="Tên thể loại..." />
+                            <button type="button" class="btn btn-success add-category"><i class="bi bi-plus"></i></button>
+                        </div>
+                    }
+                </div>
+
+                <hr class="my-4" />
+
+                <!-- Ảnh sách -->
+                <h5 class="fw-bold text-primary"><i class="bi bi-image"></i> Hình ảnh</h5>
+                <div class="row g-3 mb-3">
+                    @for (int i = 1; i <= 4; i++)
+                    {
+                        var previewId = $"previewImage{i}";
+                        var inputId = $"fileInput{i}";
+                        var name = $"ImageUrl{i}";
+
+                        var currentImage = i switch
+                        {
+                            1 => Model.ExistingImageUrl1,
+                            2 => Model.ExistingImageUrl2,
+                            3 => Model.ExistingImageUrl3,
+                            4 => Model.ExistingImageUrl4,
+                            _ => null
+                        };
+
+                        var imageSrc = !string.IsNullOrEmpty(currentImage)
+                        ? currentImage
+                        : $"https://via.placeholder.com/200x150?text=Ảnh+{i}";
+
+                        <div class="col-md-3 text-center">
+                            <div style="width:100%;height:200px;border-radius:15px;overflow:hidden;background-color:#f8f9fa;
+                                display:flex;justify-content:center;align-items:center;padding:10px;">
+                                <label for="@inputId" style="width:100%;cursor:pointer;margin:0;display:block;">
+                                    <img id="@previewId"
+                                         src="@imageSrc"
+                                         style="width:100%;max-height:100%;object-fit:contain;border-radius:10px;"
+                                         alt="Click để chọn ảnh" title="Click để chọn ảnh">
+                                </label>
+                                <input type="file" name="@name" id="@inputId" accept="image/*"
+                                       style="display:none;" onchange="previewSelectedImage(this, '@previewId')">
+                            </div>
+                        </div>
+                    }
+                </div>
+
+                <div class="text-end">
+                    <button type="submit" class="btn btn-success">
+                        <i class="bi bi-save"></i> Lưu thay đổi
+                    </button>
+                </div>
+            </form>
+        </div>
     </div>
-</form>
+</div>
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
-   
 }
 
 <script>
-         function previewSelectedImage(input, previewId) {
+    // Preview ảnh khi chọn
+    function previewSelectedImage(input, previewId) {
         const file = input.files[0];
         if (!file) return;
         if (!file.type.startsWith("image/")) {
@@ -112,38 +176,36 @@
     }
 
     $(document).ready(function () {
-         // Thêm Author
-         $("#authorList").on("click", ".add-author", function () {
-             const newAuthorInput = `
-                 <div class="input-group mb-2">
-                     <input name="AuthorNames" class="form-control" placeholder="Tên tác giả..." />
-                     <button type="button" class="btn btn-danger remove-author">
-                         <i class="bi bi-dash"></i>
-                     </button>
-                 </div>`;
-             $("#authorList").append(newAuthorInput);
-         });
+        // Author dynamic fields
+        $("#authorList").on("click", ".add-author", function () {
+            const newAuthorInput = `
+                <div class="input-group mb-2">
+                    <input name="AuthorNames" class="form-control" placeholder="Tên tác giả..." />
+                    <button type="button" class="btn btn-danger remove-author">
+                        <i class="bi bi-dash"></i>
+                    </button>
+                </div>`;
+            $("#authorList").append(newAuthorInput);
+        });
 
-         $("#authorList").on("click", ".remove-author", function () {
-             $(this).closest(".input-group").remove();
-         });
+        $("#authorList").on("click", ".remove-author", function () {
+            $(this).closest(".input-group").remove();
+        });
 
-         // Thêm Category
-         $("#categoryList").on("click", ".add-category", function () {
-             const newCategoryInput = `
-                 <div class="input-group mb-2">
-                     <input name="CategoryNames" class="form-control" placeholder="Tên thể loại..." />
-                     <button type="button" class="btn btn-danger remove-category">
-                         <i class="bi bi-dash"></i>
-                     </button>
-                 </div>`;
-             $("#categoryList").append(newCategoryInput);
-         });
+        // Category dynamic fields
+        $("#categoryList").on("click", ".add-category", function () {
+            const newCategoryInput = `
+                <div class="input-group mb-2">
+                    <input name="CategoryNames" class="form-control" placeholder="Tên thể loại..." />
+                    <button type="button" class="btn btn-danger remove-category">
+                        <i class="bi bi-dash"></i>
+                    </button>
+                </div>`;
+            $("#categoryList").append(newCategoryInput);
+        });
 
-         $("#categoryList").on("click", ".remove-category", function () {
-             $(this).closest(".input-group").remove();
-         });
-     });
+        $("#categoryList").on("click", ".remove-category", function () {
+            $(this).closest(".input-group").remove();
+        });
+    });
 </script>
-
-
